@@ -1,0 +1,1217 @@
+{
+ "n": 7027,
+ "total_distress": 271,
+ "cost_defaults": {
+  "cost_per_miss_lakh": 50,
+  "cost_per_review_lakh": 1
+ },
+ "source": "Polish Companies Bankruptcy (UCI 365), 1yr, 5-fold OOF, serving feature set",
+ "curve": [
+  {
+   "budget_pct": 0.0,
+   "reviewed": 0,
+   "caught_foresight": 0,
+   "caught_altman": 0
+  },
+  {
+   "budget_pct": 0.5,
+   "reviewed": 35,
+   "caught_foresight": 35,
+   "caught_altman": 11
+  },
+  {
+   "budget_pct": 1.0,
+   "reviewed": 70,
+   "caught_foresight": 70,
+   "caught_altman": 16
+  },
+  {
+   "budget_pct": 1.5,
+   "reviewed": 105,
+   "caught_foresight": 105,
+   "caught_altman": 22
+  },
+  {
+   "budget_pct": 2.0,
+   "reviewed": 141,
+   "caught_foresight": 138,
+   "caught_altman": 23
+  },
+  {
+   "budget_pct": 2.5,
+   "reviewed": 176,
+   "caught_foresight": 164,
+   "caught_altman": 27
+  },
+  {
+   "budget_pct": 3.0,
+   "reviewed": 211,
+   "caught_foresight": 176,
+   "caught_altman": 30
+  },
+  {
+   "budget_pct": 3.5,
+   "reviewed": 246,
+   "caught_foresight": 186,
+   "caught_altman": 32
+  },
+  {
+   "budget_pct": 4.0,
+   "reviewed": 281,
+   "caught_foresight": 192,
+   "caught_altman": 33
+  },
+  {
+   "budget_pct": 4.5,
+   "reviewed": 316,
+   "caught_foresight": 197,
+   "caught_altman": 38
+  },
+  {
+   "budget_pct": 5.0,
+   "reviewed": 351,
+   "caught_foresight": 204,
+   "caught_altman": 41
+  },
+  {
+   "budget_pct": 5.5,
+   "reviewed": 386,
+   "caught_foresight": 209,
+   "caught_altman": 41
+  },
+  {
+   "budget_pct": 6.0,
+   "reviewed": 422,
+   "caught_foresight": 213,
+   "caught_altman": 46
+  },
+  {
+   "budget_pct": 6.5,
+   "reviewed": 457,
+   "caught_foresight": 214,
+   "caught_altman": 50
+  },
+  {
+   "budget_pct": 7.0,
+   "reviewed": 492,
+   "caught_foresight": 216,
+   "caught_altman": 52
+  },
+  {
+   "budget_pct": 7.5,
+   "reviewed": 527,
+   "caught_foresight": 217,
+   "caught_altman": 53
+  },
+  {
+   "budget_pct": 8.0,
+   "reviewed": 562,
+   "caught_foresight": 220,
+   "caught_altman": 54
+  },
+  {
+   "budget_pct": 8.5,
+   "reviewed": 597,
+   "caught_foresight": 222,
+   "caught_altman": 55
+  },
+  {
+   "budget_pct": 9.0,
+   "reviewed": 632,
+   "caught_foresight": 225,
+   "caught_altman": 56
+  },
+  {
+   "budget_pct": 9.5,
+   "reviewed": 668,
+   "caught_foresight": 225,
+   "caught_altman": 61
+  },
+  {
+   "budget_pct": 10.0,
+   "reviewed": 703,
+   "caught_foresight": 227,
+   "caught_altman": 65
+  },
+  {
+   "budget_pct": 10.5,
+   "reviewed": 738,
+   "caught_foresight": 228,
+   "caught_altman": 69
+  },
+  {
+   "budget_pct": 11.0,
+   "reviewed": 773,
+   "caught_foresight": 229,
+   "caught_altman": 69
+  },
+  {
+   "budget_pct": 11.5,
+   "reviewed": 808,
+   "caught_foresight": 230,
+   "caught_altman": 73
+  },
+  {
+   "budget_pct": 12.0,
+   "reviewed": 843,
+   "caught_foresight": 231,
+   "caught_altman": 78
+  },
+  {
+   "budget_pct": 12.5,
+   "reviewed": 878,
+   "caught_foresight": 234,
+   "caught_altman": 81
+  },
+  {
+   "budget_pct": 13.0,
+   "reviewed": 914,
+   "caught_foresight": 235,
+   "caught_altman": 84
+  },
+  {
+   "budget_pct": 13.5,
+   "reviewed": 949,
+   "caught_foresight": 235,
+   "caught_altman": 86
+  },
+  {
+   "budget_pct": 14.0,
+   "reviewed": 984,
+   "caught_foresight": 235,
+   "caught_altman": 90
+  },
+  {
+   "budget_pct": 14.5,
+   "reviewed": 1019,
+   "caught_foresight": 236,
+   "caught_altman": 93
+  },
+  {
+   "budget_pct": 15.0,
+   "reviewed": 1054,
+   "caught_foresight": 236,
+   "caught_altman": 96
+  },
+  {
+   "budget_pct": 15.5,
+   "reviewed": 1089,
+   "caught_foresight": 236,
+   "caught_altman": 102
+  },
+  {
+   "budget_pct": 16.0,
+   "reviewed": 1124,
+   "caught_foresight": 236,
+   "caught_altman": 108
+  },
+  {
+   "budget_pct": 16.5,
+   "reviewed": 1159,
+   "caught_foresight": 238,
+   "caught_altman": 111
+  },
+  {
+   "budget_pct": 17.0,
+   "reviewed": 1195,
+   "caught_foresight": 239,
+   "caught_altman": 114
+  },
+  {
+   "budget_pct": 17.5,
+   "reviewed": 1230,
+   "caught_foresight": 239,
+   "caught_altman": 116
+  },
+  {
+   "budget_pct": 18.0,
+   "reviewed": 1265,
+   "caught_foresight": 243,
+   "caught_altman": 120
+  },
+  {
+   "budget_pct": 18.5,
+   "reviewed": 1300,
+   "caught_foresight": 243,
+   "caught_altman": 123
+  },
+  {
+   "budget_pct": 19.0,
+   "reviewed": 1335,
+   "caught_foresight": 243,
+   "caught_altman": 123
+  },
+  {
+   "budget_pct": 19.5,
+   "reviewed": 1370,
+   "caught_foresight": 244,
+   "caught_altman": 127
+  },
+  {
+   "budget_pct": 20.0,
+   "reviewed": 1405,
+   "caught_foresight": 244,
+   "caught_altman": 130
+  },
+  {
+   "budget_pct": 20.5,
+   "reviewed": 1441,
+   "caught_foresight": 245,
+   "caught_altman": 131
+  },
+  {
+   "budget_pct": 21.0,
+   "reviewed": 1476,
+   "caught_foresight": 245,
+   "caught_altman": 135
+  },
+  {
+   "budget_pct": 21.5,
+   "reviewed": 1511,
+   "caught_foresight": 245,
+   "caught_altman": 136
+  },
+  {
+   "budget_pct": 22.0,
+   "reviewed": 1546,
+   "caught_foresight": 245,
+   "caught_altman": 136
+  },
+  {
+   "budget_pct": 22.5,
+   "reviewed": 1581,
+   "caught_foresight": 246,
+   "caught_altman": 141
+  },
+  {
+   "budget_pct": 23.0,
+   "reviewed": 1616,
+   "caught_foresight": 247,
+   "caught_altman": 142
+  },
+  {
+   "budget_pct": 23.5,
+   "reviewed": 1651,
+   "caught_foresight": 248,
+   "caught_altman": 144
+  },
+  {
+   "budget_pct": 24.0,
+   "reviewed": 1686,
+   "caught_foresight": 248,
+   "caught_altman": 145
+  },
+  {
+   "budget_pct": 24.5,
+   "reviewed": 1722,
+   "caught_foresight": 248,
+   "caught_altman": 145
+  },
+  {
+   "budget_pct": 25.0,
+   "reviewed": 1757,
+   "caught_foresight": 249,
+   "caught_altman": 146
+  },
+  {
+   "budget_pct": 25.5,
+   "reviewed": 1792,
+   "caught_foresight": 251,
+   "caught_altman": 146
+  },
+  {
+   "budget_pct": 26.0,
+   "reviewed": 1827,
+   "caught_foresight": 253,
+   "caught_altman": 147
+  },
+  {
+   "budget_pct": 26.5,
+   "reviewed": 1862,
+   "caught_foresight": 253,
+   "caught_altman": 150
+  },
+  {
+   "budget_pct": 27.0,
+   "reviewed": 1897,
+   "caught_foresight": 253,
+   "caught_altman": 152
+  },
+  {
+   "budget_pct": 27.5,
+   "reviewed": 1932,
+   "caught_foresight": 253,
+   "caught_altman": 154
+  },
+  {
+   "budget_pct": 28.0,
+   "reviewed": 1968,
+   "caught_foresight": 253,
+   "caught_altman": 155
+  },
+  {
+   "budget_pct": 28.5,
+   "reviewed": 2003,
+   "caught_foresight": 253,
+   "caught_altman": 158
+  },
+  {
+   "budget_pct": 29.0,
+   "reviewed": 2038,
+   "caught_foresight": 253,
+   "caught_altman": 159
+  },
+  {
+   "budget_pct": 29.5,
+   "reviewed": 2073,
+   "caught_foresight": 253,
+   "caught_altman": 161
+  },
+  {
+   "budget_pct": 30.0,
+   "reviewed": 2108,
+   "caught_foresight": 253,
+   "caught_altman": 164
+  },
+  {
+   "budget_pct": 30.5,
+   "reviewed": 2143,
+   "caught_foresight": 254,
+   "caught_altman": 166
+  },
+  {
+   "budget_pct": 31.0,
+   "reviewed": 2178,
+   "caught_foresight": 255,
+   "caught_altman": 168
+  },
+  {
+   "budget_pct": 31.5,
+   "reviewed": 2214,
+   "caught_foresight": 255,
+   "caught_altman": 168
+  },
+  {
+   "budget_pct": 32.0,
+   "reviewed": 2249,
+   "caught_foresight": 256,
+   "caught_altman": 169
+  },
+  {
+   "budget_pct": 32.5,
+   "reviewed": 2284,
+   "caught_foresight": 257,
+   "caught_altman": 169
+  },
+  {
+   "budget_pct": 33.0,
+   "reviewed": 2319,
+   "caught_foresight": 258,
+   "caught_altman": 171
+  },
+  {
+   "budget_pct": 33.5,
+   "reviewed": 2354,
+   "caught_foresight": 258,
+   "caught_altman": 171
+  },
+  {
+   "budget_pct": 34.0,
+   "reviewed": 2389,
+   "caught_foresight": 258,
+   "caught_altman": 173
+  },
+  {
+   "budget_pct": 34.5,
+   "reviewed": 2424,
+   "caught_foresight": 258,
+   "caught_altman": 174
+  },
+  {
+   "budget_pct": 35.0,
+   "reviewed": 2459,
+   "caught_foresight": 258,
+   "caught_altman": 174
+  },
+  {
+   "budget_pct": 35.5,
+   "reviewed": 2495,
+   "caught_foresight": 258,
+   "caught_altman": 175
+  },
+  {
+   "budget_pct": 36.0,
+   "reviewed": 2530,
+   "caught_foresight": 258,
+   "caught_altman": 177
+  },
+  {
+   "budget_pct": 36.5,
+   "reviewed": 2565,
+   "caught_foresight": 258,
+   "caught_altman": 178
+  },
+  {
+   "budget_pct": 37.0,
+   "reviewed": 2600,
+   "caught_foresight": 259,
+   "caught_altman": 179
+  },
+  {
+   "budget_pct": 37.5,
+   "reviewed": 2635,
+   "caught_foresight": 259,
+   "caught_altman": 182
+  },
+  {
+   "budget_pct": 38.0,
+   "reviewed": 2670,
+   "caught_foresight": 260,
+   "caught_altman": 183
+  },
+  {
+   "budget_pct": 38.5,
+   "reviewed": 2705,
+   "caught_foresight": 262,
+   "caught_altman": 183
+  },
+  {
+   "budget_pct": 39.0,
+   "reviewed": 2741,
+   "caught_foresight": 263,
+   "caught_altman": 184
+  },
+  {
+   "budget_pct": 39.5,
+   "reviewed": 2776,
+   "caught_foresight": 263,
+   "caught_altman": 185
+  },
+  {
+   "budget_pct": 40.0,
+   "reviewed": 2811,
+   "caught_foresight": 263,
+   "caught_altman": 187
+  },
+  {
+   "budget_pct": 40.5,
+   "reviewed": 2846,
+   "caught_foresight": 263,
+   "caught_altman": 188
+  },
+  {
+   "budget_pct": 41.0,
+   "reviewed": 2881,
+   "caught_foresight": 263,
+   "caught_altman": 189
+  },
+  {
+   "budget_pct": 41.5,
+   "reviewed": 2916,
+   "caught_foresight": 263,
+   "caught_altman": 189
+  },
+  {
+   "budget_pct": 42.0,
+   "reviewed": 2951,
+   "caught_foresight": 263,
+   "caught_altman": 191
+  },
+  {
+   "budget_pct": 42.5,
+   "reviewed": 2986,
+   "caught_foresight": 264,
+   "caught_altman": 194
+  },
+  {
+   "budget_pct": 43.0,
+   "reviewed": 3022,
+   "caught_foresight": 264,
+   "caught_altman": 194
+  },
+  {
+   "budget_pct": 43.5,
+   "reviewed": 3057,
+   "caught_foresight": 264,
+   "caught_altman": 196
+  },
+  {
+   "budget_pct": 44.0,
+   "reviewed": 3092,
+   "caught_foresight": 264,
+   "caught_altman": 198
+  },
+  {
+   "budget_pct": 44.5,
+   "reviewed": 3127,
+   "caught_foresight": 264,
+   "caught_altman": 200
+  },
+  {
+   "budget_pct": 45.0,
+   "reviewed": 3162,
+   "caught_foresight": 264,
+   "caught_altman": 200
+  },
+  {
+   "budget_pct": 45.5,
+   "reviewed": 3197,
+   "caught_foresight": 264,
+   "caught_altman": 201
+  },
+  {
+   "budget_pct": 46.0,
+   "reviewed": 3232,
+   "caught_foresight": 264,
+   "caught_altman": 201
+  },
+  {
+   "budget_pct": 46.5,
+   "reviewed": 3268,
+   "caught_foresight": 264,
+   "caught_altman": 202
+  },
+  {
+   "budget_pct": 47.0,
+   "reviewed": 3303,
+   "caught_foresight": 264,
+   "caught_altman": 203
+  },
+  {
+   "budget_pct": 47.5,
+   "reviewed": 3338,
+   "caught_foresight": 264,
+   "caught_altman": 206
+  },
+  {
+   "budget_pct": 48.0,
+   "reviewed": 3373,
+   "caught_foresight": 264,
+   "caught_altman": 207
+  },
+  {
+   "budget_pct": 48.5,
+   "reviewed": 3408,
+   "caught_foresight": 264,
+   "caught_altman": 207
+  },
+  {
+   "budget_pct": 49.0,
+   "reviewed": 3443,
+   "caught_foresight": 264,
+   "caught_altman": 207
+  },
+  {
+   "budget_pct": 49.5,
+   "reviewed": 3478,
+   "caught_foresight": 264,
+   "caught_altman": 207
+  },
+  {
+   "budget_pct": 50.0,
+   "reviewed": 3514,
+   "caught_foresight": 264,
+   "caught_altman": 208
+  },
+  {
+   "budget_pct": 50.5,
+   "reviewed": 3549,
+   "caught_foresight": 264,
+   "caught_altman": 209
+  },
+  {
+   "budget_pct": 51.0,
+   "reviewed": 3584,
+   "caught_foresight": 264,
+   "caught_altman": 210
+  },
+  {
+   "budget_pct": 51.5,
+   "reviewed": 3619,
+   "caught_foresight": 264,
+   "caught_altman": 210
+  },
+  {
+   "budget_pct": 52.0,
+   "reviewed": 3654,
+   "caught_foresight": 265,
+   "caught_altman": 211
+  },
+  {
+   "budget_pct": 52.5,
+   "reviewed": 3689,
+   "caught_foresight": 265,
+   "caught_altman": 211
+  },
+  {
+   "budget_pct": 53.0,
+   "reviewed": 3724,
+   "caught_foresight": 265,
+   "caught_altman": 212
+  },
+  {
+   "budget_pct": 53.5,
+   "reviewed": 3759,
+   "caught_foresight": 265,
+   "caught_altman": 212
+  },
+  {
+   "budget_pct": 54.0,
+   "reviewed": 3795,
+   "caught_foresight": 265,
+   "caught_altman": 213
+  },
+  {
+   "budget_pct": 54.5,
+   "reviewed": 3830,
+   "caught_foresight": 265,
+   "caught_altman": 213
+  },
+  {
+   "budget_pct": 55.0,
+   "reviewed": 3865,
+   "caught_foresight": 265,
+   "caught_altman": 213
+  },
+  {
+   "budget_pct": 55.5,
+   "reviewed": 3900,
+   "caught_foresight": 265,
+   "caught_altman": 214
+  },
+  {
+   "budget_pct": 56.0,
+   "reviewed": 3935,
+   "caught_foresight": 265,
+   "caught_altman": 215
+  },
+  {
+   "budget_pct": 56.5,
+   "reviewed": 3970,
+   "caught_foresight": 265,
+   "caught_altman": 215
+  },
+  {
+   "budget_pct": 57.0,
+   "reviewed": 4005,
+   "caught_foresight": 265,
+   "caught_altman": 215
+  },
+  {
+   "budget_pct": 57.5,
+   "reviewed": 4041,
+   "caught_foresight": 265,
+   "caught_altman": 215
+  },
+  {
+   "budget_pct": 58.0,
+   "reviewed": 4076,
+   "caught_foresight": 265,
+   "caught_altman": 216
+  },
+  {
+   "budget_pct": 58.5,
+   "reviewed": 4111,
+   "caught_foresight": 266,
+   "caught_altman": 216
+  },
+  {
+   "budget_pct": 59.0,
+   "reviewed": 4146,
+   "caught_foresight": 266,
+   "caught_altman": 216
+  },
+  {
+   "budget_pct": 59.5,
+   "reviewed": 4181,
+   "caught_foresight": 266,
+   "caught_altman": 218
+  },
+  {
+   "budget_pct": 60.0,
+   "reviewed": 4216,
+   "caught_foresight": 266,
+   "caught_altman": 219
+  },
+  {
+   "budget_pct": 60.5,
+   "reviewed": 4251,
+   "caught_foresight": 267,
+   "caught_altman": 220
+  },
+  {
+   "budget_pct": 61.0,
+   "reviewed": 4286,
+   "caught_foresight": 267,
+   "caught_altman": 222
+  },
+  {
+   "budget_pct": 61.5,
+   "reviewed": 4322,
+   "caught_foresight": 268,
+   "caught_altman": 222
+  },
+  {
+   "budget_pct": 62.0,
+   "reviewed": 4357,
+   "caught_foresight": 268,
+   "caught_altman": 222
+  },
+  {
+   "budget_pct": 62.5,
+   "reviewed": 4392,
+   "caught_foresight": 268,
+   "caught_altman": 224
+  },
+  {
+   "budget_pct": 63.0,
+   "reviewed": 4427,
+   "caught_foresight": 268,
+   "caught_altman": 224
+  },
+  {
+   "budget_pct": 63.5,
+   "reviewed": 4462,
+   "caught_foresight": 268,
+   "caught_altman": 225
+  },
+  {
+   "budget_pct": 64.0,
+   "reviewed": 4497,
+   "caught_foresight": 268,
+   "caught_altman": 225
+  },
+  {
+   "budget_pct": 64.5,
+   "reviewed": 4532,
+   "caught_foresight": 268,
+   "caught_altman": 226
+  },
+  {
+   "budget_pct": 65.0,
+   "reviewed": 4568,
+   "caught_foresight": 268,
+   "caught_altman": 226
+  },
+  {
+   "budget_pct": 65.5,
+   "reviewed": 4603,
+   "caught_foresight": 268,
+   "caught_altman": 227
+  },
+  {
+   "budget_pct": 66.0,
+   "reviewed": 4638,
+   "caught_foresight": 268,
+   "caught_altman": 227
+  },
+  {
+   "budget_pct": 66.5,
+   "reviewed": 4673,
+   "caught_foresight": 268,
+   "caught_altman": 228
+  },
+  {
+   "budget_pct": 67.0,
+   "reviewed": 4708,
+   "caught_foresight": 268,
+   "caught_altman": 229
+  },
+  {
+   "budget_pct": 67.5,
+   "reviewed": 4743,
+   "caught_foresight": 268,
+   "caught_altman": 230
+  },
+  {
+   "budget_pct": 68.0,
+   "reviewed": 4778,
+   "caught_foresight": 268,
+   "caught_altman": 230
+  },
+  {
+   "budget_pct": 68.5,
+   "reviewed": 4813,
+   "caught_foresight": 268,
+   "caught_altman": 231
+  },
+  {
+   "budget_pct": 69.0,
+   "reviewed": 4849,
+   "caught_foresight": 268,
+   "caught_altman": 231
+  },
+  {
+   "budget_pct": 69.5,
+   "reviewed": 4884,
+   "caught_foresight": 269,
+   "caught_altman": 231
+  },
+  {
+   "budget_pct": 70.0,
+   "reviewed": 4919,
+   "caught_foresight": 269,
+   "caught_altman": 231
+  },
+  {
+   "budget_pct": 70.5,
+   "reviewed": 4954,
+   "caught_foresight": 269,
+   "caught_altman": 231
+  },
+  {
+   "budget_pct": 71.0,
+   "reviewed": 4989,
+   "caught_foresight": 269,
+   "caught_altman": 231
+  },
+  {
+   "budget_pct": 71.5,
+   "reviewed": 5024,
+   "caught_foresight": 269,
+   "caught_altman": 231
+  },
+  {
+   "budget_pct": 72.0,
+   "reviewed": 5059,
+   "caught_foresight": 270,
+   "caught_altman": 232
+  },
+  {
+   "budget_pct": 72.5,
+   "reviewed": 5095,
+   "caught_foresight": 270,
+   "caught_altman": 233
+  },
+  {
+   "budget_pct": 73.0,
+   "reviewed": 5130,
+   "caught_foresight": 270,
+   "caught_altman": 234
+  },
+  {
+   "budget_pct": 73.5,
+   "reviewed": 5165,
+   "caught_foresight": 270,
+   "caught_altman": 235
+  },
+  {
+   "budget_pct": 74.0,
+   "reviewed": 5200,
+   "caught_foresight": 270,
+   "caught_altman": 236
+  },
+  {
+   "budget_pct": 74.5,
+   "reviewed": 5235,
+   "caught_foresight": 270,
+   "caught_altman": 237
+  },
+  {
+   "budget_pct": 75.0,
+   "reviewed": 5270,
+   "caught_foresight": 270,
+   "caught_altman": 237
+  },
+  {
+   "budget_pct": 75.5,
+   "reviewed": 5305,
+   "caught_foresight": 270,
+   "caught_altman": 237
+  },
+  {
+   "budget_pct": 76.0,
+   "reviewed": 5341,
+   "caught_foresight": 270,
+   "caught_altman": 239
+  },
+  {
+   "budget_pct": 76.5,
+   "reviewed": 5376,
+   "caught_foresight": 270,
+   "caught_altman": 240
+  },
+  {
+   "budget_pct": 77.0,
+   "reviewed": 5411,
+   "caught_foresight": 270,
+   "caught_altman": 243
+  },
+  {
+   "budget_pct": 77.5,
+   "reviewed": 5446,
+   "caught_foresight": 270,
+   "caught_altman": 245
+  },
+  {
+   "budget_pct": 78.0,
+   "reviewed": 5481,
+   "caught_foresight": 270,
+   "caught_altman": 245
+  },
+  {
+   "budget_pct": 78.5,
+   "reviewed": 5516,
+   "caught_foresight": 270,
+   "caught_altman": 245
+  },
+  {
+   "budget_pct": 79.0,
+   "reviewed": 5551,
+   "caught_foresight": 270,
+   "caught_altman": 247
+  },
+  {
+   "budget_pct": 79.5,
+   "reviewed": 5586,
+   "caught_foresight": 270,
+   "caught_altman": 247
+  },
+  {
+   "budget_pct": 80.0,
+   "reviewed": 5622,
+   "caught_foresight": 270,
+   "caught_altman": 247
+  },
+  {
+   "budget_pct": 80.5,
+   "reviewed": 5657,
+   "caught_foresight": 270,
+   "caught_altman": 248
+  },
+  {
+   "budget_pct": 81.0,
+   "reviewed": 5692,
+   "caught_foresight": 270,
+   "caught_altman": 249
+  },
+  {
+   "budget_pct": 81.5,
+   "reviewed": 5727,
+   "caught_foresight": 270,
+   "caught_altman": 251
+  },
+  {
+   "budget_pct": 82.0,
+   "reviewed": 5762,
+   "caught_foresight": 270,
+   "caught_altman": 251
+  },
+  {
+   "budget_pct": 82.5,
+   "reviewed": 5797,
+   "caught_foresight": 270,
+   "caught_altman": 251
+  },
+  {
+   "budget_pct": 83.0,
+   "reviewed": 5832,
+   "caught_foresight": 270,
+   "caught_altman": 252
+  },
+  {
+   "budget_pct": 83.5,
+   "reviewed": 5868,
+   "caught_foresight": 270,
+   "caught_altman": 252
+  },
+  {
+   "budget_pct": 84.0,
+   "reviewed": 5903,
+   "caught_foresight": 270,
+   "caught_altman": 252
+  },
+  {
+   "budget_pct": 84.5,
+   "reviewed": 5938,
+   "caught_foresight": 270,
+   "caught_altman": 252
+  },
+  {
+   "budget_pct": 85.0,
+   "reviewed": 5973,
+   "caught_foresight": 270,
+   "caught_altman": 252
+  },
+  {
+   "budget_pct": 85.5,
+   "reviewed": 6008,
+   "caught_foresight": 270,
+   "caught_altman": 252
+  },
+  {
+   "budget_pct": 86.0,
+   "reviewed": 6043,
+   "caught_foresight": 270,
+   "caught_altman": 255
+  },
+  {
+   "budget_pct": 86.5,
+   "reviewed": 6078,
+   "caught_foresight": 270,
+   "caught_altman": 255
+  },
+  {
+   "budget_pct": 87.0,
+   "reviewed": 6113,
+   "caught_foresight": 270,
+   "caught_altman": 255
+  },
+  {
+   "budget_pct": 87.5,
+   "reviewed": 6149,
+   "caught_foresight": 270,
+   "caught_altman": 256
+  },
+  {
+   "budget_pct": 88.0,
+   "reviewed": 6184,
+   "caught_foresight": 270,
+   "caught_altman": 256
+  },
+  {
+   "budget_pct": 88.5,
+   "reviewed": 6219,
+   "caught_foresight": 270,
+   "caught_altman": 256
+  },
+  {
+   "budget_pct": 89.0,
+   "reviewed": 6254,
+   "caught_foresight": 270,
+   "caught_altman": 256
+  },
+  {
+   "budget_pct": 89.5,
+   "reviewed": 6289,
+   "caught_foresight": 270,
+   "caught_altman": 256
+  },
+  {
+   "budget_pct": 90.0,
+   "reviewed": 6324,
+   "caught_foresight": 270,
+   "caught_altman": 256
+  },
+  {
+   "budget_pct": 90.5,
+   "reviewed": 6359,
+   "caught_foresight": 270,
+   "caught_altman": 256
+  },
+  {
+   "budget_pct": 91.0,
+   "reviewed": 6395,
+   "caught_foresight": 271,
+   "caught_altman": 256
+  },
+  {
+   "budget_pct": 91.5,
+   "reviewed": 6430,
+   "caught_foresight": 271,
+   "caught_altman": 257
+  },
+  {
+   "budget_pct": 92.0,
+   "reviewed": 6465,
+   "caught_foresight": 271,
+   "caught_altman": 259
+  },
+  {
+   "budget_pct": 92.5,
+   "reviewed": 6500,
+   "caught_foresight": 271,
+   "caught_altman": 260
+  },
+  {
+   "budget_pct": 93.0,
+   "reviewed": 6535,
+   "caught_foresight": 271,
+   "caught_altman": 260
+  },
+  {
+   "budget_pct": 93.5,
+   "reviewed": 6570,
+   "caught_foresight": 271,
+   "caught_altman": 260
+  },
+  {
+   "budget_pct": 94.0,
+   "reviewed": 6605,
+   "caught_foresight": 271,
+   "caught_altman": 261
+  },
+  {
+   "budget_pct": 94.5,
+   "reviewed": 6641,
+   "caught_foresight": 271,
+   "caught_altman": 261
+  },
+  {
+   "budget_pct": 95.0,
+   "reviewed": 6676,
+   "caught_foresight": 271,
+   "caught_altman": 263
+  },
+  {
+   "budget_pct": 95.5,
+   "reviewed": 6711,
+   "caught_foresight": 271,
+   "caught_altman": 264
+  },
+  {
+   "budget_pct": 96.0,
+   "reviewed": 6746,
+   "caught_foresight": 271,
+   "caught_altman": 264
+  },
+  {
+   "budget_pct": 96.5,
+   "reviewed": 6781,
+   "caught_foresight": 271,
+   "caught_altman": 265
+  },
+  {
+   "budget_pct": 97.0,
+   "reviewed": 6816,
+   "caught_foresight": 271,
+   "caught_altman": 267
+  },
+  {
+   "budget_pct": 97.5,
+   "reviewed": 6851,
+   "caught_foresight": 271,
+   "caught_altman": 267
+  },
+  {
+   "budget_pct": 98.0,
+   "reviewed": 6886,
+   "caught_foresight": 271,
+   "caught_altman": 267
+  },
+  {
+   "budget_pct": 98.5,
+   "reviewed": 6922,
+   "caught_foresight": 271,
+   "caught_altman": 267
+  },
+  {
+   "budget_pct": 99.0,
+   "reviewed": 6957,
+   "caught_foresight": 271,
+   "caught_altman": 268
+  },
+  {
+   "budget_pct": 99.5,
+   "reviewed": 6992,
+   "caught_foresight": 271,
+   "caught_altman": 270
+  },
+  {
+   "budget_pct": 100.0,
+   "reviewed": 7027,
+   "caught_foresight": 271,
+   "caught_altman": 271
+  }
+ ]
+}

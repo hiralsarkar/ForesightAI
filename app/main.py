@@ -318,6 +318,70 @@ def render_case_study() -> None:
             'that confirmed them.</div>', unsafe_allow_html=True)
 
 
+# ==================================================================== Review Economics
+def render_economics() -> None:
+    with panel():
+        section_title("Review Economics - the cost-optimal policy")
+        st.markdown('<div class="fa-headline">Put a price on a miss and a review; the model '
+                    'tells you how deep to look.</div>', unsafe_allow_html=True)
+        c1, c2 = st.columns(2)
+        miss = c1.slider("Cost of a missed distress (Rs lakh)", 10, 500, 50, 10, key="ec_miss")
+        rev = c2.slider("Cost of one review (Rs lakh)", 1, 20, 1, 1, key="ec_rev")
+
+        e = svc.economics(float(miss), float(rev))
+        of, oa = e["opt_foresight"], e["opt_altman"]
+        pos = e["total_distress"]
+        saved = oa["cost_cr"] - of["cost_cr"]
+        pct_saved = saved / oa["cost_cr"] * 100 if oa["cost_cr"] else 0
+
+        def stat(lbl, val, color=theme.TEXT):
+            return (f'<div><span style="color:{theme.TEXT_DIM};font-size:0.72rem;'
+                    f'text-transform:uppercase;letter-spacing:0.05em">{lbl}</span><br>'
+                    f'<span style="font-size:1.5rem;font-weight:700;color:{color}">{val}</span></div>')
+
+        st.markdown(
+            f'<div style="display:flex;gap:34px;flex-wrap:wrap;margin-top:14px;align-items:flex-end">'
+            + stat("Recommended review", f'{of["budget_pct"]:.0f}%', theme.ACCENT)
+            + stat("Firms", f'{of["reviewed"]:,}')
+            + stat("Distress caught", f'{of["catch_rate"]*100:.0f}%')
+            + stat("Expected cost", f'Rs {of["cost_cr"]:.1f} cr')
+            + stat("vs Altman best", f'Rs {oa["cost_cr"]:.1f} cr', theme.TEXT_DIM)
+            + stat("Saving", f'Rs {saved:.1f} cr ({pct_saved:.0f}%)', theme.GOOD)
+            + '</div>', unsafe_allow_html=True)
+
+    with panel():
+        section_title("Expected cost by review budget")
+        fx = [r["budget_pct"] for r in e["foresight"]]
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=fx, y=[r["cost_cr"] for r in e["foresight"]],
+                                 mode="lines", name="Foresight AI",
+                                 line=dict(color=theme.ACCENT, width=3)))
+        fig.add_trace(go.Scatter(x=fx, y=[r["cost_cr"] for r in e["altman"]],
+                                 mode="lines", name="Altman Z'' screen",
+                                 line=dict(color=theme.TEXT_DIM, width=2, dash="dash")))
+        for opt, col in ((of, theme.ACCENT), (oa, theme.TEXT_DIM)):
+            fig.add_trace(go.Scatter(x=[opt["budget_pct"]], y=[opt["cost_cr"]], mode="markers",
+                                     marker=dict(color=col, size=13, line=dict(color="white", width=1)),
+                                     showlegend=False))
+        fig.add_annotation(x=of["budget_pct"], y=of["cost_cr"], text=f"optimal {of['budget_pct']:.0f}%",
+                           font=dict(color=theme.ACCENT, size=12), showarrow=True, arrowcolor=theme.ACCENT,
+                           ax=30, ay=-30)
+        fig.update_layout(height=360, margin=dict(l=10, r=10, t=10, b=10),
+                          paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                          font={"color": theme.TEXT},
+                          xaxis=dict(title="Review budget (% of portfolio)", gridcolor=theme.BORDER),
+                          yaxis=dict(title="Expected cost (Rs cr)", gridcolor=theme.BORDER),
+                          legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0))
+        st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
+        st.markdown(
+            f'<div class="fa-narrative">On the validation portfolio ({e["n"]:,} firms, {pos} in '
+            f'distress), ranking by risk and reviewing the cost-optimal {of["budget_pct"]:.0f}% catches '
+            f'{of["caught"]}/{pos} distress for Rs {of["cost_cr"]:.1f} cr. The Altman screen\'s best '
+            f'policy costs Rs {oa["cost_cr"]:.1f} cr and catches {oa["caught"]}/{pos}. Reviewing nothing '
+            f'costs Rs {e["review_nothing_cr"]:.1f} cr in undetected exposures; reviewing everything '
+            f'costs Rs {e["review_everything_cr"]:.1f} cr in analyst time.</div>', unsafe_allow_html=True)
+
+
 # ===================================================================== header + tabs
 left, right = st.columns([3, 2])
 with left:
@@ -330,13 +394,16 @@ with right:
 
 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-tab_company, tab_portfolio, tab_case = st.tabs(["Company Analysis", "Portfolio Monitor", "Case Study"])
+tab_company, tab_portfolio, tab_case, tab_econ = st.tabs(
+    ["Company Analysis", "Portfolio Monitor", "Case Study", "Review Economics"])
 with tab_company:
     render_company(company)
 with tab_portfolio:
     render_portfolio()
 with tab_case:
     render_case_study()
+with tab_econ:
+    render_economics()
 
 st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.72rem;text-align:center;margin-top:8px">'
             'Foresight AI Analytics Engine &middot; A supplementary analytics tool, not a substitute '

@@ -231,3 +231,58 @@ def stress(name: str, op_shock_pct: float = 0.0, leverage_pct: float = 0.0,
     sc = Scenario(interest_bps=interest_bps, inflation_pp=inflation_pp, gdp_pp=gdp_pp,
                   op_shock_pct=op_shock_pct, leverage_pct=leverage_pct)
     return run(rec, _SECTOR.get(name, ""), sc, prior=prior)
+
+
+# --------------------------------------------------------------- review economics (M10)
+@st.cache_resource(show_spinner=False)
+def _economics_artifact() -> dict:
+    """The precomputed catch curve, from validation OOF (models/review_economics.json).
+
+    Baked at build time so the app never loads the Polish training data at runtime; the
+    curve is fixed, and every cost scenario is cheap arithmetic on top of it.
+    """
+    import json
+    from pathlib import Path
+
+    p = Path(__file__).resolve().parents[1] / "models" / "review_economics.json"
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+@st.cache_data(show_spinner=False)
+def economics(cost_per_miss_lakh: float, cost_per_review_lakh: float) -> dict:
+    """Cost of every review budget, and the cost-minimising policy, for both screens.
+
+    Ranking firms by risk and reviewing the top K, expected cost is
+    `cost_per_miss * (distress still un-reviewed) + cost_per_review * K`. Returns the full
+    curve plus the argmin for Foresight and for the Altman screen, so the tab can render
+    the tradeoff live as the user moves the two cost sliders.
+    """
+    art = _economics_artifact()
+    n, pos = art["n"], art["total_distress"]
+    cm, cr = cost_per_miss_lakh * 1e5, cost_per_review_lakh * 1e5
+
+    def series(caught_key: str) -> list[dict]:
+        out = []
+        for row in art["curve"]:
+            caught, reviewed = row[caught_key], row["reviewed"]
+            out.append({
+                "budget_pct": row["budget_pct"],
+                "reviewed": reviewed,
+                "caught": caught,
+                "catch_rate": caught / pos if pos else 0.0,
+                "precision": caught / reviewed if reviewed else 0.0,
+                "cost_cr": (cm * (pos - caught) + cr * reviewed) / 1e7,
+            })
+        return out
+
+    fore, alt = series("caught_foresight"), series("caught_altman")
+    return {
+        "n": n,
+        "total_distress": pos,
+        "foresight": fore,
+        "altman": alt,
+        "opt_foresight": min(fore, key=lambda r: r["cost_cr"]),
+        "opt_altman": min(alt, key=lambda r: r["cost_cr"]),
+        "review_everything_cr": cr * n / 1e7,
+        "review_nothing_cr": cm * pos / 1e7,
+    }
