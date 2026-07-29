@@ -9,15 +9,16 @@ financial statements *and* digital signals.
 The platform answers one question: **should you change your decision today because this
 company's risk profile is changing?**
 
+[![Live demo](https://img.shields.io/badge/live%20demo-open%20app-FF4B4B?logo=streamlit&logoColor=white)](https://foresightai.streamlit.app)
 [![Evaluation notebook](https://img.shields.io/badge/evaluation-notebook-F59E0B?logo=jupyter&logoColor=white)](notebooks/01_model_evaluation.ipynb)
 [![Pitch deck](https://img.shields.io/badge/pitch-deck%20(6%20slides)-0A1628)](deck/ForesightAI.pdf)
-[![Dashboard](https://img.shields.io/badge/dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](app/main.py)
 [![Tests](https://img.shields.io/badge/tests-136%20passing-22C55E)](tests/)
 
-**Explore:** the executed [evaluation notebook](notebooks/01_model_evaluation.ipynb) (every
-number reproduced from `src/`, with the Altman benchmark, review-budget curve and
-cost-optimal policy), the 6-slide [pitch deck](deck/ForesightAI.pdf), and the
-[Streamlit dashboard](app/main.py).
+**Explore:** the [live dashboard](https://foresightai.streamlit.app) (four tabs, including
+the cost-optimal Review Economics), the executed
+[evaluation notebook](notebooks/01_model_evaluation.ipynb) (every number reproduced from
+`src/`, with the Altman benchmark, review-budget curve and cost-optimal policy), and the
+6-slide [pitch deck](deck/ForesightAI.pdf).
 
 ---
 
@@ -153,11 +154,12 @@ logged for audit.
 .venv/Scripts/python.exe -m streamlit run app/main.py --server.fileWatcherType none
 ```
 
-Then open http://localhost:8501. The `--server.fileWatcherType none` flag is required - the
-watcher otherwise tries to introspect every `transformers` vision module. First load
-downloads FinBERT (~440MB) once.
+Then open http://localhost:8501. The app runs on cached FinBERT scores
+(`data/demo/sentiment_cache.json`), so it starts instantly with no model download; the
+`--server.fileWatcherType none` flag just stops the watcher introspecting installed
+`transformers` modules.
 
-Three views:
+Four views:
 
 - **Company Analysis** - the combined risk gauge, financial ratio cards with the Altman Z''
   anchor, the four Digital Pulse signals, the exact Altman term-by-term decomposition
@@ -169,6 +171,24 @@ Three views:
   annual financial data point: the C-suite exits, the January 2026 CFO resignation, the 5%
   workforce cut and the collapsing retail registrations were all observable *before* the
   filing that confirmed them.
+- **Review Economics** - put a rupee price on a missed distress and on a review, and the
+  cost-optimal review budget is computed live: at Rs 50 lakh / Rs 1 lakh it recommends
+  reviewing the top 18%, catching 90% of distress for Rs 26.6 cr versus the Altman screen's
+  best at Rs 65.7 cr.
+
+### Deploy the live demo (Streamlit Community Cloud)
+
+The app is deploy-ready: it needs no GPU, no API key (narratives and sentiment are cached),
+and no training data at runtime. To publish it at `https://foresightai.streamlit.app`:
+
+1. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
+2. **New app** -> repo `hiralsarkar/ForesightAI`, branch `main`, file `app/main.py`.
+3. Set the app URL to `foresightai` and click **Deploy**.
+
+`requirements.txt` excludes torch/transformers (the app replays cached FinBERT scores), so
+the build is small and boots fast. To regenerate the cache after editing headlines, install
+`requirements-finbert.txt` and run `python -c "from src.signals.sentiment import
+prewarm_sentiment_cache as p; p()"`.
 
 The AI analyst summary runs live via OpenRouter with a deterministic rule-based fallback,
 and is **pre-cached** to `data/demo/narrative_cache.json` so the demo produces real AI
