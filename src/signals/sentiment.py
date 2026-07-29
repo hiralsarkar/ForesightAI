@@ -20,8 +20,10 @@ months.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from datetime import date, timedelta
+from pathlib import Path
 from typing import Protocol, runtime_checkable
 
 from .base import SignalKind, SignalReading, clamp_score
@@ -104,16 +106,64 @@ class FinBertScorer:
         return float(scores.get("positive", 0.0) - scores.get("negative", 0.0))
 
 
-def default_scorer(prefer_finbert: bool = True) -> SentimentScorer:
-    """Best available scorer: FinBERT if torch+transformers are present, else L-M.
+class CachedScorer:
+    """Replays FinBERT's polarity from a JSON cache: {headline text: score}.
 
-    Validated (docs/phase2_findings.md §7): FinBERT and the lexicon agree on sign, but
-    the lexicon scores 5 of Jet's 10 distress headlines *neutral* ("defers loan
-    repayment", "lessors move to deregister") because they contain no lexicon words,
-    while FinBERT reads them negative from context. FinBERT earns the dependency; the
-    lexicon is the never-breaks fallback.
+    Lets the deployed app reproduce FinBERT's exact numbers with no torch/transformers
+    installed, the same pre-cache-for-offline pattern the narratives use. A cache miss
+    (a headline not seen at build time) falls back to the lexicon, so a new headline
+    never crashes the app.
+    """
+
+    name = "FinBERT (cached)"
+
+    def __init__(self, table: dict, fallback: "SentimentScorer | None" = None) -> None:
+        self._table = table
+        self._fallback = fallback or LoughranMcDonaldScorer()
+
+    def score(self, text: str) -> float:
+        v = self._table.get(text)
+        return float(v) if v is not None else self._fallback.score(text)
+
+
+_SENTIMENT_CACHE = Path(__file__).resolve().parents[2] / "data" / "demo" / "sentiment_cache.json"
+
+
+def load_sentiment_cache() -> dict | None:
+    """The precomputed FinBERT scores, or None if absent."""
+    try:
+        return json.loads(_SENTIMENT_CACHE.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def prewarm_sentiment_cache() -> Path:
+    """Score every demo headline with FinBERT and persist the table (needs torch)."""
+    from . import demo_signals as d
+
+    fb = FinBertScorer()
+    table: dict[str, float] = {}
+    for company in d._DATA.values():
+        for h in company.get("headlines", []):
+            table[h.text] = round(fb.score(h.text), 6)
+    _SENTIMENT_CACHE.parent.mkdir(parents=True, exist_ok=True)
+    _SENTIMENT_CACHE.write_text(json.dumps(table, indent=1), encoding="utf-8")
+    return _SENTIMENT_CACHE
+
+
+def default_scorer(prefer_finbert: bool = True) -> SentimentScorer:
+    """Best available scorer, resolved cache -> FinBERT -> lexicon.
+
+    Validated (docs/phase2_findings.md): FinBERT and the lexicon agree on sign, but the
+    lexicon reads several distress headlines *neutral* ("defers loan repayment") because
+    they contain no lexicon words, while FinBERT reads them negative from context. So the
+    deployed app serves FinBERT's exact scores from the cache (no torch needed); locally,
+    live FinBERT is used if the cache is absent; the lexicon is the never-breaks fallback.
     """
     if prefer_finbert:
+        cache = load_sentiment_cache()
+        if cache:
+            return CachedScorer(cache)
         try:
             import importlib.util
 
