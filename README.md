@@ -9,6 +9,16 @@ financial statements *and* digital signals.
 The platform answers one question: **should you change your decision today because this
 company's risk profile is changing?**
 
+[![Evaluation notebook](https://img.shields.io/badge/evaluation-notebook-F59E0B?logo=jupyter&logoColor=white)](notebooks/01_model_evaluation.ipynb)
+[![Pitch deck](https://img.shields.io/badge/pitch-deck%20(6%20slides)-0A1628)](deck/ForesightAI.pdf)
+[![Dashboard](https://img.shields.io/badge/dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](app/main.py)
+[![Tests](https://img.shields.io/badge/tests-136%20passing-22C55E)](tests/)
+
+**Explore:** the executed [evaluation notebook](notebooks/01_model_evaluation.ipynb) (every
+number reproduced from `src/`, with the Altman benchmark, review-budget curve and
+cost-optimal policy), the 6-slide [pitch deck](deck/ForesightAI.pdf), and the
+[Streamlit dashboard](app/main.py).
+
 ---
 
 ## The problem
