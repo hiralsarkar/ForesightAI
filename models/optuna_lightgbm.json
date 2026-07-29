@@ -1,0 +1,25 @@
+{
+  "model_name": "lightgbm",
+  "n_trials": 50,
+  "best_params": {
+    "n_estimators": 800,
+    "learning_rate": 0.0614490177807117,
+    "num_leaves": 67,
+    "max_depth": 8,
+    "min_child_samples": 45,
+    "subsample": 0.999611871230013,
+    "subsample_freq": 1,
+    "colsample_bytree": 0.8633501674784362,
+    "reg_alpha": 0.032228517554590316,
+    "reg_lambda": 0.06536290565762534
+  },
+  "best_cv_pr_auc": 0.75421,
+  "baseline_test_pr_auc": 0.80934,
+  "tuned_test_pr_auc": 0.82436,
+  "baseline_test_roc_auc": 0.96305,
+  "tuned_test_roc_auc": 0.96983,
+  "n_train": 5621,
+  "n_test": 1406,
+  "test_improvement": 0.01502,
+  "helped": true
+}

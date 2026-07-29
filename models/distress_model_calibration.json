@@ -1,0 +1,11 @@
+{
+  "method": "sigmoid",
+  "brier_raw": 0.01287,
+  "brier_calibrated": 0.01316,
+  "pr_auc_raw": 0.80934,
+  "pr_auc_calibrated": 0.82775,
+  "roc_auc_raw": 0.96305,
+  "roc_auc_calibrated": 0.97518,
+  "n_holdout": 1406,
+  "brier_improvement": -0.00029
+}
