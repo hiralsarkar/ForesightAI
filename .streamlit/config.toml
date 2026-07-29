@@ -1,0 +1,13 @@
+# Foresight AI - dark navy / amber, matching the in-app visual system.
+[theme]
+base = "dark"
+primaryColor = "#F59E0B"
+backgroundColor = "#0A1628"
+secondaryBackgroundColor = "#0F1E33"
+textColor = "#FFFFFF"
+
+[server]
+# The app never introspects vision models (FinBERT runs from the cached scores), but the
+# watcher stays off for parity with local runs and a faster cold start.
+fileWatcherType = "none"
+headless = true

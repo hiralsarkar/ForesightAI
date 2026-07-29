@@ -1,0 +1,4 @@
+# Only needed to regenerate data/demo/sentiment_cache.json (prewarm_sentiment_cache).
+# The app itself runs on the committed cache and does not need these.
+torch==2.13.0
+transformers==5.14.1
