@@ -123,36 +123,6 @@ Each call was made against a measurement:
 
 Full rationale, including the cross-domain test in detail, is in [`docs/`](docs/).
 
-## Run it locally
-
-```
-python -m venv .venv
-.venv/Scripts/python.exe -m pip install -r requirements.txt
-.venv/Scripts/python.exe -m streamlit run app/main.py --server.fileWatcherType none
-```
-
-Open <http://localhost:8501>. The app runs on cached FinBERT scores
-(`data/demo/sentiment_cache.json`), so it starts instantly with no model download.
-
-## Deploy your own live demo
-
-No GPU, no API key, no training data at runtime - `requirements.txt` excludes
-torch/transformers because the app replays cached FinBERT scores.
-
-1. [share.streamlit.io](https://share.streamlit.io) -> sign in with GitHub.
-2. **New app** -> repo `hiralsarkar/ForesightAI`, branch `main`, file `app/main.py`.
-3. Name it `foresightai` and **Deploy**.
-
-## Deliverables
-
-| Item | Location |
-|---|---|
-| Live dashboard | [foresightai.streamlit.app](https://foresightai.streamlit.app) |
-| Pitch deck (6 slides) | `deck/ForesightAI.pdf` |
-| Evaluation notebook (executed) | `notebooks/01_model_evaluation.ipynb` |
-| Executive report (per company, PDF) | Download button on the Company tab |
-| Findings and full rationale | `docs/` |
-
 ## Repository layout
 
 ```
