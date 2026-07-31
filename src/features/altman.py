@@ -27,10 +27,9 @@ Component mapping to the dataset (exact, no proxies needed):
     X4 book value of equity / total liabilities  Attr8
     X5 sales / total assets                      Attr9   (Z' only)
 
-If a judge asks which Z we used, the answer is: "Z-double-prime, the private-firm
-variant, because these are unlisted companies with no market value of equity. We use
-its published 1.1 and 2.6 cutoffs rather than the original 1.81 and 2.99, which only
-apply to the market-value formulation."
+We use Z-double-prime, the private-firm variant, because these are unlisted companies
+with no market value of equity. Its published 1.1 and 2.6 cutoffs replace the original
+1.81 and 2.99, which only apply to the market-value formulation.
 """
 
 from __future__ import annotations
@@ -176,7 +175,7 @@ def benchmark_vs_truth(df: pd.DataFrame, variant: Variant = "z2", target: str = 
     """How well does the classical Z alone separate the real bankruptcies?
 
     This is the number the ML model has to beat. Showing it explicitly is the point of
-    Module 1's "show both" requirement -- judges can see what the ML adds over the
+    Module 1's "show both" requirement -- the panel shows what the ML adds over the
     textbook benchmark.
     """
     z = altman_z(df, variant)

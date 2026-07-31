@@ -34,7 +34,7 @@ It covers, in order:
 1. Why **accuracy is the wrong metric** on this problem
 2. The distress model's **cross-validated performance**
 3. How it **beats the Altman benchmark** on its home turf
-4. An honest **ablation**: why we dropped SMOTE
+4. An **ablation**: why we dropped SMOTE
 5. The **cross-domain finding** that reshaped the architecture - and how we resolved it
 6. The **live scores** for six current Indian companies
 7. **Explainability** in business language
@@ -75,7 +75,7 @@ md(r"""
 
 Gradient-boosted model (LightGBM), stratified 5-fold CV, leak-safe pipeline. We report the
 **serving-parity feature set**: the ratios computable for a real company from public
-filings (raw plus derived), the same set the shipping model uses, so this is the honest,
+filings (raw plus derived), the same set the shipping model uses, so this is the
 deployable number.
 """)
 
@@ -254,7 +254,7 @@ ax.legend(); plt.tight_layout(); plt.show()
 """)
 
 md(r"""
-## 4. An honest ablation - why SMOTE was dropped
+## 4. An ablation - why SMOTE was dropped
 
 The blueprint specified SMOTE + class weighting. We tested it as a 2x2 rather than
 assuming. **SMOTE consistently hurt**, even without class weighting: interpolating

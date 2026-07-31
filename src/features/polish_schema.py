@@ -5,7 +5,7 @@ This module is the keystone for two core requirements:
   * the design notes (train/serve feature parity) -- the model trains on Polish `Attr1..Attr64`
     but must score Indian companies rebuilt from Screener.in financials. `serving`
     records whether each attribute is reproducible on that path.
-  * core requirement (plain-English SHAP labels) -- `label` is what a judge sees on
+  * core requirement (plain-English SHAP labels) -- `label` is what the user sees on
     a waterfall chart. Never surface `Attr14` in the UI.
 
 The `.arff` headers carry no definitions (verified: they are bare `@attribute AttrN
@@ -59,7 +59,7 @@ class Serving(str, Enum):
 class Attribute:
     id: str  # "Attr1"
     formula: str  # definition as published by UCI
-    label: str  # business English, shown to judges
+    label: str  # business English, shown in the UI
     category: Category
     serving: Serving
 
@@ -181,7 +181,7 @@ ATTRIBUTES: tuple[Attribute, ...] = (
 
 BY_ID: dict[str, Attribute] = {a.id: a for a in ATTRIBUTES}
 
-#: SHAP/plot rename map. Use everywhere a feature name reaches a chart or a judge.
+#: SHAP/plot rename map. Use everywhere a feature name reaches a chart or the UI.
 LABELS: dict[str, str] = {a.id: a.label for a in ATTRIBUTES}
 
 #: Attribute 55 is an absolute currency amount, not a ratio. It does not transfer
@@ -196,7 +196,7 @@ def label_for(attr_id: str) -> str:
 
 
 def rename_for_display(names) -> list[str]:
-    """Map a sequence of feature ids to judge-safe labels (for SHAP plots)."""
+    """Map a sequence of feature ids to display labels (for SHAP plots)."""
     return [label_for(n) for n in names]
 
 
@@ -297,7 +297,7 @@ DIRECTIONS: dict[str, Direction] = {
 #: Metrics exposed to the user as sliders, cards, or what-if inputs.
 #:
 #: Monotonicity is fundamentally a **UI guarantee**, not a global modelling goal: it
-#: matters for a metric precisely when a judge can move it and watch the score respond.
+#: matters for a metric precisely when a user can move it and watch the score respond.
 #: Constraining only these ten costs 0.023 PR-AUC; constraining all 45 directional
 #: attributes costs 0.10 for no additional demo safety. Scope the constraint to the
 #: surface the user can actually touch.

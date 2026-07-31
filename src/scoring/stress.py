@@ -1,6 +1,6 @@
 """Module 5 - Macroeconomic Stress Testing.
 
-Maps macro shocks to a company's Altman-anchored risk score through explicit, defensible
+Maps macro shocks to a company's Altman-anchored risk score through explicit
 economic channels. Three macro levers (the ones the problem statement names) plus two
 company-specific levers. USD/INR and sector credit spread are deliberately excluded:
 USD/INR helps exporters and hurts importers, so a single slider would move IT firms the
@@ -18,7 +18,7 @@ wrong way; credit spread just duplicates the interest-rate channel.
   sector-specific incremental margin drops to operating profit.
 
 **Sector elasticities are explicit and rationale'd** - a single global number is
-indefensible (an airline, a commodity producer and an IT firm have wildly different
+wrong (an airline, a commodity producer and an IT firm have wildly different
 pricing power and operating leverage). Defaults are conservative.
 
 Everything is a linear recompute, so the panel updates instantly (<2s trivially).

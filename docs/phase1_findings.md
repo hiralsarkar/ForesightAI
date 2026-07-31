@@ -83,7 +83,7 @@ The only excluded attribute is `Attr55` (**absolute** working capital). It is
 predictive but currency-denominated, so it cannot transfer PLN -> INR. We accept a
 ~0.04 PR-AUC cost to keep a model that can actually score Indian companies.
 
-*Defensible answer:* "We deliberately gave up four points of PR-AUC by dropping
+*Answer:* "We deliberately gave up four points of PR-AUC by dropping
 absolute working capital, because it is a currency quantity that does not transfer
 across economies. We preferred a model that can score the companies we ship."
 
@@ -126,7 +126,7 @@ generated between real distressed firms in a space where that midpoint is not a
 plausible balance sheet, so the boundary blurs. Gradient boosters also already handle
 skew natively, so SMOTE adds distortion without adding information.
 
-**Defensible judge answer (stronger than the scripted one):**
+**Answer (stronger than the scripted one):**
 > "We tested imbalance handling as a full 2x2 rather than assuming. SMOTE cost us
 > 12-14 points of PR-AUC across two model families and three horizons, even without
 > class weighting - synthetic interpolation in a 63-dimensional ratio space with 39%
@@ -200,7 +200,7 @@ showed the unconstrained model violated economic direction constantly:
 | Net Profit Margin | 12.5% | 0.0% |
 | Debt to Assets | 10.5% | 0.0% |
 
-Improving interest coverage *raised* the risk score on 83% of steps. Any judge moving
+Improving interest coverage *raised* the risk score on 83% of steps. Anyone moving
 that slider would very likely have seen risk go the wrong way.
 
 **Fix: `monotone_constraints`, scoped to user-facing metrics.** Scope matters - this is
@@ -218,7 +218,7 @@ size, growth) are deliberately left free - a wrong constraint encodes false econ
 and cannot be spotted by looking at the score.
 
 **Residual, measured rather than assumed.** Three metrics show a nonzero violation
-*rate*, so the honest claim is "≈0", not "0". What matters is magnitude:
+*rate*, so the precise claim is "≈0", not "0". What matters is magnitude:
 
 | Metric | Violation rate | Max wrong move (score points) |
 |---|---|---|
@@ -253,7 +253,7 @@ a single ratio rarely dominates. The blueprint's demo beat ("81 → 91 under rat
 will need the macro scenario to shift **several** correlated inputs at once, not one
 slider. Plan the stress model accordingly.
 
-## 6e. Optuna tuning - 50 trials, and an honest null result
+## 6e. Optuna tuning - 50 trials, a null result
 
 **Protocol.** A stratified 20% test split is carved off first and Optuna never sees it.
 The search optimises 5-fold CV PR-AUC on the training portion; improvement is measured
@@ -274,12 +274,12 @@ guarantee.
 | **5-fold CV (full data)** | **0.7798** | **0.7813** | **+0.0015** |
 
 The held-out number looks like a win; the cross-validated number shows it is not. A
-+0.0015 gain sits well inside the ±0.025 fold standard deviation. **The honest reading
++0.0015 gain sits well inside the ±0.025 fold standard deviation. **The reading
 is that the hand-set hyperparameters were already near-optimal** and 50 trials of TPE
 search could not beat them by more than noise.
 
 Tuned params are marginally more *stable* (±0.0246 vs ±0.0282), which is the only
-defensible reason to prefer them.
+reason to prefer them.
 
 **The valuable output was not better hyperparameters - it was a latent bug.**
 Parameter importance came back dominated by one term:
@@ -306,7 +306,7 @@ The first two rows are identical, which proves the no-op. Critically, **"fixing"
 dead parameter would have cost 0.016 PR-AUC.** Bagging genuinely hurts here: at a 3.9%
 base rate, row subsampling drops distressed companies out of individual trees.
 
-*Defensible answer:* "We ran 50 Optuna trials on a training split with the test set held
+*Answer:* "We ran 50 Optuna trials on a training split with the test set held
 out. Tuning bought us 0.0015 PR-AUC, inside fold noise - our hand-set parameters were
 already near-optimal. What the search did surface was that our subsample parameter was
 a silent no-op, and that activating it would have cost us 1.6 points, because bagging

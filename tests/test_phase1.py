@@ -25,8 +25,8 @@ def test_schema_is_complete_and_contiguous():
     assert len(ps.ATTRIBUTES) == 64
 
 
-def test_every_attribute_has_a_judge_safe_label():
-    """core requirement: no cryptic variable names on a judge-visible chart."""
+def test_every_attribute_has_a_display_label():
+    """core requirement: no cryptic variable names on a user-visible chart."""
     for a in ps.ATTRIBUTES:
         assert a.label != a.id, f"{a.id} has no business label"
         assert not a.label.lower().startswith("attr")
@@ -162,7 +162,7 @@ def test_horizon_shape_matches_uci_documentation(df1):
 
 
 def test_majority_baseline_justifies_banning_accuracy(df1):
-    """The number quoted when a judge asks about class imbalance."""
+    """The reference number for the class-imbalance question."""
     assert class_balance(df1)["majority_baseline_accuracy"] > 0.96
 
 

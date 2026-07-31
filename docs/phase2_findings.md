@@ -84,14 +84,14 @@ negative-WC name could dip into grey, so watch this if the roster changes.
 - **The GBM + SHAP + calibration + Optuna work** is the Polish-domain proof that the
   method beats the benchmark, and the demonstration of explainability methodology.
 
-### The honest judge answer
+### The answer
 
 > "We built and validated a gradient-boosted distress model on the Polish corpus, where
 > it beats the Altman benchmark 0.71 to 0.15. Applying it cross-border to Indian
 > companies, we found the learned boundary under-flags out-of-distribution extremes -
 > tree models clamp rather than extrapolate, and missingness means different things in
 > the two domains. So for cross-border scoring we anchor on Altman Z'', which is robust
-> by construction, and use it as the live engine. That is the intellectually honest way
+> by construction, and use it as the live engine. That is the sound way
 > to deploy a model trained in one domain and applied in another."
 
 ## 6. Real point-in-time data curated so far
@@ -108,7 +108,7 @@ Four signals, each on the same 0-100 risk scale and band language as the financi
 so Module 3 fusion is a later weighted average. Every reading carries a **specific
 explanatory datum**, not a restated metric.
 
-### Signal priority (by defensibility)
+### Signal priority (by evidence strength)
 
 1. **Leadership Stability (anchor).** Dated public filings - a resignation happened on its
    date or it did not, so **zero selection-bias risk**. Weighted by seniority (auditor/CFO
@@ -125,7 +125,7 @@ The one place rigor is hardest to hold: curating a distressed company's signals 
 it collapsed* manufactures a perfect signal. Guard: leadership events are dated filings
 (no freedom); the headline rule is outcome-blind ("major-outlet coverage that month, take
 what's there, don't filter by tone"); we lean on trend. An imperfectly-separating signal
-is the honest result.
+is the result.
 
 ### Digital gate (fallback scorer) - PASSES
 
@@ -135,16 +135,16 @@ is the honest result.
 | Jet Airways (Mar 2019) | 76.7 | Critical | Goyal-family board exits (verified), hiring −85%, reviews falling |
 | Future Retail (Feb 2020) | 36.6 | Watch | leverage + hiring stress; no verified board exits yet |
 
-### Provenance honesty (corrected after a rigor review)
+### Provenance (corrected after review)
 
 An initial version overclaimed two things; both are now fixed, because "tests pass" is
-not "survives a judge asking *is this real, and how did you pick it?*":
+not "survives the question *is this real, and how did you pick it?*":
 
 1. **Future Retail is NOT a divergence showcase.** An earlier cut placed CFO/director
    resignations at Feb 2020 - but Future Retail's real board exodus was **2022**, during
    the Reliance-deal collapse. Those events were placeholders (`"CFO"`, `"board member"`),
    and they were what pushed FR's digital score to a fake "Elevated 53" diverging from its
-   Watch financials. Removed. FR's honest digital score is **36.6 (Watch)** - matching its
+   Watch financials. Removed. FR's digital score is **36.6 (Watch)** - matching its
    financial Watch (44). Distress building on both fronts, no manufactured divergence.
 2. **Headlines are illustrative, not "outcome-blind collected."** They were authored
    knowing the outcomes; the docstring principle didn't make the process bias-free.
@@ -155,9 +155,9 @@ not "survives a judge asking *is this real, and how did you pick it?*":
 climbs toward Critical across 2018 → Mar 2019, ahead of the April 2019 grounding, anchored
 on the verified Goyal exit. Jet does not show a financial/digital *divergence* (both read
 Critical) - its value is the **lead time** of the digital deterioration, which is the
-honest version of the thesis.
+version of the thesis.
 
-**Outstanding for judge-readiness:** verify the two unverified Jet independent-director
+**Outstanding:** verify the two unverified Jet independent-director
 resignations against actual BSE filings (or drop them); the financial scores and the
 Goyal-anchored leadership signal are already solid.
 

@@ -1,6 +1,6 @@
 """SHAP explainability with business-language labels (Module 4).
 
-core requirement: no cryptic variable names on any chart a judge will see. `Attr27`
+core requirement: no cryptic variable names on any chart the user will see. `Attr27`
 means nothing; "Interest Coverage Ratio" means everything. Every public function here
 returns labelled output, and `polish_schema.LABELS` is the single mapping.
 
@@ -13,9 +13,8 @@ Two implementation notes that matter:
 
 * **SHAP explains the ranking model, the score comes from the calibrated one.** These
   differ by a monotonic transform (the sigmoid calibrator), so contribution *directions*
-  and relative magnitudes stay valid, which is what the waterfall communicates. We surface
-  that rather than hide it, and do not claim the SHAP bars sum exactly to the number on the
-  gauge.
+  and relative magnitudes stay valid, which is what the waterfall communicates. The SHAP
+  bars do not sum exactly to the number on the gauge, and the code does not claim they do.
 
 * **We explain the whole ensemble, not one fold.** `CalibratedClassifierCV(cv=5)` fits five
   pipelines and averages them, so the ranking behaviour behind the score is the *mean* of
@@ -182,7 +181,7 @@ def contributions_frame(
     row: int = 0,
     top_n: int = 10,
 ) -> pd.DataFrame:
-    """Judge-safe table: business labels only, raw ids dropped."""
+    """Display table: business labels only, raw ids dropped."""
     rows = contributions(estimator, X, features, row=row, top_n=top_n)
     return pd.DataFrame(
         [
@@ -384,7 +383,7 @@ def monotonicity_violations(
     """Sweep one metric and confirm the score moves the economically correct way.
 
     **This is the demo-safety check.** Any metric exposed as a slider must come back
-    with `is_visible == False`, or a judge can move that control and watch risk fall as
+    with `is_visible == False`, or a user can move that control and watch risk fall as
     the metric worsens. Unconstrained, interest coverage failed on 82.9% of steps.
     """
     from ..features.polish_schema import Direction, direction_for

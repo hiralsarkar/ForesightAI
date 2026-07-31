@@ -1,6 +1,6 @@
 """Leadership Stability signal from BSE-style corporate filings (Module 2 anchor).
 
-This is the most defensible of the four signals and the one the blueprint prizes as
+This is the hardest-evidence of the four signals and the one the blueprint prizes as
 uniquely India-specific: every board-level change, KMP resignation, and auditor change
 must be filed with the exchange, dated and public. There is **no selection-bias risk** --
 a resignation happened on its filing date or it did not. That makes this the anchor the
@@ -76,8 +76,8 @@ class LeadershipEvent:
     person: str
     event_type: EventType
     #: True only for events confirmed against a real, dated public filing. The anchor's
-    #: whole defensibility ("a resignation happened on its date or it did not") depends
-    #: on this being honest -- an unverified stand-in must not be presented as a filing.
+    #: whole value ("a resignation happened on its date or it did not") depends
+    #: on this being real -- an unverified stand-in must not be presented as a filing.
     verified: bool = True
 
     @property

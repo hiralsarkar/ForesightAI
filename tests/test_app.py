@@ -142,6 +142,6 @@ def test_rate_shock_leaves_ebit_terms_untouched_hits_equity():
 
 def test_sector_elasticities_differ_it_vs_airline():
     """IT has pricing power (low inflation hit); an airline does not. The model must
-    reflect that, or the sector story is indefensible."""
+    reflect that, or the sector story breaks."""
     from src.scoring.stress import sector_profile
     assert sector_profile("IT Services").inflation_beta < sector_profile("Airline").inflation_beta

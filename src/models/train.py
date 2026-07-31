@@ -11,7 +11,7 @@ interpolates synthetic minority points in a 63-dimensional ratio space with extr
 outliers and up to 39% missingness, producing balance sheets that do not exist.
 `use_smote` remains a parameter so the ablation stays reproducible on demand.
 
-Two details here are the ones a data-scientist judge will probe, so they are enforced
+Two details are enforced
 in code rather than left to discipline:
 
 1. **SMOTE runs inside the CV fold, never before the split.** Oversampling before
@@ -21,7 +21,7 @@ in code rather than left to discipline:
 
 2. **SMOTE is never applied to the validation fold.** imblearn Pipelines skip
    resamplers at transform/predict time by design, so validation keeps the true 3.9%
-   distress rate and the reported PR-AUC is honest.
+   distress rate and the reported PR-AUC is real.
 
 The headline metric is **average precision (PR-AUC)**, because at a 3.9% base rate
 ROC-AUC flatters a model badly. Both are reported; PR-AUC is the one that decides.

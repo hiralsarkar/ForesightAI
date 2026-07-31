@@ -7,7 +7,7 @@ plain weighted average later.
 **Scope boundary:** this module stops at the digital composite. It does NOT combine with
 the financial score -- that is Module 3, a later phase. Building it here would be drift.
 
-Weights reflect defensibility, per the Phase 2 signal-priority decision: leadership
+Weights reflect signal reliability, per the Phase 2 signal-priority decision: leadership
 (dated public filings, no selection-bias risk) and news sentiment carry the signal;
 hiring and employee reviews are soft and illustrative, so they inform but do not drive.
 Missing signals are dropped and the remaining weights renormalised, so a company with no

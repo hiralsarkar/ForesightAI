@@ -3,7 +3,7 @@
 Page 1  identity, combined risk score, key financial metrics, market signals, narrative.
 Page 2  Altman decomposition, recommendations by audience, disclaimer.
 
-Two deliberate departures from the blueprint's page-2 spec, both honesty-driven:
+Two deliberate departures from the blueprint's page-2 spec, both evidence-driven:
 
 * It asks for a SHAP waterfall. Our *serving* explanation is the exact Altman Z'' 4-term
   decomposition (the GBM does not drive the displayed score), so that is what we print.

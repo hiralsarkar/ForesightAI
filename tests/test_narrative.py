@@ -1,6 +1,6 @@
 """M6 (narrative) and M7 (recommendations) guardrails.
 
-The load-bearing properties: the narrative never breaks without an API key and varies in
+The load-bearing properties: the narrative keeps working without an API key and varies in
 *substance* across companies; the recommendations never give wrong advice to a healthy
 company (the FMCG negative-working-capital and payables-are-not-debt traps).
 """
@@ -33,7 +33,7 @@ def _parts(name):
 
 # ------------------------------------------------------------------ M6 narrative
 def test_narrative_works_without_an_api_key():
-    """The demo must never break on a missing key or a timeout."""
+    """The demo keeps working on a missing key or a timeout."""
     _, _, fin, dig, comb = _parts("SpiceJet")
     text, source = generate(comb, fin, dig, use_llm=False)
     assert source == "rule-based"

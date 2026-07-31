@@ -3,7 +3,7 @@
 Three views (tabs):
   * Company Analysis -- the demo spine: combined gauge (M3), financial cards (M1),
     digital pulse (M2), Altman waterfall (M4), stress test (M5).
-  * Portfolio Monitor (M8) -- surveillance table across the roster. The defensible hero
+  * Portfolio Monitor (M8) -- surveillance table across the roster. The hero
     visual: verified financials, clean red-to-green contrast.
   * Case Study -- Digital Pulse over the last year for a company under active stress,
     against its annual financial score.

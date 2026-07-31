@@ -123,7 +123,7 @@ def test_composite_bands_match_financial_scale():
 
 # ---------------------------------------------------------------- the digital gate
 def test_default_scorer_is_always_available():
-    """With or without torch, there must be a working scorer -- the demo never breaks."""
+    """With or without torch, there must be a working scorer, so the demo keeps running."""
     from src.signals.sentiment import default_scorer
 
     s = default_scorer()
@@ -149,7 +149,7 @@ def test_finbert_agrees_with_lexicon_on_sign_but_adds_nuance():
     assert fb.score(missed) < -0.1  # FinBERT reads the context
 
 
-# ------------------------------------------------- verified data & coverage honesty
+# ------------------------------------------------- verified data & coverage
 def test_every_reading_has_a_specific_datum():
     """No gauge may show a bare metric -- the datum is required and must be non-trivial."""
     for co in ("TCS", "Ola Electric", "Vedanta"):

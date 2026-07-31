@@ -73,7 +73,7 @@ def reliability_table(
 ) -> pd.DataFrame:
     """Predicted vs observed distress rate per probability bin.
 
-    This is the evidence that the gauge is honest. `gap` near zero across bins means a
+    This is the evidence that the gauge is calibrated. `gap` near zero across bins means a
     displayed score of 80 corresponds to a real 80% distress rate. Quantile bins are
     used rather than uniform ones because at a 3.9% base rate almost every prediction
     lands in the lowest uniform bin.

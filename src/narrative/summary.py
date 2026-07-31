@@ -8,7 +8,7 @@ One paragraph, four sentences, in a credit analyst's voice. Two paths behind one
   arithmetic.
 * **Deterministic fallback** (always available). Built from the same structured facts, so
   a missing API key or a timeout degrades the prose, never the correctness. By design:
-  "the demo must never break".
+  "the demo keeps working".
 
 The fallback is written to vary in *substance*, not just in company name: which sentence
 is chosen depends on the band, which Altman term dominates, and what the digital signals
@@ -114,7 +114,7 @@ def _prompt(f: NarrativeFacts) -> str:
 
 def _llm(f: NarrativeFacts, timeout: float = 15.0) -> Optional[str]:
     """Try the LLM via OpenRouter (OpenAI-compatible). Any failure returns None so the
-    caller falls back silently -- the demo never breaks on an API problem.
+    caller falls back silently -- an API problem never degrades the output.
 
     The prompt carries only pre-computed numbers and the system prompt forbids the model
     from calculating anything, so a weaker free model cannot invent a financial figure.
