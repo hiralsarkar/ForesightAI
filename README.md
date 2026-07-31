@@ -75,20 +75,49 @@ AI-written analyst summary.
 
 **The right engine for each job.** We built a machine-learning distress model *and* the
 linear Altman engine, then tested both on real, named bankruptcies. The ML model wins
-decisively in controlled tests (the 11x above), but on live balance sheets with values
-outside its training range, gradient-boosted trees clamp instead of extrapolating: it scored
-bankrupt Jet Airways at the 59th percentile, one rank above pristine Infosys. Altman, being
-linear, extrapolates cleanly and separated the same companies with no edge cases:
+decisively in controlled tests (the 11x above). But gradient-boosted trees clamp at the edge
+of their training range instead of extrapolating, so on live Indian balance sheets - values
+outside anything in the Polish data - they lose separation:
 
-| Company | Reality | Altman Z'' |
+| Company | Reality | ML model, percentile |
 |---|---|---|
-| TCS | healthy | +10.96 |
-| HUL | healthy | +4.13 |
-| Jet Airways | bankrupt | **-17.25** |
+| TCS FY19 | healthy | 2% |
+| Infosys FY19 | healthy | 47% |
+| **Jet Airways FY19** | **bankrupt** | **59%** |
+| RCom FY18 | distress | 93% |
+
+Bankrupt Jet lands one rank above pristine Infosys - too weak to act on. Altman, being
+linear, extrapolates instead of clamping and separates the same companies with no edge case:
+
+| Company | Reality | Altman Z'' | Zone |
+|---|---|---|---|
+| TCS FY19 | healthy | +10.96 | Safe |
+| HUL FY19 | healthy | +4.13 | Safe |
+| Nestle FY19 | healthy | +3.22 | Safe |
+| **Jet Airways FY19** | **bankrupt** | **-17.25** | Distress |
 
 So the product **serves with Altman**, and keeps the ML model as the benchmark that proves
-the method beats the textbook screen 11x over. Shipping the engine that works on the data in
-front of you, not the one with the prettier lab score, is the whole point.
+the method beats the textbook screen 11x over. The exploration did more than pick a tool: it
+mapped exactly where a tree model's assumptions break on out-of-distribution data, and
+shipped the one that holds on a live balance sheet.
+
+## What it scores today
+
+The live dashboard scores six current Indian companies, worst risk first. **Combined** fuses
+the Altman financial score with the four Digital Pulse signals (news, leadership, hiring,
+employee sentiment); scores run 0-100, higher = higher risk.
+
+| Company | Sector | Financial | Digital | Combined | Band |
+|---|---|---|---|---|---|
+| SpiceJet | Airline | 99 | 65 | **86** | Critical |
+| Ola Electric | Electric Vehicles | 90 | 74 | **83** | Critical |
+| Vodafone Idea | Telecom | 87 | 41 | **68** | Elevated Risk |
+| Vedanta | Metals & Mining | 48 | 16 | **36** | Watch |
+| TCS | IT Services | 1 | 43 | **18** | Healthy |
+| Paytm | Fintech | 10 | 13 | **11** | Healthy |
+
+TCS shows the fusion earning its keep: pristine financials (1) but a digital leg at 43 from
+workforce signals - the gap you only catch by reading both legs, not one.
 
 ## The proof
 
