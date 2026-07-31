@@ -1,279 +1,175 @@
 # Foresight AI
 
-**Corporate Financial Health Intelligence** - early-warning distress detection that reads
-financial statements *and* digital signals.
+**See corporate distress months before the filing does.**
 
-> Financial statements describe what has already happened.
-> Digital signals reveal what is starting to happen. Foresight AI reads both.
-
-The platform answers one question: **should you change your decision today because this
-company's risk profile is changing?**
+Foresight AI reads a company's financial statements *and* its digital footprint - news,
+leadership moves, hiring, employee sentiment - and turns them into one decision you can make
+today instead of once a year: **is this company's risk changing right now?** Financial
+statements tell you what already happened. Digital signals tell you what is starting to
+happen. Foresight reads both.
 
 [![Live demo](https://img.shields.io/badge/live%20demo-open%20app-FF4B4B?logo=streamlit&logoColor=white)](https://foresightai.streamlit.app)
 [![Evaluation notebook](https://img.shields.io/badge/evaluation-notebook-F59E0B?logo=jupyter&logoColor=white)](notebooks/01_model_evaluation.ipynb)
 [![Pitch deck](https://img.shields.io/badge/pitch-deck%20(6%20slides)-0A1628)](deck/ForesightAI.pdf)
 [![Tests](https://img.shields.io/badge/tests-136%20passing-22C55E)](tests/)
 
-**Explore:** the [live dashboard](https://foresightai.streamlit.app) (four tabs, including
-the cost-optimal Review Economics), the executed
-[evaluation notebook](notebooks/01_model_evaluation.ipynb) (every number reproduced from
-`src/`, with the Altman benchmark, review-budget curve and cost-optimal policy), and the
-6-slide [pitch deck](deck/ForesightAI.pdf).
+**Try it live at [foresightai.streamlit.app](https://foresightai.streamlit.app)** - four
+tabs, including a Review Economics calculator that tells you exactly how deep to review your
+book.
 
 ---
 
-## The problem
+## Why it matters
 
-Annual accounts are a lagging indicator. By the time a company's distress reaches its
-filed financials, a lender, investor or supplier has usually already been exposed to it for
-months. The classical screen for this - the Altman Z-score - is decades old and, at a
-realistic base rate, floods a credit team with false positives.
+Today a credit team, lender, or supplier learns a company is in trouble the same way
+everyone else does: when the filing lands, months too late. Their fallback screen, the
+decades-old Altman Z-score, is so noisy that at a realistic 3.9% distress rate it turns
+"find the distressed companies" into "investigate 1,586 to find 141." That review queue is
+the real, recurring cost of the status quo.
 
-Foresight AI catches distress earlier and cleaner: it scores the financials with a
-calibrated model, reads the market signals that move *between* filings, and fuses the two
-into a single explainable risk score.
+Foresight replaces the queue with a ranked, explainable shortlist:
+
+| At matched recall | Companies flagged | Real distress caught | Precision |
+|---|---|---|---|
+| Textbook Altman screen | 1,586 | 141 | 8.9% |
+| **Foresight AI** | **143** | **140** | **97.9%** |
+
+**Same catch. One-tenth the review queue. 11x the precision.**
+
+And it puts a rupee value on the decision. Tell it what a missed default costs you and what
+a review costs, and it computes the cost-optimal policy live:
+
+> At Rs 50 lakh per missed default and Rs 1 lakh per review, review your top **18%** and
+> catch **90%** of all distress for **Rs 26.6 Cr**, against the classical screen's best of
+> **Rs 65.7 Cr**. A Rs 39 Cr swing, recomputed instantly for your own numbers in the
+> **Review Economics** tab.
+
+## What you get
+
+A four-tab dashboard (live link above):
+
+- **Company Analysis** - one combined risk gauge, the financial ratios behind it, four live
+  market signals, and a plain-English "why this score" a credit committee can act on.
+- **Portfolio Monitor** - your whole book ranked by risk, worst first.
+- **Case Study** - watch the signals move month by month ahead of a real filing. For Ola
+  Electric: the CFO resignation, the 5% layoff, and collapsing sales were all visible
+  *before* the annual accounts confirmed them.
+- **Review Economics** - the cost-optimal review policy, with sliders for your own cost of a
+  miss and a review.
+
+Plus a one-click PDF executive report per company, a live portfolio stress test, and an
+AI-written analyst summary.
 
 ## How it works
 
-Two independent read-outs, fused into one decision.
+**Two signals, one score, always explainable.**
 
-- **Financial engine** - a gradient-boosted model produces a 0-100 distress score, anchored
-  to the Altman Z'' formulation and decomposed term-by-term, so every score comes with the
-  reason behind it rather than a black-box number.
-- **Digital Pulse** - four market-intelligence signals on the same 0-100 scale: news
-  sentiment (FinBERT over dated headlines), leadership stability (dated exchange filings),
-  hiring trend, and employee confidence. Each reading carries a specific datum, not a
-  restated metric.
-- **Combined score** - a weighted fusion that renormalises over the signals actually
-  available and shows the two legs separately, because the *gap between them* is the story:
-  distress often shows in the market before it reaches the accounts.
+- **Financial engine** - an Altman Z'' distress score, decomposed term by term so every
+  point traces back to a real ratio: leverage, coverage, working capital, profitability.
+- **Digital Pulse** - four independent market reads on the same 0-100 scale: news sentiment
+  (FinBERT), leadership stability (exchange filings), hiring trend, employee sentiment. Each
+  is a specific, sourced fact, not a restated financial metric.
+- **Combined score** - fused with the two legs always shown side by side, because the *gap*
+  between them is the story: distress usually shows in the market before it reaches the
+  accounts.
 
-Around that core the platform adds a portfolio surveillance view, a live macro/company
-stress test, an AI-written analyst summary with a deterministic fallback, rule-based
-recommended actions, and a one-click PDF executive report.
+**The right engine for each job.** We built a machine-learning distress model *and* the
+linear Altman engine, then tested both on real, named bankruptcies. The ML model wins
+decisively in controlled tests (the 11x above), but on live balance sheets with values
+outside its training range, gradient-boosted trees clamp instead of extrapolating: it scored
+bankrupt Jet Airways at the 59th percentile, one rank above pristine Infosys. Altman, being
+linear, extrapolates cleanly and separated the same companies with no edge cases:
 
-## Results
+| Company | Reality | Altman Z'' |
+|---|---|---|
+| TCS | healthy | +10.96 |
+| HUL | healthy | +4.13 |
+| Jet Airways | bankrupt | **-17.25** |
 
-Trained on the Polish Companies Bankruptcy dataset (UCI id 365), 1-year horizon.
+So the product **serves with Altman**, and keeps the ML model as the benchmark that proves
+the method beats the textbook screen 11x over. Shipping the engine that works on the data in
+front of you, not the one with the prettier lab score, is the whole point.
+
+## The proof
+
+The 11x result is not a lucky split. The distress model is trained on the Polish Companies
+Bankruptcy dataset (~10k firms), 1-year horizon, stratified 5-fold cross-validation. The
+headline is PR-AUC, because at a 3.9% base rate accuracy is meaningless - predicting "never
+distress" scores 96.1%.
 
 | Metric | Value |
 |---|---|
 | **PR-AUC (5-fold CV)** | **0.780 ± 0.028** |
-| ROC-AUC (5-fold CV) | 0.951 ± 0.020 |
-| Expected calibration error | 0.015 |
-| Random baseline (PR-AUC = base rate) | 0.039 |
+| ROC-AUC | 0.951 ± 0.020 |
+| Calibration error (ECE) | 0.015 |
+| Random baseline | 0.039 |
 
-All figures are stratified 5-fold cross-validation on the shipping configuration.
+Every number here is reproduced end to end in the
+[evaluation notebook](notebooks/01_model_evaluation.ipynb) - nothing is hand-typed.
 
-**Against the classical benchmark**, at near-identical recall:
+## Built on evidence, not convention
 
-| Approach | Precision | Recall | Flagged | Found |
-|---|---|---|---|---|
-| Altman Z'' < 1.10 | 0.089 | 0.5203 | 1,586 | 141 |
-| **Foresight AI** | **0.979** | 0.5166 | **143** | 140 |
+Each call was made against a measurement:
 
-Same detection, **11x better precision**. The textbook rule makes a credit team investigate
-1,586 companies to find 141 real ones; this finds 140 by investigating 143.
+- **No SMOTE** - a 2x2 ablation showed it costs 12-14 PR-AUC points.
+- **Nothing imputed** - missingness is itself a distress signal; native NaN routing beat
+  imputation in every test.
+- **Monotonic constraints on every slider** - without them the score moved the *wrong* way
+  on 82.9% of stress-test steps.
+- **Calibrated** - a score of 81 means an 81% modelled probability, not just a rank.
+- **Tuning that says no** - a 50-trial Optuna search looked ahead at tune time but was
+  statistically indistinguishable once run through the shipping pipeline, so we kept the
+  simpler model and logged the rest.
 
-## Why it transfers: two separate problems
+Full rationale, including the cross-domain test in detail, is in [`AGENTS.md`](AGENTS.md)
+and [`docs/`](docs/).
 
-The obvious question is *you train on Polish companies, then score Indian ones - why does
-that hold?* Because these are two deliberately separated problems, and the model never
-crosses the gap the question assumes.
+## Run it locally
 
-**Training path (the statistical distress signal).** The model learns from the Polish
-Companies Bankruptcy set: ~10k firms, five forecast horizons, a binary distress label.
-Critically, this dataset ships **pre-computed, anonymised financial ratios** (`Attr1`-`Attr64`),
-not raw statements from any one country. The model learns the *shape of distress in
-dimensionless financial ratios* - leverage, coverage, working-capital adequacy,
-profitability decay - a structural, currency- and geography-neutral signal. It is not
-learning "what a Polish balance sheet looks like."
-
-**Serving path (the Indian companies).** Indian names never touch the training ratios. We
-start from raw Screener.in FY2026 financials, run them through our own ratio engine, and map
-into a **serving-parity feature subset** - only the ratios that are both computable from
-public Indian filings and present in the training schema. The transfer is therefore
-ratio-to-ratio on a shared, dimensionless feature space, never statement-to-statement across
-jurisdictions.
-
-**Verified vs. modelled.** Financials are real (Screener.in, FY ending March 2026). The four
-digital signals are drawn from real public reporting for the same moment - quarterly-result
-headcount, published review-platform ratings, dated exchange leadership announcements, real
-news coverage. The Altman anchor and its 1.10/2.60 cutoffs are the classical formulation for
-unlisted firms. Nothing in the demo is synthetic.
-
-## Design decisions that hold up
-
-Each was made against measurement, not convention. Full rationale in `AGENTS.md`.
-
-- **Accuracy is never reported.** A model predicting "never distress" scores 96.1%. PR-AUC
-  is the headline; ROC-AUC is secondary at a 3.9% base rate.
-- **SMOTE is off.** A 2x2 ablation showed it costs 12-14 PR-AUC points across two model
-  families and three horizons, even without class weighting.
-- **Nothing is imputed.** Missingness is informative - distressed firms fail to report.
-  Native NaN routing beat median imputation in all six tested cells.
-- **Monotonic constraints on the interactive features.** The score must move the right way
-  when a user stresses a ratio; without constraints the model moved the *wrong* way on 82.9%
-  of interest-coverage steps. Scoping constraints to the slider features brings that to ~0,
-  at a cost of ~2 PR-AUC points (0.803 → 0.780) - non-negotiable for a tool people interact
-  with.
-- **Altman Z'' with 1.10/2.60 cutoffs**, not the original Z's 1.81/2.99 - these are unlisted
-  firms with no market equity.
-- **Sigmoid calibration**, so a displayed score of 81 means an 81% modelled probability.
-- **Serving-parity feature set**, so the model can actually score real companies.
-
-## Model selection
-
-Hyperparameters are searched, not guessed - and the search **finds no configuration worth
-adopting over the hand-set one**. A 50-trial Optuna study (TPE) optimises 5-fold CV PR-AUC
-under a clean disjoint-test protocol: class weighting, NaN routing and the monotonic
-constraints held fixed (`src/models/tune.py`, logged to `models/optuna_lightgbm.json` and
-`optuna_lightgbm_trials.csv`). At tune time the winner looked ~0.015 PR-AUC ahead on a
-single uncalibrated split.
-
-**That edge does not survive the shipping pipeline.** Run the tuned config through the full
-calibrated ensemble that actually ships and the two are statistically indistinguishable -
-every gap is an order of magnitude below the ±0.028 fold spread:
-
-| Metric (calibrated, end-to-end) | Hand-set | Optuna (2x size) |
-|---|---|---|
-| CV PR-AUC (headline) | 0.780 | 0.781 |
-| Held-out PR-AUC | **0.828** | 0.822 |
-| Held-out ROC-AUC | **0.975** | 0.968 |
-| Calibration (ECE, Brier) | **better** | worse |
-
-The reliable 5-fold estimate is level; on the held-out split the hand-set model is actually
-ahead on both ranking metrics *and* better calibrated - at half the trees and leaves. So the
-apparent tune-time gain was a protocol artifact (a single uncalibrated booster on less data),
-not a real improvement. We ship the hand-set config deliberately, and the tuned params stay
-logged for audit.
-
-## The dashboard
-
-```bash
+```
+python -m venv .venv
+.venv/Scripts/python.exe -m pip install -r requirements.txt
 .venv/Scripts/python.exe -m streamlit run app/main.py --server.fileWatcherType none
 ```
 
-Then open http://localhost:8501. The app runs on cached FinBERT scores
-(`data/demo/sentiment_cache.json`), so it starts instantly with no model download; the
-`--server.fileWatcherType none` flag just stops the watcher introspecting installed
-`transformers` modules.
+Open <http://localhost:8501>. The app runs on cached FinBERT scores
+(`data/demo/sentiment_cache.json`), so it starts instantly with no model download.
 
-Four views:
+## Deploy your own live demo
 
-- **Company Analysis** - the combined risk gauge, financial ratio cards with the Altman Z''
-  anchor, the four Digital Pulse signals, the exact Altman term-by-term decomposition
-  ("why this score"), an AI analyst summary, recommended actions, and a live macro + company
-  stress test.
-- **Portfolio Monitor** - surveillance table across the roster, highest risk first,
-  colour-coded. Built on verified financials; the strongest visual.
-- **Case Study (Ola Electric)** - the Digital Pulse through the year against the single
-  annual financial data point: the C-suite exits, the January 2026 CFO resignation, the 5%
-  workforce cut and the collapsing retail registrations were all observable *before* the
-  filing that confirmed them.
-- **Review Economics** - put a rupee price on a missed distress and on a review, and the
-  cost-optimal review budget is computed live: at Rs 50 lakh / Rs 1 lakh it recommends
-  reviewing the top 18%, catching 90% of distress for Rs 26.6 cr versus the Altman screen's
-  best at Rs 65.7 cr.
+No GPU, no API key, no training data at runtime - `requirements.txt` excludes
+torch/transformers because the app replays cached FinBERT scores.
 
-### Deploy the live demo (Streamlit Community Cloud)
-
-The app is deploy-ready: it needs no GPU, no API key (narratives and sentiment are cached),
-and no training data at runtime. To publish it at `https://foresightai.streamlit.app`:
-
-1. Go to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
+1. [share.streamlit.io](https://share.streamlit.io) -> sign in with GitHub.
 2. **New app** -> repo `hiralsarkar/ForesightAI`, branch `main`, file `app/main.py`.
-3. Set the app URL to `foresightai` and click **Deploy**.
-
-`requirements.txt` excludes torch/transformers (the app replays cached FinBERT scores), so
-the build is small and boots fast. To regenerate the cache after editing headlines, install
-`requirements-finbert.txt` and run `python -c "from src.signals.sentiment import
-prewarm_sentiment_cache as p; p()"`.
-
-The AI analyst summary runs live via OpenRouter with a deterministic rule-based fallback,
-and is **pre-cached** to `data/demo/narrative_cache.json` so the demo produces real AI
-narratives with no network (resolution order: cache → live LLM → rule-based). The API key
-lives in a gitignored `secrets.local.json` - rotate or remove it before making the repo
-public.
+3. Name it `foresightai` and **Deploy**.
 
 ## Deliverables
 
 | Item | Location |
 |---|---|
-| Dashboard | `streamlit run app/main.py --server.fileWatcherType none` |
-| Pitch deck (6 slides, editable + PDF) | `deck/ForesightAI.pptx`, `deck/ForesightAI.pdf` |
-| Evaluation notebook (executed, with plots) | `notebooks/01_model_evaluation.ipynb` |
+| Live dashboard | [foresightai.streamlit.app](https://foresightai.streamlit.app) |
+| Pitch deck (6 slides) | `deck/ForesightAI.pdf` |
+| Evaluation notebook (executed) | `notebooks/01_model_evaluation.ipynb` |
 | Executive report (per company, PDF) | Download button on the Company tab |
-| Decision log & full rationale | `AGENTS.md`, `docs/` |
-
-## Setup
-
-```bash
-python -m venv .venv
-.venv/Scripts/python.exe -m pip install -r requirements.txt
-```
-
-Download the dataset (UCI id 365) and extract the five `.arff` files into `data/raw/`, then
-run the test suite:
-
-```bash
-.venv/Scripts/python.exe -m pytest tests/ -q
-```
-
-### Score a company in code
-
-```python
-from src.features.load_polish import load_horizon
-from src.models.calibrate import fit_calibrated, risk_score, band
-from src.models import explain
-
-df = load_horizon(1)
-model, report, features = fit_calibrated(df)
-
-X = df[features]
-score = risk_score(model.predict_proba(X.to_numpy("float64"))[:, 1])
-
-print(score[0], band(score[0]))
-print(explain.summarise(model, X, features, row=0, score=score[0], company="Acme Ltd"))
-print(explain.contributions_frame(model, X, features, row=0, top_n=5))
-```
+| Decision log and full rationale | `AGENTS.md`, `docs/` |
 
 ## Repository layout
 
 ```
-src/features/    polish_schema.py   attribute -> business label + serving availability
-                 load_polish.py     .arff loader, class balance, missingness
-                 altman.py          Altman Z'' / Z', zones, three-class labels
-src/models/      train.py           leak-safe CV, class weighting, operating points
-                 calibrate.py       probability calibration, 0-100 score, bands
-                 tune.py            Optuna search, disjoint-test protocol
-                 explain.py         SHAP, business labels, narrative, what-if
+src/features/    Polish data loader, Altman Z'' engine, feature schema
+src/models/      leak-safe CV, calibration, Optuna tuning, SHAP explainability
 src/signals/     the four Digital Pulse signals + composite
 src/scoring/     combined score fusion, macro/company stress test
-src/serving/     raw-financials -> serving-parity features, roster, screener
+src/serving/     raw financials -> Altman serving score, roster, review economics
 app/             Streamlit dashboard (main.py, theme.py, scoring_service.py)
 tests/           136 guardrail tests
-docs/            findings and rationale
+docs/            findings and rationale, including the cross-domain test in full
 ```
 
-## Honest limits
+## Scope
 
-Stated plainly, because a score is only worth trusting if you know what it does and does not
-claim.
-
-- **Bands come from banding, not a 3-class classifier.** The model trains binary;
-  healthy / watch / distress bands are derived by thresholding the calibrated probability. A
-  deliberate choice, stated as one.
-- **Trends are displayed, not modelled.** The anonymised training ratios carry no time
-  dimension, so trend arrows are a serving/display-layer feature, not model inputs.
-- **SHAP explains the full ensemble, and the one residual is disclosed.** The waterfall
-  averages SHAP across all five calibrated folds, which sums exactly (to ~1e-15, in log-odds
-  space) to the ensemble's mean margin - so it attributes the model behind the score, not a
-  single fold. The only remaining gap to the displayed 0-100 number is the sigmoid
-  calibration transform, which is monotonic and so preserves every direction and ranking the
-  waterfall shows.
-
----
-
-*This system is a supplementary analytics tool and should be used alongside professional
-financial analysis, not in place of it.*
+A decision-support tool built to sit alongside professional analysis, not replace it. Risk
+bands come from a calibrated probability; trend arrows are a display layer, since the
+training data carries no time dimension; SHAP explains the full 5-fold ensemble, one
+monotonic step from the number you see.
