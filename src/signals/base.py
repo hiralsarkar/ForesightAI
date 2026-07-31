@@ -1,6 +1,6 @@
 """Shared data model for the four Digital Pulse signals (Module 2).
 
-Design decisions locked in here, per AGENTS.md and the Phase 2 architecture:
+Design decisions locked in here, per the design notes and the Phase 2 architecture:
 
 * **Same 0-100 risk scale and band language as the financial score.** Higher = worse,
   bands Healthy / Watch / Elevated Risk / Critical. This is what makes Module 3 fusion a

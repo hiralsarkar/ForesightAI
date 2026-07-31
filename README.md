@@ -121,8 +121,7 @@ Each call was made against a measurement:
   statistically indistinguishable once run through the shipping pipeline, so we kept the
   simpler model and logged the rest.
 
-Full rationale, including the cross-domain test in detail, is in [`AGENTS.md`](AGENTS.md)
-and [`docs/`](docs/).
+Full rationale, including the cross-domain test in detail, is in [`docs/`](docs/).
 
 ## Run it locally
 
@@ -152,7 +151,7 @@ torch/transformers because the app replays cached FinBERT scores.
 | Pitch deck (6 slides) | `deck/ForesightAI.pdf` |
 | Evaluation notebook (executed) | `notebooks/01_model_evaluation.ipynb` |
 | Executive report (per company, PDF) | Download button on the Company tab |
-| Decision log and full rationale | `AGENTS.md`, `docs/` |
+| Findings and full rationale | `docs/` |
 
 ## Repository layout
 

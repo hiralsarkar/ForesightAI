@@ -1,6 +1,6 @@
 """Module 7 -- Risk Mitigation Recommendations.
 
-**Rule-based by design, never LLM-generated** (AGENTS.md M7). These sit next to a number
+**Rule-based by design, never LLM-generated** (rule-based by design). These sit next to a number
 a credit committee may act on, so they must be reproducible and incapable of inventing a
 fact. Every rule is tied to actual metric values, not generic advice.
 

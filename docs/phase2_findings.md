@@ -1,6 +1,6 @@
 # Phase 2 Findings - Serving Indian Companies
 
-The Phase 2 acceptance gate (AGENTS.md §4b) was: *can we score Indian non-financial
+The Phase 2 acceptance gate (the design notes) was: *can we score Indian non-financial
 companies at all, and do the healthy controls land healthy?* Answering it changed the
 serving architecture. This documents what we found and why.
 

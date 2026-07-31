@@ -1,6 +1,6 @@
 """SHAP explainability with business-language labels (Module 4).
 
-Non-negotiable #4: no cryptic variable names on any chart a judge will see. `Attr27`
+core requirement: no cryptic variable names on any chart a judge will see. `Attr27`
 means nothing; "Interest Coverage Ratio" means everything. Every public function here
 returns labelled output, and `polish_schema.LABELS` is the single mapping.
 
@@ -28,7 +28,7 @@ Two implementation notes that matter:
   caveat; the only remaining, inherent gap to the displayed 0-100 number is the monotonic
   calibration transform noted above.)
 
-The three-sentence summary is deliberately **rule-based, not LLM-generated** (AGENTS.md
+The three-sentence summary is deliberately **rule-based, not LLM-generated** (the design notes
 Module 4). It appears next to a number a credit committee may act on, so it must be
 reproducible and incapable of inventing a fact.
 """
@@ -240,7 +240,7 @@ def waterfall(
         values=vals[row],
         base_values=base,
         data=arr[row],
-        feature_names=[label_for(f) for f in features],  # non-negotiable #4
+        feature_names=[label_for(f) for f in features],  # core requirement
     )
     shap.plots.waterfall(exp, max_display=max_display, show=show)
     return plt.gcf()

@@ -1,11 +1,11 @@
 """Attribute schema for the Polish Companies Bankruptcy dataset (UCI id 365).
 
-This module is the keystone for two AGENTS.md requirements:
+This module is the keystone for two core requirements:
 
-  * Trap 1 (train/serve feature parity) -- the model trains on Polish `Attr1..Attr64`
+  * the design notes (train/serve feature parity) -- the model trains on Polish `Attr1..Attr64`
     but must score Indian companies rebuilt from Screener.in financials. `serving`
     records whether each attribute is reproducible on that path.
-  * Non-negotiable #4 (plain-English SHAP labels) -- `label` is what a judge sees on
+  * core requirement (plain-English SHAP labels) -- `label` is what a judge sees on
     a waterfall chart. Never surface `Attr14` in the UI.
 
 The `.arff` headers carry no definitions (verified: they are bare `@attribute AttrN
@@ -207,7 +207,7 @@ def by_category(category: Category) -> tuple[Attribute, ...]:
 def serving_feature_set(include_derived: bool = True) -> tuple[str, ...]:
     """Attributes usable by a model that must also score Indian companies.
 
-    This is the Trap 1 guard. Training on the full 64 yields a model that cannot
+    This is the feature-parity guard. Training on the full 64 yields a model that cannot
     score the demo companies at all -- a different feature space. Pass
     ``include_derived=False`` for the conservative subset that needs no
     days-ratio reconstruction.

@@ -1,6 +1,6 @@
 """Phase 2 serving-layer guardrails.
 
-The load-bearing test is `test_acceptance_gate` -- it is the AGENTS.md §4b gate in
+The load-bearing test is `test_acceptance_gate` -- it is the acceptance gate in
 executable form. If it ever fails, the demo is broken: some real company scores wrong.
 
 Run: .venv/Scripts/python.exe -m pytest tests/test_serving.py -q
@@ -120,7 +120,7 @@ def test_bands_match_the_calibrate_module(risk, band):
 
 # ------------------------------------------------------- THE acceptance gate
 def test_acceptance_gate():
-    """Every real demo company scores in its expected band. AGENTS.md §4b.
+    """Every real demo company scores in its expected band.
 
     This is the test that proves the serving architecture works. Do not weaken the
     expectations to make it pass -- fix the score.

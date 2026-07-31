@@ -26,7 +26,7 @@ from src.signals.sentiment import (
 )
 
 
-# -------------------------------------------------------- point-in-time (Trap 3)
+# -------------------------------------------------------- point-in-time
 def test_leadership_is_point_in_time():
     """An assessment must not see a resignation filed after its date."""
     events = demo.OLA["leadership"]

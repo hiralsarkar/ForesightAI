@@ -22,3 +22,6 @@ Thumbs.db
 # Generated report images (regenerable)
 reports/*.png
 reports/*.svg
+
+# Internal working notes - not part of the public repo
+AGENTS.md

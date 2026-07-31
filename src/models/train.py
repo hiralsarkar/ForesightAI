@@ -1,6 +1,6 @@
 """Distress model training and evaluation.
 
-AGENTS.md non-negotiable #1 as **amended by measurement** (see docs/phase1_findings.md
+the training protocol as **amended by measurement** (see docs/phase1_findings.md
 section 6): evaluated on AUC-ROC and Precision-Recall, never accuracy, on stratified
 5-fold CV -- but **class weighting only, SMOTE off by default**.
 
@@ -120,7 +120,7 @@ def get_features(df: pd.DataFrame, feature_set: str = "serving") -> list[str]:
 
     `serving` is the default and the safe one: it excludes attributes we cannot
     rebuild for Indian companies, so the trained model can actually score the demo
-    (Trap 1). `all` trains on every attribute and is for benchmarking only -- a model
+. `all` trains on every attribute and is for benchmarking only -- a model
     trained on `all` must never be shipped to the dashboard.
     """
     attrs = [c for c in df.columns if c.startswith("Attr")]
@@ -134,7 +134,7 @@ def get_features(df: pd.DataFrame, feature_set: str = "serving") -> list[str]:
         return [c for c in attrs if c in allowed]
     if feature_set == "screener":
         # The features the Screener serving bridge can actually populate. Training on
-        # this set is the real fix for train/serve parity (Trap 1): the model can only
+        # this set is the real fix for train/serve parity: the model can only
         # depend on features that exist when scoring an Indian company. Imported lazily
         # to keep the models layer independent of the serving layer.
         from ..serving.screener import screener_feature_set
@@ -204,7 +204,7 @@ def make_xgb(
         colsample_bytree=0.8,
         reg_lambda=1.0,
         min_child_weight=3,
-        # Class weighting, per non-negotiable #1 as amended (SMOTE off).
+        # Class weighting, per core requirement as amended (SMOTE off).
         scale_pos_weight=scale_pos_weight(y),
         eval_metric="aucpr",
         tree_method="hist",

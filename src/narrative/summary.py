@@ -7,7 +7,7 @@ One paragraph, four sentences, in a credit analyst's voice. Two paths behind one
   against hallucinated financials in a live demo -- the model narrates, it does not do
   arithmetic.
 * **Deterministic fallback** (always available). Built from the same structured facts, so
-  a missing API key or a timeout degrades the prose, never the correctness. AGENTS.md:
+  a missing API key or a timeout degrades the prose, never the correctness. By design:
   "the demo must never break".
 
 The fallback is written to vary in *substance*, not just in company name: which sentence

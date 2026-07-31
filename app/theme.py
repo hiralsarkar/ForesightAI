@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-# Palette (AGENTS.md §2 -- do not deviate).
+# Palette (the design notes -- do not deviate).
 BG_BASE = "#0A1628"      # dark navy
 BG_PANEL = "#0F1E33"     # slightly lifted panel
 BG_PANEL_2 = "#152740"

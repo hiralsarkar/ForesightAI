@@ -26,7 +26,7 @@ Derived intermediates:
     working_capital = Working Capital Days * Sales / 365   (recovers WC without the
                       current-asset breakdown)
 
-**⚠️ Structural vs informative missingness (AGENTS.md §4b acceptance gate).**
+**⚠️ Structural vs informative missingness (the design notes acceptance gate).**
 In training, a missing feature was *informative* -- distressed Polish firms failed to
 report. Here, the current-ratio family is missing *structurally* -- Screener never
 breaks it out, for healthy and distressed companies alike. If the model learned
@@ -63,7 +63,7 @@ class ScreenerFinancials:
     """One company-year of Screener data. All amounts in the same currency unit (Cr).
 
     Point-in-time: the values must be as reported *for that financial year*, not
-    restated later (Trap 3). `year` is the March-ending fiscal year.
+    restated later. `year` is the March-ending fiscal year.
     """
 
     company: str
@@ -268,7 +268,7 @@ def screener_feature_set() -> tuple[str, ...]:
     """The features the bridge can populate given complete inputs + history.
 
     **This is the true serving feature set** and what the served model must train on
-    (Trap 1, resolved for real). Derived empirically from a fully-populated synthetic
+    (the design notes, resolved for real). Derived empirically from a fully-populated synthetic
     record so it can never drift from what `compute_features` actually assigns: if a
     formula is added or removed above, this set tracks it automatically.
     """

@@ -1,6 +1,6 @@
 """Altman Z-Score, computed on the correct variant for this dataset.
 
-AGENTS.md Trap 2. The blueprint specifies thresholds 1.81 / 2.99. Those belong to the
+the design notes. The blueprint specifies thresholds 1.81 / 2.99. Those belong to the
 **original 1968 Z**, whose X4 term is *market* value of equity / total liabilities.
 The Polish companies are effectively private -- there is no market capitalisation in
 the data, and `Attr8` is explicitly *book* value of equity / total liabilities. Using
@@ -47,7 +47,7 @@ ZONE_DISTRESS = "Distress"
 ZONE_GREY = "Grey"
 ZONE_SAFE = "Safe"
 
-#: Three-class distress labels (AGENTS.md 4a). Ordered worst to best.
+#: Three-class distress labels (the design notes). Ordered worst to best.
 CLASS_DISTRESS = "distress"
 CLASS_WATCH = "watch"
 CLASS_HEALTHY = "healthy"
@@ -135,7 +135,7 @@ def three_class_label(
 ) -> pd.Series:
     """Nuanced distress label: healthy / watch / distress.
 
-    AGENTS.md 4a asks for three classes rather than binary bankruptcy, because banks
+    the design calls for three classes rather than binary bankruptcy, because banks
     think in watchlists, not binary outcomes. The rule is deliberately conservative:
 
       * an actual bankruptcy in the dataset is always `distress` -- the ground-truth

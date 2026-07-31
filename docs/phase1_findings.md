@@ -72,7 +72,7 @@ Even at 90% recall the queue is 19.4% of the book. This table is the input to th
 Module 8 portfolio view and **must be regenerated whenever the model config changes** -
 it has already gone stale twice (imputation switch, then constraints).
 
-## 5. Train/serve parity costs 0.04 PR-AUC (Trap 1)
+## 5. Train/serve parity costs 0.04 PR-AUC
 
 | Feature set | Features | PR-AUC |
 |---|---|---|
@@ -89,7 +89,7 @@ across economies. We preferred a model that can score the companies we ship."
 
 ## 6. SMOTE ablation - an empirical conflict with the blueprint
 
-The blueprint lists "SMOTE **plus** class weighting" as non-negotiable #1. We tested it
+The blueprint lists "SMOTE **plus** class weighting" as core requirement. We tested it
 properly as a 2x2 rather than a single on/off toggle, because a naive toggle confounds
 two corrections: SMOTE rebalances the fold to 50/50 *and* `scale_pos_weight` upweights
 positives ~25x, so "both on" is a ~25x over-correction rather than a fair test.

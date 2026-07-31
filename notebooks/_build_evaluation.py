@@ -363,7 +363,7 @@ md(r"""
   on six current companies, each in its expected band.
 - Explainability is in **business language**, and the report/UI decomposition is exact.
 
-Full rationale and the decision log are in `AGENTS.md` and `docs/`.
+Full rationale and the decision log are in `docs/`.
 """)
 
 nb["cells"] = cells
