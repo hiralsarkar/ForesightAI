@@ -1,4 +1,4 @@
-# Phase 1 Findings
+# Model Evaluation
 
 Measured on the Polish Companies Bankruptcy dataset (UCI id 365). All figures are
 out-of-fold from stratified 5-fold CV with fold-internal imputation and resampling.
@@ -69,7 +69,7 @@ A credit team consumes a review queue, not a probability. Out-of-fold, final con
 | 90% | 0.011 | 0.179 | 1,361 | 19.4% |
 
 Even at 90% recall the queue is 19.4% of the book. This table is the input to the
-Module 8 portfolio view and **must be regenerated whenever the model config changes** -
+portfolio view and **must be regenerated whenever the model config changes** -
 it has already gone stale twice (imputation switch, then constraints).
 
 ## 5. Train/serve parity costs 0.04 PR-AUC
@@ -87,9 +87,9 @@ predictive but currency-denominated, so it cannot transfer PLN -> INR. We accept
 absolute working capital, because it is a currency quantity that does not transfer
 across economies. We preferred a model that can score the companies we ship."
 
-## 6. SMOTE ablation - an empirical conflict with the blueprint
+## 6. SMOTE ablation - why the obvious move was dropped
 
-The blueprint lists "SMOTE **plus** class weighting" as core requirement. We tested it
+"SMOTE **plus** class weighting" is the obvious way to handle imbalance. We tested it
 properly as a 2x2 rather than a single on/off toggle, because a naive toggle confounds
 two corrections: SMOTE rebalances the fold to 50/50 *and* `scale_pos_weight` upweights
 positives ~25x, so "both on" is a ~25x over-correction rather than a fair test.
@@ -137,14 +137,14 @@ skew natively, so SMOTE adds distortion without adding information.
 **Status: awaiting user decision** - this contradicts a stated non-negotiable.
 `use_smote` remains a parameter, so either choice is one argument away.
 
-## 6a. Calibration (deferred to Module 3, flagged now)
+## 6a. Calibration (deferred to the fusion step, flagged now)
 
 `scale_pos_weight` inflates predicted probabilities, and SMOTE does too. Modules 3/4/5
 display a 0-100 score and run what-if and stress scenarios **on that score**, so it must
 mean something, not just rank correctly. Before the score becomes load-bearing, wrap the
 final estimator in `CalibratedClassifierCV` (isotonic or sigmoid) and derive the
 displayed score from calibrated probabilities. Brier score is already tracked per fold
-for exactly this. This does not block Phase 1.
+for exactly this. It is not a blocker.
 
 Note this interacts with the §6 decision: since class weighting buys ~nothing on PR-AUC
 but does cost calibration, "neither, then calibrate and tune the threshold" may be the
@@ -245,13 +245,13 @@ Calibration is unaffected: ECE 0.0142 constrained vs 0.0149 unconstrained.
 
 **Guarded by `test_every_slider_responds_in_the_correct_direction`, parametrised over
 the full `SLIDER_FEATURES` set**, plus `explain.audit_sliders()` for a pre-demo check of
-all ten at once. Any metric added to a Module 4 or 5 control must be added to
+all ten at once. Any metric added to a what-if or stress control must be added to
 `polish_schema.SLIDER_FEATURES` - a slider absent from that tuple is unguarded.
 
-*Note for Module 5:* score movements are modest (~3 points across a full sweep) because
-a single ratio rarely dominates. The blueprint's demo beat ("81 → 91 under rate stress")
-will need the macro scenario to shift **several** correlated inputs at once, not one
-slider. Plan the stress model accordingly.
+*Note for the stress test:* score movements are modest (~3 points across a full sweep)
+because a single ratio rarely dominates. A visible move ("81 to 91 under rate stress")
+needs the macro scenario to shift **several** correlated inputs at once, not one
+slider. The stress model is built accordingly.
 
 ## 6e. Optuna tuning - 50 trials, a null result
 

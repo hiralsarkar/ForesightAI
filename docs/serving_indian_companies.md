@@ -1,8 +1,8 @@
-# Phase 2 Findings - Serving Indian Companies
+# Serving Indian Companies
 
-The Phase 2 acceptance gate (the design notes) was: *can we score Indian non-financial
-companies at all, and do the healthy controls land healthy?* Answering it changed the
-serving architecture. This documents what we found and why.
+The question this had to answer: *can we score Indian non-financial companies at all, and
+do the healthy controls land healthy?* Answering it changed the serving architecture.
+This documents what we found and why.
 
 ---
 
@@ -61,8 +61,8 @@ has no training distribution to carry across domains. On the same real companies
 | HUL FY19 | healthy (FMCG) | +4.13 | Safe |
 | Jet Airways FY19 | bankrupt | **−17.25** | Distress |
 
-Clean, wide separation. The irony worth stating out loud: the Altman module we built in
-Phase 1 as *"the benchmark to beat"* is the robust serving engine. On its home turf
+Clean, wide separation. The irony worth stating out loud: the Altman engine we built
+as *"the benchmark to beat"* is the robust serving engine. On its home turf
 (Polish) the GBM beats it 0.71 to 0.15; across domains, the formula wins.
 
 ## 4. FMCG negative-working-capital gate - PASSED
@@ -79,7 +79,7 @@ negative-WC name could dip into grey, so watch this if the roster changes.
   anchors. Robust, formula-based, cross-domain.
 - **Serving explainability** = the exact 4-term Z'' decomposition (WC/TA, RE/TA, EBIT/TA,
   equity/liabilities). No approximation - the terms sum to the score.
-- **Module 4/5 sliders drive Altman.** Linear ⇒ inherently monotonic; the Phase 1
+- **The what-if and stress sliders drive Altman.** Linear, so inherently monotonic; the
   `monotone_constraints` machinery is retained as a Polish-domain showpiece.
 - **The GBM + SHAP + calibration + Optuna work** is the Polish-domain proof that the
   method beats the benchmark, and the demonstration of explainability methodology.
@@ -102,17 +102,17 @@ magnitudes. Full financial gate passes (§ above).
 
 ---
 
-## 7. Module 2 - Digital Pulse (built)
+## 7. Digital Pulse
 
 Four signals, each on the same 0-100 risk scale and band language as the financial score,
-so Module 3 fusion is a later weighted average. Every reading carries a **specific
+so fusion is a later weighted average. Every reading carries a **specific
 explanatory datum**, not a restated metric.
 
 ### Signal priority (by evidence strength)
 
 1. **Leadership Stability (anchor).** Dated public filings - a resignation happened on its
    date or it did not, so **zero selection-bias risk**. Weighted by seniority (auditor/CFO
-   exits sharpest). Blueprint's "> 2 exits = red" preserved as the Elevated threshold.
+   exits sharpest). More than two exits reads red, the Elevated threshold.
 2. **News Sentiment.** Fallback-first: Loughran-McDonald finance lexicon (no deps) as the
    default, FinBERT swapped in behind the same `SentimentScorer` interface. Leans on the
    30-day-vs-prior-30-day **trend**, not the level.
@@ -161,9 +161,9 @@ version of the thesis.
 resignations against actual BSE filings (or drop them); the financial scores and the
 Goyal-anchored leadership signal are already solid.
 
-**Scope boundary honoured:** built the four gauges + digital composite. Module 3
-(financial + digital fusion) is deliberately NOT built - the composite is fusion-ready and
-stops there.
+**Scope boundary honoured:** built the four gauges + digital composite. The
+financial + digital fusion is deliberately NOT built here - the composite is fusion-ready
+and stops there.
 
 ### FinBERT earns the torch dependency (validated)
 
