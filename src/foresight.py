@@ -420,7 +420,7 @@ import numpy as np
 import pandas as pd
 
 
-RAW_DIR = Path(__file__).resolve().parent / "data" / "raw"
+RAW_DIR = Path(__file__).resolve().parents[1] / "data" / "raw"
 HORIZONS = (1, 2, 3, 4, 5)
 
 
@@ -1241,7 +1241,7 @@ class CachedScorer:
         return float(v) if v is not None else self._fallback.score(text)
 
 
-_SENTIMENT_CACHE = Path(__file__).resolve().parent / "data" / "demo" / "sentiment_cache.json"
+_SENTIMENT_CACHE = Path(__file__).resolve().parents[1] / "data" / "demo" / "sentiment_cache.json"
 
 
 def load_sentiment_cache() -> dict | None:
@@ -2127,7 +2127,7 @@ from sklearn.model_selection import StratifiedKFold, train_test_split
 
 Method = Literal["isotonic", "sigmoid"]
 
-MODEL_DIR = Path(__file__).resolve().parent / "models"
+MODEL_DIR = Path(__file__).resolve().parents[1] / "models"
 
 
 @dataclass
@@ -2347,7 +2347,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 
-RESULTS_DIR = Path(__file__).resolve().parent / "models"
+RESULTS_DIR = Path(__file__).resolve().parents[1] / "models"
 
 #: Never tunable -- these encode decisions made against evidence, not search.
 PROTECTED_PARAMS = frozenset(
@@ -3990,7 +3990,7 @@ import json
 import os
 from pathlib import Path
 
-_ROOT = Path(__file__).resolve().parent
+_ROOT = Path(__file__).resolve().parents[1]
 
 # OpenRouter is OpenAI-compatible. A free instruction-following model is the default;
 # override with the OPENROUTER_MODEL env var if a stronger one is available on the key.
@@ -4252,7 +4252,7 @@ import hashlib
 import json as _json
 from pathlib import Path as _Path
 
-_CACHE_PATH = _Path(__file__).resolve().parent / "data" / "demo" / "narrative_cache.json"
+_CACHE_PATH = _Path(__file__).resolve().parents[1] / "data" / "demo" / "narrative_cache.json"
 
 
 def _cache_key(f: NarrativeFacts) -> str:

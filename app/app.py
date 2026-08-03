@@ -21,7 +21,9 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE))                 # app/ - scoring_service, theme
+sys.path.insert(0, str(_HERE.parent / "src"))  # src/ - foresight
 
 import plotly.graph_objects as go
 import streamlit as st
