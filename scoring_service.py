@@ -19,12 +19,12 @@ from typing import Optional
 
 import streamlit as st
 
-from src.scoring.combined import CombinedRisk, fuse
-from src.serving import demo_companies as demo
-from src.serving.financial_score import FinancialScore, risk_from_z, score_company
-from src.serving.screener import ScreenerFinancials, compute_features
-from src.signals.composite import DigitalPulse
-from src.signals.demo_signals import DEFAULT_AS_OF, has_signals, pulse_as_of
+from src.scoring import CombinedRisk, fuse
+import src.scoring as demo
+from src.scoring import FinancialScore, risk_from_z, score_company
+from src.scoring import ScreenerFinancials, compute_features
+from src.signals import DigitalPulse
+from src.signals import DEFAULT_AS_OF, has_signals, pulse_as_of
 
 # Roster: display name -> (record, prior record or None)
 _ROSTER: dict[str, tuple[ScreenerFinancials, Optional[ScreenerFinancials]]] = {
@@ -48,7 +48,7 @@ def get_record(name: str) -> tuple[ScreenerFinancials, Optional[ScreenerFinancia
 @st.cache_resource(show_spinner=False)
 def _sentiment_scorer():
     """FinBERT if available, else the lexicon. Loaded once per process."""
-    from src.signals.sentiment import default_scorer
+    from src.signals import default_scorer
 
     return default_scorer()
 
@@ -73,7 +73,7 @@ def combined(name: str) -> CombinedRisk:
 
 # Sector labels -- single source of truth in demo_companies so the UI and the narrative
 # pre-warm produce identical prompts (and therefore identical cache keys).
-from src.serving.demo_companies import SECTORS as _SECTOR
+from src.scoring import SECTORS as _SECTOR
 
 
 @dataclass
@@ -106,7 +106,7 @@ def portfolio() -> list[PortfolioRow]:
 @st.cache_data(show_spinner=False)
 def narrative(name: str) -> tuple[str, str]:
     """AI narrative + its source ('llm' or 'rule-based'). Never raises."""
-    from src.narrative.summary import generate
+    from src.narrative import generate
 
     return generate(combined(name), financial(name), digital(name), _SECTOR.get(name, ""))
 
@@ -114,7 +114,7 @@ def narrative(name: str) -> tuple[str, str]:
 @st.cache_data(show_spinner=False)
 def advice(name: str):
     """Rule-based recommendations grouped by audience."""
-    from src.narrative.recommendations import recommend
+    from src.narrative import recommend
 
     rec, prior = _ROSTER[name]
     return recommend(rec, financial(name), digital(name), prior)
@@ -123,7 +123,7 @@ def advice(name: str):
 @st.cache_data(show_spinner=False)
 def report_pdf(name: str) -> bytes:
     """Two-page executive memo. Cached so repeat clicks are instant."""
-    from src.reporting.executive_report import build_report
+    from src.narrative import build_report
 
     rec, prior = _ROSTER[name]
     text, _src = narrative(name)
@@ -150,7 +150,7 @@ def case_timeline(name: str = "Ola Electric") -> list[TimelinePoint]:
     """
     from datetime import date as _d
 
-    from src.signals.demo_signals import pulse_as_of as _pulse
+    from src.signals import pulse_as_of as _pulse
 
     scorer = _sentiment_scorer()
     fin = financial(name).risk_score
@@ -225,7 +225,7 @@ def stress(name: str, op_shock_pct: float = 0.0, leverage_pct: float = 0.0,
     are keyword. All feed the underlying line items and recompute Altman once -- linear,
     so instant.
     """
-    from src.scoring.stress import Scenario, run
+    from src.scoring import Scenario, run
 
     rec, prior = _ROSTER[name]
     sc = Scenario(interest_bps=interest_bps, inflation_pp=inflation_pp, gdp_pp=gdp_pp,

@@ -21,14 +21,14 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import plotly.graph_objects as go
 import streamlit as st
 
-from app import scoring_service as svc
-from app import theme
-from app.theme import band_color, band_pill
+import scoring_service as svc
+import theme
+from theme import band_color, band_pill
 
 st.set_page_config(page_title="Foresight AI", page_icon="\U0001F4C8", layout="wide")
 theme.inject()
@@ -81,7 +81,7 @@ def component_bar(label: str, value, weight: float) -> str:
         return (f'<div style="margin:8px 0"><span style="color:{theme.TEXT_DIM};font-size:0.8rem">'
                 f'{label}</span><div style="color:{theme.TEXT_DIM};font-size:0.9rem">'
                 f'Unavailable - combined reflects financials only</div></div>')
-    from src.serving.financial_score import band_for
+    from src.scoring import band_for
     c = band_color(band_for(value))
     pct = max(2, min(100, value))
     return (
@@ -154,7 +154,7 @@ def render_company(company: str) -> None:
                         f'<div class="bar" style="width:{width}px;background:{c3}"></div>'
                         f'<div class="tv">{t.contribution:+.2f} &nbsp; ({t.value:+.2f} &times; {t.coefficient})</div>'
                         f'</div>', unsafe_allow_html=True)
-        from src.serving.financial_score import narrative as fin_narrative
+        from src.scoring import narrative as fin_narrative
         st.markdown(f'<div class="fa-narrative" style="margin-top:12px">{fin_narrative(fin)}</div>',
                     unsafe_allow_html=True)
 
