@@ -1,6 +1,6 @@
 """Altman Z-Score, computed on the correct variant for this dataset.
 
-the design notes. The blueprint specifies thresholds 1.81 / 2.99. Those belong to the
+The textbook thresholds 1.81 / 2.99 belong to the
 **original 1968 Z**, whose X4 term is *market* value of equity / total liabilities.
 The Polish companies are effectively private -- there is no market capitalisation in
 the data, and `Attr8` is explicitly *book* value of equity / total liabilities. Using
@@ -46,7 +46,7 @@ ZONE_DISTRESS = "Distress"
 ZONE_GREY = "Grey"
 ZONE_SAFE = "Safe"
 
-#: Three-class distress labels (the design notes). Ordered worst to best.
+#: Three-class distress labels. Ordered worst to best.
 CLASS_DISTRESS = "distress"
 CLASS_WATCH = "watch"
 CLASS_HEALTHY = "healthy"
@@ -175,7 +175,7 @@ def benchmark_vs_truth(df: pd.DataFrame, variant: Variant = "z2", target: str = 
     """How well does the classical Z alone separate the real bankruptcies?
 
     This is the number the ML model has to beat. Showing it explicitly is the point of
-    Module 1's "show both" requirement -- the panel shows what the ML adds over the
+    the "show both" requirement -- the panel shows what the ML adds over the
     textbook benchmark.
     """
     z = altman_z(df, variant)

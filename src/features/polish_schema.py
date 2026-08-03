@@ -1,11 +1,11 @@
 """Attribute schema for the Polish Companies Bankruptcy dataset (UCI id 365).
 
-This module is the keystone for two core requirements:
+This module is the keystone for two things:
 
-  * the design notes (train/serve feature parity) -- the model trains on Polish `Attr1..Attr64`
+  * Train/serve feature parity -- the model trains on Polish `Attr1..Attr64`
     but must score Indian companies rebuilt from Screener.in financials. `serving`
     records whether each attribute is reproducible on that path.
-  * core requirement (plain-English SHAP labels) -- `label` is what the user sees on
+  * Plain-English SHAP labels -- `label` is what the user sees on
     a waterfall chart. Never surface `Attr14` in the UI.
 
 The `.arff` headers carry no definitions (verified: they are bare `@attribute AttrN
@@ -36,7 +36,7 @@ N_ATTRS = 64
 
 
 class Category(str, Enum):
-    """Ratio families. The first five mirror the dashboard's Module 1 grouping."""
+    """Ratio families. The first five mirror the dashboard's grouping."""
 
     LIQUIDITY = "Liquidity"
     SOLVENCY = "Solvency"
@@ -302,7 +302,7 @@ DIRECTIONS: dict[str, Direction] = {
 #: attributes costs 0.10 for no additional demo safety. Scope the constraint to the
 #: surface the user can actually touch.
 #:
-#: **Anything added to a Module 4 what-if or Module 5 stress slider must be added here**,
+#: **Anything added to a what-if or stress slider must be added here**,
 #: or that control can move the score the wrong way on stage.
 SLIDER_FEATURES: tuple[str, ...] = (
     "Attr27",  # Interest Coverage Ratio
