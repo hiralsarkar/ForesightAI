@@ -1,4 +1,4 @@
-"""Module 9 executive-report guardrails."""
+"""executive-report guardrails."""
 
 from __future__ import annotations
 

@@ -256,8 +256,8 @@ ax.legend(); plt.tight_layout(); plt.show()
 md(r"""
 ## 4. An ablation - why SMOTE was dropped
 
-The blueprint specified SMOTE + class weighting. We tested it as a 2x2 rather than
-assuming. **SMOTE consistently hurt**, even without class weighting: interpolating
+SMOTE plus class weighting is the obvious first move for imbalance. We tested it as a
+2x2 rather than assuming. **SMOTE consistently hurt**, even without class weighting: interpolating
 synthetic minority points in a 63-dimensional ratio space with heavy outliers creates
 "companies" that don't exist. We let the data decide.
 """)

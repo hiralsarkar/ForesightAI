@@ -1,4 +1,4 @@
-"""M6 (narrative) and M7 (recommendations) guardrails.
+"""Narrative and recommendations guardrails.
 
 The load-bearing properties: the narrative keeps working without an API key and varies in
 *substance* across companies; the recommendations never give wrong advice to a healthy
@@ -31,7 +31,7 @@ def _parts(name):
     return rec, prior, fin, dig, fuse(fin, dig)
 
 
-# ------------------------------------------------------------------ M6 narrative
+# ------------------------------------------------------------------ narrative
 def test_narrative_works_without_an_api_key():
     """The demo keeps working on a missing key or a timeout."""
     _, _, fin, dig, comb = _parts("SpiceJet")
@@ -41,7 +41,7 @@ def test_narrative_works_without_an_api_key():
 
 
 def test_narrative_differs_in_substance_not_just_name():
-    """Blueprint: outputs must be genuinely different, not a filled-in template."""
+    """Outputs must be genuinely different, not a filled-in template."""
     texts = {}
     for name in ("TCS", "SpiceJet", "Vedanta"):
         _, _, fin, dig, comb = _parts(name)
@@ -68,9 +68,9 @@ def test_distress_and_healthy_narratives_give_different_guidance():
     assert "standard review" in tcs.lower()
 
 
-# ------------------------------------------------------------ M7 recommendations
-def test_rule_count_meets_the_blueprint_minimum():
-    assert rule_count() >= 15  # blueprint asks for 15-20
+# ------------------------------------------------------------ recommendations
+def test_rule_count_gives_enough_variety():
+    assert rule_count() >= 15  # 15-20 rules keeps outputs from repeating
 
 
 def test_every_company_gets_both_audiences():

@@ -1,7 +1,7 @@
-"""Phase 1 guardrails.
+"""Model and feature guardrails.
 
-These tests exist to stop a future session silently undoing a decision that was made
-against evidence. Each one maps to a documented guardrail or trap.
+These tests exist to stop a decision that was made against evidence from being silently
+undone later. Each one maps to a documented guardrail.
 
 Run: .venv/Scripts/python.exe -m pytest tests/ -q
 """
@@ -26,7 +26,7 @@ def test_schema_is_complete_and_contiguous():
 
 
 def test_every_attribute_has_a_display_label():
-    """core requirement: no cryptic variable names on a user-visible chart."""
+    """No cryptic variable names on a user-visible chart."""
     for a in ps.ATTRIBUTES:
         assert a.label != a.id, f"{a.id} has no business label"
         assert not a.label.lower().startswith("attr")
@@ -248,7 +248,7 @@ def fitted(df1):
 def test_every_slider_responds_in_the_correct_direction(fitted, attr):
     """End-to-end demo-safety guarantee: no slider may move the score the wrong way.
 
-    Guards the Module 4 what-if and Module 5 stress panels. Unconstrained, interest
+    Guards the what-if and stress panels. Unconstrained, interest
     coverage moved the wrong way on 82.9% of steps and Current Ratio on 66.0%.
 
     Asserted on **magnitude, not violation rate**. The constrained ensemble is monotone
@@ -293,7 +293,7 @@ def test_default_grid_spans_the_observed_range(df1):
 
 # ------------------------------------------------------------------------- tuning
 def test_tuning_enforces_the_fifty_trial_floor():
-    """core requirement asks for >= 50 trials; a 5-trial run must not pass as tuned."""
+    """A real search needs >= 50 trials; a 5-trial run must not pass as tuned."""
     from src.models import tune as tuning
 
     with pytest.raises(ValueError, match="50 trials"):

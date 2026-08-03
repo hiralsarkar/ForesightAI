@@ -1,7 +1,7 @@
-"""Phase 2 serving-layer guardrails.
+"""Serving-layer guardrails.
 
-The load-bearing test is `test_acceptance_gate` -- it is the acceptance gate in
-executable form. If it ever fails, the demo is broken: some real company scores wrong.
+The load-bearing test is `test_acceptance_gate`. If it ever fails, the demo is
+broken: some real company scores wrong.
 
 Run: .venv/Scripts/python.exe -m pytest tests/test_serving.py -q
 """

@@ -1,4 +1,4 @@
-"""Module 3 fusion guardrails.
+"""fusion guardrails.
 
 The two load-bearing properties: financial-only companies must renormalize (never a
 phantom digital=0 term), and the narrative must not claim a divergence the data doesn't

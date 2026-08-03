@@ -1,4 +1,4 @@
-"""Dashboard scoring-service guardrails (Module 5 stress path especially).
+"""Dashboard scoring-service guardrails (stress path especially).
 
 The stress sliders are a demo centerpiece, and a dead slider is the exact fatal-demo
 moment monotonicity was built to prevent. These tests exercise both stress legs headless
@@ -55,7 +55,7 @@ def test_combined_uses_both_legs_for_every_company():
         assert c.has_digital and c.digital_weight > 0, name
 
 
-# ------------------------------------------------------------------ portfolio (M8)
+# ------------------------------------------------------------------ portfolio
 def test_portfolio_covers_roster_sorted_worst_first():
     rows = svc.portfolio()
     assert len(rows) == len(svc.company_names())
@@ -95,14 +95,14 @@ def test_case_financial_line_is_the_annual_filing():
 
 
 def test_default_demo_company_moves_on_both_sliders():
-    """The first-load company must make Module 5 look alive."""
+    """The first-load company must respond to both stress sliders."""
     from app.scoring_service import stress
 
     assert stress("Vedanta", -30, 0).delta > 1.0   # EBIT leg
     assert stress("Vedanta", 0, 40).delta > 1.0     # leverage leg
 
 
-# ------------------------------------------------------- macro stress (M5)
+# ------------------------------------------------------- macro stress
 def test_macro_adverse_scenario_raises_risk_for_every_company():
     """Worse macro (rates up, inflation up, GDP down) must never lower risk -- the
     direction discipline that caught the dead leverage slider, now for the macro path."""

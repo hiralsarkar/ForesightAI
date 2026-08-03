@@ -1,4 +1,4 @@
-"""Module 2 digital-signals guardrails.
+"""digital-signals guardrails.
 
 The load-bearing test is point-in-time integrity: a past assessment must never see a
 future filing.
@@ -48,7 +48,7 @@ def test_pulse_as_of_never_leaks_future_events():
 
 # ------------------------------------------------------------------- leadership
 def test_more_than_two_exits_is_flagged_red():
-    """Blueprint rule: > 2 senior exits -> Elevated/Critical."""
+    """Rule: > 2 senior exits -> Elevated/Critical."""
     events = [
         LeadershipEvent("X", date(2019, 1, 1), Role.CEO, "a", EventType.RESIGNATION),
         LeadershipEvent("X", date(2019, 2, 1), Role.CFO, "b", EventType.RESIGNATION),
