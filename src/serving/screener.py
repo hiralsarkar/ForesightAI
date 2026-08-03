@@ -6,7 +6,7 @@ this module is what lets it score an *Indian* company. Without it there is no de
 **What Screener actually gives us (verified against live pages, July 2026).** The
 default statements are heavily aggregated -- there is no inventory, receivables, or
 current-assets line. So the current-ratio family is not computable from the balance
-sheet and comes back NaN. The model routes NaN natively (a Phase 1 decision), so this
+sheet and comes back NaN. The model routes NaN natively by design, so this
 is graceful, but see the structural-missingness warning below.
 
     P&L         Sales, Expenses, Operating Profit, Other Income, Interest,
@@ -26,7 +26,7 @@ Derived intermediates:
     working_capital = Working Capital Days * Sales / 365   (recovers WC without the
                       current-asset breakdown)
 
-**⚠️ Structural vs informative missingness (the design notes acceptance gate).**
+**⚠️ Structural vs informative missingness.**
 In training, a missing feature was *informative* -- distressed Polish firms failed to
 report. Here, the current-ratio family is missing *structurally* -- Screener never
 breaks it out, for healthy and distressed companies alike. If the model learned
@@ -267,8 +267,8 @@ def to_feature_row(
 def screener_feature_set() -> tuple[str, ...]:
     """The features the bridge can populate given complete inputs + history.
 
-    **This is the true serving feature set** and what the served model must train on
-    (the design notes, resolved for real). Derived empirically from a fully-populated synthetic
+    **This is the true serving feature set** and what the served model must train on.
+    Derived empirically from a fully-populated synthetic
     record so it can never drift from what `compute_features` actually assigns: if a
     formula is added or removed above, this set tracks it automatically.
     """

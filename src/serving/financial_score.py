@@ -1,7 +1,7 @@
 """Serving Financial Health Score, anchored on Altman Z''.
 
-Phase 2 established that the GBM does not transfer to Indian companies while the linear
-Altman Z'' does (see `docs/phase2_findings.md`). So the score a user sees for an Indian
+The serving work established that the GBM does not transfer to Indian companies while the
+linear Altman Z'' does (see `docs/serving_indian_companies.md`). So the score a user sees for an Indian
 company is derived from Z'', not from the GBM's calibrated probability.
 
 Two things this module must get right:
@@ -126,7 +126,7 @@ def score_company(
     `fill_missing=True` substitutes 0 for an unavailable Z'' component (a neutral
     assumption -- e.g. missing working capital -> WC/TA = 0) so the score still computes,
     and records it in `missing_terms`. With `fill_missing=False`, any missing component
-    yields a NaN score, matching the strict Phase 1 Altman behaviour.
+    yields a NaN score, matching the strict training-path Altman behaviour.
     """
     from ..features.altman import zone as altman_zone
 

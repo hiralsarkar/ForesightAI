@@ -1,4 +1,4 @@
-"""Module 3 -- Combined Risk Score: fusion of financial and digital signals.
+"""Combined Risk Score: fusion of financial and digital signals.
 
 The product's primary output. It fuses the Altman-anchored Financial Score with the
 Digital Pulse composite into one 0-100 risk score, and -- crucially -- shows the two legs
@@ -10,10 +10,10 @@ Two design decisions, both learned the hard way earlier in the build:
    roster carries digital signals on every company, but the fusion must stay correct for
    any company that lacks them: a fixed 60/40 with digital=0 would drag every
    financial-only company toward healthy (0.6*fin + 0.4*0) and under-flag a distressed
-   one -- the same structural-missingness bias that broke serving in Phase 2. So when
+   one -- the same structural-missingness bias that broke the serving path. So when
    digital is absent, combined = financial, and the UI says so.
 
-2. **No manufactured divergence.** The blueprint's flagship narrative is "the gap between
+2. **No manufactured divergence.** The flagship story is "the gap between
    the legs" (financial healthy, digital weak -> trouble not yet in the numbers). But all
    three dual-signal companies *agree* (TCS both healthy, Jet both critical, Future Retail
    both watch) -- there is no cross-sectional divergence in the real data, and fabricating
@@ -88,7 +88,7 @@ def _narrative(company: str, fin: float, dig: Optional[float], combined: float) 
             f"digital ({dig:.0f}) signals agree, which raises confidence in the assessment."
         )
     if dig_rank > fin_rank:
-        # Digital reads a worse band than financials -- the blueprint's flagship pattern.
+        # Digital reads a worse band than financials -- the pattern worth surfacing.
         # Computed from the data, never assumed; only fires if it genuinely occurs.
         return (
             f"{company} scores {combined:.0f}/100 ({band}), but digital signals "

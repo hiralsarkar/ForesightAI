@@ -1,4 +1,4 @@
-"""Module 5 - Macroeconomic Stress Testing.
+"""Macroeconomic Stress Testing.
 
 Maps macro shocks to a company's Altman-anchored risk score through explicit
 economic channels. Three macro levers (the ones the problem statement names) plus two
