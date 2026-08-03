@@ -1,4 +1,4 @@
-"""LLM provider configuration for the Module 6 narrative.
+"""LLM provider configuration for the narrative.
 
 The key is read from the environment first, then from a gitignored `secrets.local.json`
 at the repo root. It is never hard-coded in committed source (see `.gitignore`).

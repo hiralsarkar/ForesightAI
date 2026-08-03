@@ -1,4 +1,4 @@
-"""Module 6 -- AI Financial Narrative.
+"""AI Financial Narrative.
 
 One paragraph, four sentences, in a credit analyst's voice. Two paths behind one call:
 
@@ -183,7 +183,7 @@ def _fallback(f: NarrativeFacts) -> str:
         s3 = ("Market-intelligence signals are not available for this company, so the "
               "assessment rests on reported financials alone.")
     else:
-        # Use the SAME band-disagreement test as the Module 3 combined narrative. Keying
+        # Use the SAME band-disagreement test as the combined narrative. Keying
         # this off a numeric gap instead let the two panels contradict each other on
         # screen -- one calling it a divergence while the other called it corroboration.
         from ..scoring.combined import _BAND_RANK
