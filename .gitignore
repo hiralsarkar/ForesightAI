@@ -10,6 +10,10 @@ __pycache__/
 *.pyc
 .pytest_cache/
 
+# Local-only test suite (kept off the public repo)
+tests/
+pytest.ini
+
 # Data & artefacts (regenerable)
 data/raw/*.arff
 data/raw/*.zip
