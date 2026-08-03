@@ -3,8 +3,9 @@ secrets.local.json
 .env
 .streamlit/secrets.toml
 
-# Environment
+# Environment / local tooling
 .venv/
+.claude/
 __pycache__/
 *.pyc
 .pytest_cache/
