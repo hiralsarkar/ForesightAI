@@ -83,7 +83,7 @@ def component_bar(label: str, value, weight: float) -> str:
         return (f'<div style="margin:8px 0"><span style="color:{theme.TEXT_DIM};font-size:0.8rem">'
                 f'{label}</span><div style="color:{theme.TEXT_DIM};font-size:0.9rem">'
                 f'Unavailable - combined reflects financials only</div></div>')
-    from scoring_service import band_for
+    from foresight import band_for
     c = band_color(band_for(value))
     pct = max(2, min(100, value))
     return (
@@ -156,7 +156,7 @@ def render_company(company: str) -> None:
                         f'<div class="bar" style="width:{width}px;background:{c3}"></div>'
                         f'<div class="tv">{t.contribution:+.2f} &nbsp; ({t.value:+.2f} &times; {t.coefficient})</div>'
                         f'</div>', unsafe_allow_html=True)
-        from scoring_service import narrative as fin_narrative
+        from foresight import narrative as fin_narrative
         st.markdown(f'<div class="fa-narrative" style="margin-top:12px">{fin_narrative(fin)}</div>',
                     unsafe_allow_html=True)
 
