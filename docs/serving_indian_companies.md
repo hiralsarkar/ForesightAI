@@ -1,5 +1,13 @@
 # Serving Indian Companies
 
+**In plain English:** the machine-learning model wins in the lab, but it was trained on
+European companies and breaks when pointed at a live Indian balance sheet - it cannot judge
+numbers outside the range it learned on. This document is the story of finding that out and
+fixing it: we ship the dependable Altman formula for live scoring (it generalises across
+countries), keep the ML model as the benchmark that proves the method, and layer on four
+real-world "digital signals" for early warning. Below is what we found and why each call was
+made.
+
 The question this had to answer: *can we score Indian non-financial companies at all, and
 do the healthy controls land healthy?* Answering it changed the serving architecture.
 This documents what we found and why.

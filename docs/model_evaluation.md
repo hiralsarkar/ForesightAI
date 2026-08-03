@@ -1,5 +1,12 @@
 # Model Evaluation
 
+**In plain English:** this document is the proof behind the headline claim - that Foresight
+finds failing companies far more sharply than the textbook Altman screen. It walks through
+how the model was tested on ~10,000 real companies with known outcomes, why we grade it the
+way we do (accuracy is a trap when failures are rare), how it compares to Altman at the same
+catch rate, and every design choice we made against a measurement rather than a habit. If you
+just want the business takeaways, the README has them; this is the receipts.
+
 Measured on the Polish Companies Bankruptcy dataset (UCI id 365). All figures are
 out-of-fold from stratified 5-fold CV with fold-internal imputation and resampling.
 Reproduce with `notebooks/` or `src.models.train.cross_validate`.
