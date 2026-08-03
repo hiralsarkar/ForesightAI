@@ -89,7 +89,7 @@ class PortfolioRow:
 
 @st.cache_data(show_spinner=False)
 def portfolio() -> list[PortfolioRow]:
-    """Score every company for the surveillance table (Module 8), worst risk first."""
+    """Score every company for the surveillance table, worst risk first."""
     rows = []
     for name in company_names():
         c = combined(name)
@@ -102,7 +102,7 @@ def portfolio() -> list[PortfolioRow]:
     return rows
 
 
-# -------------------------------------------------- narrative (M6) + advice (M7)
+# -------------------------------------------------- narrative + advice
 @st.cache_data(show_spinner=False)
 def narrative(name: str) -> tuple[str, str]:
     """AI narrative + its source ('llm' or 'rule-based'). Never raises."""
@@ -113,7 +113,7 @@ def narrative(name: str) -> tuple[str, str]:
 
 @st.cache_data(show_spinner=False)
 def advice(name: str):
-    """Rule-based recommendations grouped by audience (Module 7)."""
+    """Rule-based recommendations grouped by audience."""
     from src.narrative.recommendations import recommend
 
     rec, prior = _ROSTER[name]
@@ -122,7 +122,7 @@ def advice(name: str):
 
 @st.cache_data(show_spinner=False)
 def report_pdf(name: str) -> bytes:
-    """Two-page executive memo (Module 9). Cached so repeat clicks are instant."""
+    """Two-page executive memo. Cached so repeat clicks are instant."""
     from src.reporting.executive_report import build_report
 
     rec, prior = _ROSTER[name]
@@ -161,7 +161,7 @@ def case_timeline(name: str = "Ola Electric") -> list[TimelinePoint]:
                           financial=fin) for l, w in points]
 
 
-# --------------------------------------------------------------- financial ratios (M1)
+# --------------------------------------------------------------- financial ratios
 @dataclass
 class RatioCard:
     label: str
@@ -178,7 +178,7 @@ def _fmt(x: float, pct: bool = False, suffix: str = "") -> str:
 
 @st.cache_data(show_spinner=False)
 def ratio_cards(name: str) -> list[RatioCard]:
-    """Key financial ratios with one line of context each (Module 1)."""
+    """Key financial ratios with one line of context each."""
     rec, prior = _ROSTER[name]
     f = compute_features(rec, prior=prior)
 
@@ -214,7 +214,7 @@ def ratio_cards(name: str) -> list[RatioCard]:
     return cards
 
 
-# ------------------------------------------------------------------ stress test (M5)
+# ------------------------------------------------------------------ stress test
 def stress(name: str, op_shock_pct: float = 0.0, leverage_pct: float = 0.0,
            interest_bps: float = 0.0, inflation_pp: float = 0.0, gdp_pp: float = 0.0):
     """Recompute the Altman-anchored score under a macro + company-specific scenario.
@@ -233,7 +233,7 @@ def stress(name: str, op_shock_pct: float = 0.0, leverage_pct: float = 0.0,
     return run(rec, _SECTOR.get(name, ""), sc, prior=prior)
 
 
-# --------------------------------------------------------------- review economics (M10)
+# --------------------------------------------------------------- review economics
 @st.cache_resource(show_spinner=False)
 def _economics_artifact() -> dict:
     """The precomputed catch curve, from validation OOF (models/review_economics.json).

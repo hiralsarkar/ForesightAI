@@ -1,9 +1,9 @@
 """Foresight AI -- Corporate Financial Health Intelligence dashboard.
 
 Three views (tabs):
-  * Company Analysis -- the demo spine: combined gauge (M3), financial cards (M1),
-    digital pulse (M2), Altman waterfall (M4), stress test (M5).
-  * Portfolio Monitor (M8) -- surveillance table across the roster. The hero
+  * Company Analysis -- the demo spine: combined gauge, financial cards,
+    digital pulse, Altman waterfall, stress test.
+  * Portfolio Monitor -- surveillance table across the roster. The hero
     visual: verified financials, clean red-to-green contrast.
   * Case Study -- Digital Pulse over the last year for a company under active stress,
     against its annual financial score.
@@ -117,7 +117,7 @@ def render_company(company: str) -> None:
             st.markdown(f'<div class="fa-narrative" style="margin-top:14px">{c.narrative}</div>',
                         unsafe_allow_html=True)
 
-    # M1 financial cards
+    # financial cards
     with panel():
         section_title(f'Financial Health - Altman Z&Prime; {fin.z_score:.1f} '
                       f'&middot; {band_pill(fin.band)}')
@@ -128,7 +128,7 @@ def render_company(company: str) -> None:
                          f'<div class="val" style="color:{color}">{card.value}</div>'
                          f'<div class="ctx">{card.context}</div></div>', unsafe_allow_html=True)
 
-    # M2 digital pulse
+    # digital pulse
     with panel():
         section_title("Market Intelligence Signals")
         if dig is None:
@@ -143,7 +143,7 @@ def render_company(company: str) -> None:
                             f'<div class="pill" style="background:{c2}22;color:{c2}">{r.label}</div></div>',
                             unsafe_allow_html=True)
 
-    # M4 Altman waterfall
+    # Altman waterfall
     with panel():
         section_title("Why This Score - Altman Z&Prime; Decomposition")
         maxc = max((abs(t.contribution) for t in fin.terms), default=1.0)
@@ -158,13 +158,13 @@ def render_company(company: str) -> None:
         st.markdown(f'<div class="fa-narrative" style="margin-top:12px">{fin_narrative(fin)}</div>',
                     unsafe_allow_html=True)
 
-    # M9 report download
+    # report download
     st.download_button(
         "Generate Executive Report (PDF)", data=svc.report_pdf(company),
         file_name=f"ForesightAI_{company.replace(' ', '_')}.pdf", mime="application/pdf",
         key=f"dl_{company}")
 
-    # M6 AI narrative
+    # AI narrative
     text, source = svc.narrative(company)
     tag = ("AI-generated" if source == "llm" else "Rule-based (LLM unavailable)")
     with panel():
@@ -174,7 +174,7 @@ def render_company(company: str) -> None:
         st.markdown(f'<div class="fa-narrative" style="font-size:0.95rem;line-height:1.6">{text}</div>',
                     unsafe_allow_html=True)
 
-    # M7 recommendations, split by audience
+    # recommendations, split by audience
     recs = svc.advice(company)
     with panel():
         section_title("Recommended Actions")
@@ -196,7 +196,7 @@ def render_company(company: str) -> None:
                         f'<div style="color:{theme.TEXT_DIM};font-size:0.8rem;line-height:1.45;'
                         f'margin-top:4px">{it.action}</div></div>', unsafe_allow_html=True)
 
-    # M5 macro + company stress test
+    # macro + company stress test
     with panel():
         section_title("Scenario Analysis - Stress the Macro Environment")
         st.markdown(f'<div style="color:{theme.ACCENT};font-weight:700;font-size:0.72rem;'
@@ -242,7 +242,7 @@ def render_company(company: str) -> None:
                         f'Score impact by driver: {parts}</div>', unsafe_allow_html=True)
 
 
-# ==================================================================== Portfolio (M8)
+# ==================================================================== Portfolio
 def render_portfolio() -> None:
     rows = svc.portfolio()
     with panel():
