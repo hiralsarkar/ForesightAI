@@ -1,10 +1,10 @@
 """Distress model training and evaluation.
 
-the training protocol as **amended by measurement** (see docs/phase1_findings.md
+The training protocol, **as amended by measurement** (see docs/model_evaluation.md
 section 6): evaluated on AUC-ROC and Precision-Recall, never accuracy, on stratified
 5-fold CV -- but **class weighting only, SMOTE off by default**.
 
-The blueprint mandated SMOTE + class weighting. A full 2x2 ablation across two model
+SMOTE plus class weighting is the obvious first move. A full 2x2 ablation across two model
 families and three horizons showed SMOTE costs 12-14 PR-AUC points *even with class
 weighting disabled*, so this is not merely a double-correction artefact. SMOTE
 interpolates synthetic minority points in a 63-dimensional ratio space with extreme
@@ -204,7 +204,7 @@ def make_xgb(
         colsample_bytree=0.8,
         reg_lambda=1.0,
         min_child_weight=3,
-        # Class weighting, per core requirement as amended (SMOTE off).
+        # Class weighting, as amended by the ablation (SMOTE off).
         scale_pos_weight=scale_pos_weight(y),
         eval_metric="aucpr",
         tree_method="hist",
@@ -318,7 +318,7 @@ def operating_points(y_true: np.ndarray, y_score: np.ndarray) -> pd.DataFrame:
 
     A credit team does not consume a probability; it consumes a review queue. This
     table answers "if we review the top N%, how many real distress cases do we catch,
-    and how many false alarms do we absorb?" -- the form the Module 8 portfolio view
+    and how many false alarms do we absorb?" -- the form the portfolio view
     and the demo narrative both need.
     """
     precision, recall, thresh = precision_recall_curve(y_true, y_score)

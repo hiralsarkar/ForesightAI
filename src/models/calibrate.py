@@ -190,7 +190,7 @@ def risk_score(probability: float | np.ndarray) -> float | np.ndarray:
     return np.clip(np.asarray(probability, dtype="float64") * 100.0, 0.0, 100.0)
 
 
-#: Score bands shown on the Module 3 gauge, in the language the dashboard uses.
+#: Score bands shown on the gauge, in the language the dashboard uses.
 BANDS: tuple[tuple[float, str], ...] = (
     (25.0, "Healthy"),
     (50.0, "Watch"),

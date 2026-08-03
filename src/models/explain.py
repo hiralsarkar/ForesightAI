@@ -1,6 +1,6 @@
-"""SHAP explainability with business-language labels (Module 4).
+"""SHAP explainability with business-language labels.
 
-core requirement: no cryptic variable names on any chart the user will see. `Attr27`
+The rule: no cryptic variable names on any chart the user will see. `Attr27`
 means nothing; "Interest Coverage Ratio" means everything. Every public function here
 returns labelled output, and `polish_schema.LABELS` is the single mapping.
 
@@ -27,9 +27,9 @@ Two implementation notes that matter:
   caveat; the only remaining, inherent gap to the displayed 0-100 number is the monotonic
   calibration transform noted above.)
 
-The three-sentence summary is deliberately **rule-based, not LLM-generated** (the design notes
-Module 4). It appears next to a number a credit committee may act on, so it must be
-reproducible and incapable of inventing a fact.
+The three-sentence summary is deliberately **rule-based, not LLM-generated**. It appears
+next to a number a credit committee may act on, so it must be reproducible and incapable
+of inventing a fact.
 """
 
 from __future__ import annotations
@@ -239,14 +239,14 @@ def waterfall(
         values=vals[row],
         base_values=base,
         data=arr[row],
-        feature_names=[label_for(f) for f in features],  # core requirement
+        feature_names=[label_for(f) for f in features],  # never raw Attr names
     )
     shap.plots.waterfall(exp, max_display=max_display, show=show)
     return plt.gcf()
 
 
 # --------------------------------------------------------------------------------
-# Rule-based narrative (Module 4). Deterministic by design -- see module docstring.
+# Rule-based narrative. Deterministic by design -- see module docstring.
 # --------------------------------------------------------------------------------
 
 def _phrase(c: Contribution) -> str:
@@ -449,7 +449,7 @@ def what_if(
     new_value: float,
     row: int = 0,
 ) -> dict[str, float]:
-    """Scenario analysis: change one metric, see the score move (Module 4 calculator).
+    """Scenario analysis: change one metric, see the score move.
 
     `feature` accepts either a raw id (`Attr27`) or its business label
     ("Interest Coverage Ratio"), so UI code can pass whatever the user picked.

@@ -1,4 +1,4 @@
-"""Optuna hyperparameter search (core requirement).
+"""Optuna hyperparameter search.
 
 Methodology, because the number this produces is only worth quoting if the protocol is
 clean:
@@ -12,7 +12,7 @@ memorisation of the split.
 
 **The shipping config is held fixed.** The search tunes tree/regularisation shape only.
 Class weighting, native NaN handling, and the slider-scoped monotonic constraints are
-decisions already made against evidence (see the design notes) and are not
+decisions already made against evidence and are not
 re-litigated by a random search optimising a single metric. `scale_pos_weight` and
 `monotone_constraints` are therefore excluded from the search space -- the builders set
 them per-fold, and letting Optuna override them would silently undo the demo-safety
@@ -142,12 +142,12 @@ def tune(
 ):
     """Run the search and evaluate the winner on data it never saw.
 
-    Returns `(TuningResult, study)`. Requires >= 50 trials per core requirement.
+    Returns `(TuningResult, study)`. Requires >= 50 trials to count as a real search.
     """
     import optuna
 
     if n_trials < 50:
-        raise ValueError(f"core requirement requires >= 50 trials, got {n_trials}")
+        raise ValueError(f"need >= 50 trials for a meaningful search, got {n_trials}")
     if model_name not in SPACES:
         raise ValueError(f"model_name must be one of {sorted(SPACES)}")
 
@@ -228,7 +228,7 @@ def _fit_and_score(
 
 
 def trials_frame(study) -> pd.DataFrame:
-    """All trials, best first -- the audit trail core requirement asks to log."""
+    """All trials, best first -- the audit trail we log for every search."""
     rows = [
         {"trial": t.number, "pr_auc": t.value, "state": t.state.name, **t.params}
         for t in study.trials
