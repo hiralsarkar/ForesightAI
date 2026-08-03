@@ -5,7 +5,8 @@ financial trouble months before the official numbers admit it, and hands you a s
 ranked list of who to worry about instead of a haystack to search.
 
 Live app: [foresightai.streamlit.app](https://foresightai.streamlit.app). Every number on
-this page is reproduced from code in the [evaluation notebook](notebooks/01_model_evaluation.ipynb).
+this page is worked out step by step in the notebooks (`notebooks/`), starting with
+[the problem and the data](notebooks/01_data_and_altman.ipynb).
 
 ## The problem
 
@@ -177,4 +178,4 @@ This is a decision-support tool meant to sit next to a professional analyst, not
 Risk bands come from a calibrated probability. Some signals in the demo use publicly available
 historical data and are labelled as illustrative, because live licensed feeds are what a
 production version would connect to. The point of the project is the method and the evidence
-behind every choice - the full technical rationale is in [`docs/`](docs/).
+behind every choice - the full reasoning is worked through in the three notebooks.
