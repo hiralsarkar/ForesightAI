@@ -1,13 +1,13 @@
-"""Digital Pulse composite (Module 2 output).
+"""Digital Pulse composite.
 
 Fuses the four signal readings into one 0-100 digital risk score on the same scale and
-band language as the financial score, so that Module 3 (financial + digital fusion) is a
+band language as the financial score, so that fusing financial and digital is a
 plain weighted average later.
 
 **Scope boundary:** this module stops at the digital composite. It does NOT combine with
-the financial score -- that is Module 3, a later phase. Building it here would be drift.
+the financial score -- that fusion is a later step. Building it here would be drift.
 
-Weights reflect signal reliability, per the Phase 2 signal-priority decision: leadership
+Weights reflect signal reliability: leadership
 (dated public filings, no selection-bias risk) and news sentiment carry the signal;
 hiring and employee reviews are soft and illustrative, so they inform but do not drive.
 Missing signals are dropped and the remaining weights renormalised, so a company with no

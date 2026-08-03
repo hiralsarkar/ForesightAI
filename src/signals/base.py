@@ -1,18 +1,18 @@
-"""Shared data model for the four Digital Pulse signals (Module 2).
+"""Shared data model for the four Digital Pulse signals.
 
-Design decisions locked in here, per the design notes and the Phase 2 architecture:
+Design decisions locked in here:
 
 * **Same 0-100 risk scale and band language as the financial score.** Higher = worse,
-  bands Healthy / Watch / Elevated Risk / Critical. This is what makes Module 3 fusion a
+  bands Healthy / Watch / Elevated Risk / Critical. This is what makes fusion a
   plain weighted average later -- financial and digital scores speak one language.
 
-* **Every reading carries a specific explanatory datum**, not a restated metric. The
-  blueprint's line: not "Sentiment: negative" but "Sentiment declining for 11 weeks;
+* **Every reading carries a specific explanatory datum**, not a restated metric. Not
+  "Sentiment: negative" but "Sentiment declining for 11 weeks;
   68% of coverage mentions 'liquidity concerns'." The datum is a required field.
 
 * **Time-series, not snapshot.** A signal is observed at multiple dates. The latest
-  reading feeds the Module 2 gauges; the trajectory feeds the case-study timeline
-  (Slide 4). `SignalSeries` holds the history; `.latest()` is what the gauge shows.
+  reading feeds the gauges; the trajectory feeds the case-study timeline.
+  `SignalSeries` holds the history; `.latest()` is what the gauge shows.
 
 * **Trend is first-class**, computed from the series, because for these signals the
   direction matters more than the level (a company going 300 -> 80 job postings is the

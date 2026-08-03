@@ -1,6 +1,6 @@
-"""Hiring Activity signal (Module 2, soft).
+"""Hiring Activity signal (soft).
 
-Active job-posting count over time (Naukri-style). The blueprint is explicit that the
+Active job-posting count over time (Naukri-style). The
 *trend* matters more than the absolute -- a company going 300 -> 80 postings is signalling
 contraction regardless of its size. Historical posting counts cannot be scraped after the
 fact, so the demo data is illustrative and labelled as such (same basis as Glassdoor).

@@ -1,14 +1,14 @@
-"""News Sentiment signal (Module 2).
+"""News Sentiment signal.
 
-Built fallback-first, per the Phase 1 "never let the demo break" discipline. A
+Built fallback-first, on the "never let the demo break" discipline. A
 `SentimentScorer` interface has two implementations:
 
 * `LoughranMcDonaldScorer` -- a no-dependency lexicon scorer using the finance-standard
   Loughran-McDonald word lists. General-purpose sentiment (VADER, etc.) mis-reads
   financial text -- "liability", "aggressive", "debt" are neutral-to-technical in
   finance -- so even the fallback uses the right vocabulary.
-* `FinBertScorer` -- ProsusAI/finbert, loaded lazily. The blueprint's explicit choice;
-  the volume here (~20 headlines x 8 companies) makes model latency a non-issue. Swapped
+* `FinBertScorer` -- ProsusAI/finbert, loaded lazily. The volume here
+  (~20 headlines x 8 companies) makes model latency a non-issue. Swapped
   in behind the same interface, so nothing downstream changes.
 
 Headlines are real, dated coverage of the roster companies. The reading combines the
@@ -154,7 +154,7 @@ def prewarm_sentiment_cache() -> Path:
 def default_scorer(prefer_finbert: bool = True) -> SentimentScorer:
     """Best available scorer, resolved cache -> FinBERT -> lexicon.
 
-    Validated (docs/phase2_findings.md): FinBERT and the lexicon agree on sign, but the
+    Validated (docs/serving_indian_companies.md): FinBERT and the lexicon agree on sign, but the
     lexicon reads several distress headlines *neutral* ("defers loan repayment") because
     they contain no lexicon words, while FinBERT reads them negative from context. So the
     deployed app serves FinBERT's exact scores from the cache (no torch needed); locally,

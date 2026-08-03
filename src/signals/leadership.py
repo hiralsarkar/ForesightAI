@@ -1,6 +1,6 @@
-"""Leadership Stability signal from BSE-style corporate filings (Module 2 anchor).
+"""Leadership Stability signal from BSE-style corporate filings (anchor).
 
-This is the hardest-evidence of the four signals and the one the blueprint prizes as
+This is the hardest-evidence of the four signals, and it is
 uniquely India-specific: every board-level change, KMP resignation, and auditor change
 must be filed with the exchange, dated and public. There is **no selection-bias risk** --
 a resignation happened on its filing date or it did not. That makes this the anchor the
@@ -8,8 +8,8 @@ softer signals lean on.
 
 The signal is the count of *senior* departures in a trailing window (default 6 months),
 weighted by seniority: a CFO or auditor walking out is a sharper distress tell than an
-independent director rotating off. The blueprint's rule -- "flagged red if above 2" -- is
-preserved as the Elevated/Critical threshold.
+independent director rotating off. More than two senior exits in the window is the red
+line, and it maps to the Elevated/Critical threshold.
 
 Point-in-time is intrinsic: `score_as_of(when)` only counts events filed on or before
 `when`, so a 2019 assessment never sees a 2020 filing.
@@ -62,7 +62,7 @@ _EXIT_WEIGHT: dict[Role, float] = {
     Role.INDEPENDENT_DIRECTOR: 0.8,
 }
 
-# Points per unit of weighted-exit, tuned so the blueprint's "> 2 exits = red" lands in
+# Points per unit of weighted-exit, tuned so "> 2 exits = red" lands in
 # the Elevated band: two average senior exits (weight ~1.5 each = 3.0) -> ~54.
 _POINTS_PER_WEIGHT = 18.0
 _BASELINE = 6.0  # a stable company still shows minor churn
@@ -139,7 +139,7 @@ def score_as_of(
     elif n <= 2:
         label = "Some churn"
     else:
-        label = "High turnover"  # the blueprint's "> 2 = red" case
+        label = "High turnover"  # the "> 2 = red" case
 
     # A verified tribunal order or auditor exit is a hard fact, flagged so the composite
     # cannot average it away against softer, tone-based signals.

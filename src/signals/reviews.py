@@ -1,8 +1,8 @@
-"""Employee Confidence signal (Module 2, soft).
+"""Employee Confidence signal (soft).
 
-Glassdoor-style average rating over time. The blueprint's own guidance: use a publicly
-available historical dataset and be upfront that a production version would connect to a
-licensed feed. We honour that -- the demo data is illustrative and labelled, and the
+Glassdoor-style average rating over time. This uses a publicly
+available historical dataset; a production version would connect to a
+licensed feed. The demo data is illustrative and labelled, and the
 signal leans on the rating *trend* (Improving / Stable / Declining), not the absolute.
 
 Point-in-time via `score_as_of`.
