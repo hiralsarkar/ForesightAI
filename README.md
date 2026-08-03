@@ -1,103 +1,149 @@
 # Foresight AI
 
-See corporate distress months before the filing does.
+**An early-warning system for company failure.** It spots a company sliding toward
+financial trouble months before the official numbers admit it, and hands you a short,
+ranked list of who to worry about instead of a haystack to search.
 
-Foresight AI reads a company's financial statements and its digital footprint - news,
-leadership moves, hiring, employee sentiment - and turns them into one decision you can make
-today instead of once a year: is this company's risk changing right now? Financial
-statements tell you what already happened. Digital signals tell you what is starting to
-happen. Foresight reads both.
+Live app: [foresightai.streamlit.app](https://foresightai.streamlit.app). Every number on
+this page is reproduced from code in the [evaluation notebook](notebooks/01_model_evaluation.ipynb).
 
-Live app: [foresightai.streamlit.app](https://foresightai.streamlit.app). The
-[evaluation notebook](notebooks/01_model_evaluation.ipynb) reproduces every number below.
+## The problem
 
-## Why it matters
+If a company you depend on quietly runs out of money, you lose too. A bank loses the loan.
+A supplier loses the goods it shipped on credit. An investor loses the position. A vendor
+loses a customer that owes it money.
 
-A credit team, lender, or supplier usually learns a company is in trouble the same way
-everyone else does: when the filing lands, months too late. The fallback screen, the
-decades-old Altman Z-score, is noisy enough that at a realistic 3.9% distress rate it turns
-"find the distressed companies" into "investigate 1,586 to find 141." That review queue is
-the real, recurring cost of the status quo.
+The catch is timing. Most people find out a company is in trouble the same way the public
+does: when its official financial results are filed, which happens roughly once a year and
+lands months after the trouble actually began. By then the loan is out, the goods are
+shipped, the money is gone.
 
-Foresight replaces the queue with a ranked, explainable shortlist:
+So the real job is not "predict bankruptcy in theory." It is: **should you change your
+decision today, because this company's risk is changing right now?** Tighten the credit
+line, ask for payment upfront, trim the exposure - while it still matters.
 
-| At matched recall | Companies flagged | Real distress caught | Precision |
+## The tool everyone uses today, and why it falls short
+
+The industry's default early-warning check is the **Altman Z-score**, a formula from 1968.
+It takes a handful of numbers from a company's accounts (how much it owes versus what it
+owns, whether it is profitable, how much cash it is tying up) and boils them into a single
+score. A low score means "looks financially fragile." It is the smoke detector of corporate
+credit: simple, everywhere, decades old.
+
+The problem is that this smoke detector is **noisy**. It goes off far too often. To be sure
+you catch the genuinely failing companies, you have to investigate a huge pile of healthy
+ones alongside them. In our test, catching about half of all the truly distressed companies
+with the Altman screen meant flagging **1,586 companies to find just 141 real ones** - your
+analysts wade through roughly 1,400 false alarms to get there. That investigation pile, the
+"review queue," is the real, recurring, expensive cost of the old way.
+
+## What Foresight AI does differently
+
+Two things.
+
+**1. It ranks far more sharply, so the review queue shrinks.** Instead of a noisy pass/fail
+line, Foresight scores and ranks every company by risk. Catching the *same* real distress
+cases as the Altman screen above, it flags only **143 companies - and 140 of them are
+genuinely in trouble**. Same catch, one-tenth the pile to investigate.
+
+| To catch the same real failures | Companies you must investigate | Real distress among them | Hit rate |
 |---|---|---|---|
-| Textbook Altman screen | 1,586 | 141 | 8.9% |
+| Altman screen (today's standard) | 1,586 | 141 | 8.9% |
 | Foresight AI | 143 | 140 | 97.9% |
 
-Same catch, one-tenth the review queue, 11x the precision.
+Read the last column as: with the old screen, fewer than 1 in 10 flagged companies is
+actually in trouble; with Foresight, almost every company it flags is. Nearly no wasted
+investigation.
 
-It also puts a rupee value on the decision. Tell it what a missed default costs you and what
-a review costs, and it computes the cost-optimal policy live: at Rs 50 lakh per missed
-default and Rs 1 lakh per review, review your top 18% and catch 90% of all distress for
-Rs 26.6 Cr, against the classical screen's best of Rs 65.7 Cr. That Rs 39 Cr swing is
-recomputed instantly for your own numbers in the Review Economics tab.
+**2. It reads the outside world, not just the accounts.** Financial statements describe what
+already happened, once a year. But distress shows up in the open long before it reaches the
+accounts: the CFO resigns, layoffs are announced, the news turns, employees start rating the
+company badly, hiring freezes. Foresight tracks four of these live "digital signals"
+alongside the financials, on one shared 0-to-100 scale, and shows them side by side. When the
+outside world looks worse than the last set of accounts, that gap is the early warning.
 
-## What you get
+## A concrete example
 
-A four-tab dashboard:
+Take Ola Electric. Long before its annual accounts confirmed anything was wrong, the public
+signals were already flashing: the CFO resigned, a 5% workforce layoff was announced, and
+sales were visibly collapsing in the news. Foresight's Case Study view lets you watch those
+signals move month by month, ahead of the filing that eventually made it official. That is
+the difference between acting early and reading about it after.
 
-- **Company Analysis** - one combined risk gauge, the financial ratios behind it, four live
-  market signals, and a plain-English "why this score" a credit committee can act on.
-- **Portfolio Monitor** - your whole book ranked by risk, worst first.
-- **Case Study** - the signals moving month by month ahead of a real filing. For Ola
-  Electric, the CFO resignation, the 5% layoff, and collapsing sales were all visible before
-  the annual accounts confirmed them.
-- **Review Economics** - the cost-optimal review policy, with sliders for your own cost of a
-  miss and a review.
+## The results, in plain terms
 
-Plus a one-click PDF report per company, a live portfolio stress test, and an AI-written
-analyst summary.
+Everything below is measured, not asserted, on ~10,000 real companies with a known outcome.
 
-## How it works
+- **One-tenth the review queue, roughly 11x sharper.** Same real failures caught, but you
+  investigate 143 companies instead of 1,586. Analyst time is the scarce resource in a credit
+  team; this is where the money is saved.
 
-Two signals, one score, always explainable.
+- **It ranks the rare thing well: a score of 0.780 out of 1.** Only about 4% of companies in
+  the data actually fail, so failures are rare needles in a large haystack. The standard grade
+  for "how well did you rank the needles to the top" is called PR-AUC. Pure guessing scores
+  0.039 here; Foresight scores **0.780 - about 20 times better than chance.**
 
-- **Financial engine** - an Altman Z'' distress score, decomposed term by term so every
-  point traces back to a real ratio: leverage, coverage, working capital, profitability.
-- **Digital Pulse** - four independent market reads on the same 0-100 scale: news sentiment
-  (FinBERT), leadership stability (exchange filings), hiring trend, employee sentiment. Each
-  is a specific, sourced fact, not a restated financial metric.
-- **Combined score** - fused with the two legs always shown side by side, because the gap
-  between them is the story: distress usually shows in the market before it reaches the
-  accounts.
+- **Why we don't quote "accuracy."** When only 4% fail, a lazy model that declares *everyone*
+  healthy is "96% accurate" and catches exactly zero failures. Accuracy rewards doing nothing
+  on rare events, so it is the wrong yardstick. We grade on the ranking quality instead.
 
-### Why Altman serves, and the ML model benchmarks
+- **The score means what it says.** When Foresight puts a company at 81, that reflects roughly
+  an 81% modelled chance of distress, not just "somewhere near the top." A committee can read
+  the number as a real probability and act on it. (In testing, the stated probabilities are
+  off by only about 1.5 points on average.)
 
-This pairs a machine-learning distress model with the linear Altman engine, tested against
-real, named bankruptcies. The ML model wins decisively in controlled tests (the 11x above).
-But gradient-boosted trees clamp at the edge of their training range instead of
-extrapolating, so on live Indian balance sheets - values outside anything in the Polish
-training data - they lose separation:
+## Putting a rupee value on the decision
 
-| Company | Reality | ML model, percentile |
+Foresight turns the risk score into a money decision. You tell it two numbers: what one
+missed failure costs you (the loss when a borrower you didn't flag collapses) and what one
+investigation costs (analyst time to check a company). It then finds the cheapest review
+policy for *your* numbers, live.
+
+Worked example, at Rs 50 lakh per missed failure and Rs 1 lakh per investigation:
+
+> Review your riskiest 18% of companies, catch 90% of all the distress out there, for a total
+> expected cost of **Rs 26.6 crore**. The best the old Altman screen can manage on the same
+> money math is **Rs 65.7 crore**. That is a **Rs 39 crore swing** - and it recalculates
+> instantly when you change the numbers, in the Review Economics tab.
+
+## Why the "smarter AI" is the benchmark, not the shipped product
+
+This is the honest, and most interesting, part.
+
+We built a modern machine-learning model as well as the classic Altman engine, and tested
+both on real, named bankruptcies. In controlled tests the ML model wins decisively - that is
+where the 11x above comes from. But it was trained on European (Polish) companies, and a
+model like this learns patterns only within the range of numbers it has seen. Point it at a
+live Indian balance sheet, with values outside anything in its training, and it stops
+separating the healthy from the doomed:
+
+| Company | What actually happened | ML model's risk rank |
 |---|---|---|
-| TCS FY19 | healthy | 2% |
-| Infosys FY19 | healthy | 47% |
-| Jet Airways FY19 | bankrupt | 59% |
-| RCom FY18 | distress | 93% |
+| TCS | healthy | 2% |
+| Infosys | healthy | 47% |
+| Jet Airways | went bankrupt | 59% |
+| RCom | in distress | 93% |
 
-Bankrupt Jet lands one rank above pristine Infosys, too weak to act on. Altman, being
-linear, extrapolates instead of clamping and separates the same companies with no edge case:
+Bankrupt Jet Airways lands barely above healthy Infosys - too muddy to act on. The old
+Altman formula, being simple arithmetic rather than a learned pattern, has no "training range"
+to fall outside of, so it keeps separating the same companies cleanly:
 
-| Company | Reality | Altman Z'' | Zone |
+| Company | What actually happened | Altman score | Verdict |
 |---|---|---|---|
-| TCS FY19 | healthy | +10.96 | Safe |
-| HUL FY19 | healthy | +4.13 | Safe |
-| Nestle FY19 | healthy | +3.22 | Safe |
-| Jet Airways FY19 | bankrupt | -17.25 | Distress |
+| TCS | healthy | +10.96 | Safe |
+| HUL | healthy | +4.13 | Safe |
+| Nestle | healthy | +3.22 | Safe |
+| Jet Airways | went bankrupt | -17.25 | Distress |
 
-So the product serves with Altman and keeps the ML model as the benchmark that proves the
-method beats the textbook screen 11x over. The exploration mapped exactly where a tree
-model's assumptions break on out-of-distribution data, and shipped the one that holds on a
-live balance sheet.
+So Foresight **serves live scores using the dependable Altman engine**, and keeps the ML
+model as the benchmark that proves the approach beats the textbook screen 11x over. The
+lesson is worth stating plainly: the flashiest model is not automatically the right one to
+ship, and we have the measurements to show which one holds up on a real company.
 
 ## What it scores today
 
-The live dashboard scores six current Indian companies, worst risk first. Combined fuses the
-Altman financial score with the four Digital Pulse signals; scores run 0-100, higher = higher
-risk.
+The live dashboard scores six current Indian companies, riskiest first. "Combined" fuses the
+financial score with the four digital signals; scores run 0 to 100, higher = more risk.
 
 | Company | Sector | Financial | Digital | Combined | Band |
 |---|---|---|---|---|---|
@@ -108,35 +154,27 @@ risk.
 | TCS | IT Services | 1 | 43 | 18 | Healthy |
 | Paytm | Fintech | 10 | 13 | 11 | Healthy |
 
-TCS shows the fusion earning its keep: pristine financials (1) but a digital leg at 43 from
-workforce signals, the gap you only catch by reading both legs.
+TCS shows why reading both sides matters: its finances are pristine (1), but its digital
+signal sits at 43 on workforce-related news - a small early wobble you would miss if you only
+ever looked at the accounts.
 
-## The proof
+## What you actually see in the app
 
-The 11x result is not a lucky split. The distress model is trained on the Polish Companies
-Bankruptcy dataset (~10k firms), 1-year horizon, stratified 5-fold cross-validation. The
-headline is PR-AUC, because at a 3.9% base rate accuracy is meaningless: predicting "never
-distress" scores 96.1%.
+Four tabs:
 
-| Metric | Value |
-|---|---|
-| PR-AUC (5-fold CV) | 0.780 ± 0.028 |
-| ROC-AUC | 0.951 ± 0.020 |
-| Calibration error (ECE) | 0.015 |
-| Random baseline | 0.039 |
+- **Company Analysis** - one risk gauge, the financial ratios behind it, the four live
+  signals, and a plain-English "why this score" a credit committee can act on.
+- **Portfolio Monitor** - your whole book of companies ranked by risk, worst first.
+- **Case Study** - the signals moving month by month ahead of a real failure (the Ola
+  Electric story above).
+- **Review Economics** - the cheapest review policy for your own cost of a miss and a check.
 
-Every number is reproduced end to end in the
-[evaluation notebook](notebooks/01_model_evaluation.ipynb).
+Plus a one-click PDF report per company and an AI-written analyst summary in readable English.
 
-Each modelling call was made against a measurement, not a convention:
+## Honest scope
 
-- **No SMOTE** - a 2x2 ablation showed it costs 12-14 PR-AUC points.
-- **Nothing imputed** - missingness is itself a distress signal; native NaN routing beat
-  imputation in every test.
-- **Monotonic constraints on every slider** - without them the score moved the wrong way on
-  82.9% of stress-test steps.
-- **Calibrated** - a score of 81 means an 81% modelled probability, not just a rank.
-- **Tuning that says no** - a 50-trial Optuna search was statistically indistinguishable from
-  the hand-set model once run through the shipping pipeline, so the simpler model shipped.
-
-Full rationale, including the cross-domain test in detail, is in [`docs/`](docs/).
+This is a decision-support tool meant to sit next to a professional analyst, not replace one.
+Risk bands come from a calibrated probability. Some signals in the demo use publicly available
+historical data and are labelled as illustrative, because live licensed feeds are what a
+production version would connect to. The point of the project is the method and the evidence
+behind every choice - the full technical rationale is in [`docs/`](docs/).
