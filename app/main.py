@@ -404,14 +404,16 @@ def render_live() -> None:
                     'tracked companies are.</div>', unsafe_allow_html=True)
         return
 
-    from foresight import score_company
     try:
         with st.status(f"Scoring {ticker.strip().upper()} ...", expanded=True) as status:
             import screener_live
-            st.write("Fetching latest financials from Screener ...")
-            fin = screener_live.fetch_financials(ticker)
-            st.write(f"Got FY{fin.year} financials. Computing the Altman Z&Prime; score ...")
-            s = score_company(fin)
+            from foresight import original_z, risk_from_original_z, band_for
+            st.write("Fetching latest financials and market cap from Screener ...")
+            fin, mcap = screener_live.fetch_financials(ticker)
+            st.write(f"Got FY{fin.year} data. Computing the Altman Z-Score ...")
+            z5, zone5, comps = original_z(fin, mcap)
+            risk = risk_from_original_z(z5)
+            band = band_for(risk)
             status.update(label=f"{fin.company} scored (FY{fin.year})",
                           state="complete", expanded=False)
     except Exception as exc:
@@ -422,38 +424,48 @@ def render_live() -> None:
     def fmt(x):
         return "n/a" if x != x else f"{x:,.0f}"
 
+    zc = theme.GOOD if zone5 == "Safe" else theme.BAD if zone5 == "Distress" else theme.WATCH
     g1, g2 = st.columns([2, 3])
     with g1:
         with panel():
             section_title("Financial Risk Score")
-            st.plotly_chart(risk_gauge(s.risk_score, s.band), width='stretch',
+            st.plotly_chart(risk_gauge(risk, band), width='stretch',
                             config={"displayModeBar": False})
-            st.markdown(f'<div style="text-align:center;margin-top:-10px">{band_pill(s.band)}</div>',
+            st.markdown(f'<div style="text-align:center;margin-top:-10px">{band_pill(band)}</div>',
                         unsafe_allow_html=True)
     with g2:
         with panel():
             section_title(f"{fin.company} - FY{fin.year} (live from Screener)")
             rows = [("Sales", fmt(fin.sales)), ("Net profit", fmt(fin.net_profit)),
-                    ("Borrowings", fmt(fin.borrowings)), ("Reserves", fmt(fin.reserves)),
+                    ("Borrowings", fmt(fin.borrowings)), ("Market cap", fmt(mcap)),
                     ("Total assets", fmt(fin.total_assets)),
-                    ("Altman Z''", "n/a" if s.z_score != s.z_score else f"{s.z_score:.2f}")]
+                    ("Altman Z", "n/a" if z5 != z5 else f"{z5:.2f}")]
             cells = "".join(f'<div class="fa-card"><div class="lbl">{lbl}</div>'
                             f'<div class="val">{val}</div></div>' for lbl, val in rows)
             st.markdown(f'<div style="display:flex;gap:10px;flex-wrap:wrap">{cells}</div>',
                         unsafe_allow_html=True)
 
     with panel():
-        section_title("Why This Score - Altman Z&Prime; Decomposition")
-        maxc = max((abs(t.contribution) for t in s.terms), default=1.0)
-        for t in s.terms:
-            c3 = theme.GOOD if t.contribution > 0 else theme.BAD
-            width = int(abs(t.contribution) / maxc * 220)
-            st.markdown(f'<div class="fa-term"><div class="tl">{t.label}</div>'
-                        f'<div class="bar" style="width:{width}px;background:{c3}"></div>'
-                        f'<div class="tv">{t.contribution:+.2f}</div></div>', unsafe_allow_html=True)
+        section_title("Altman Z-Score (1968) - all five components")
+        st.markdown(
+            f'<div class="fa-headline">Z = <span style="color:{zc}">{z5:.2f}</span> &middot; '
+            f'<span style="color:{zc}">{zone5}</span> '
+            f'<span style="color:{theme.TEXT_DIM};font-weight:400;font-size:0.85rem">'
+            f'(safe &gt; 2.99, grey 1.81-2.99, distress &lt; 1.81; D uses live market value of '
+            f'equity)</span></div>', unsafe_allow_html=True)
+        maxc = max((abs(cn) for *_, cn in comps), default=1.0) or 1.0
+        for lbl, coef, val, contrib in comps:
+            col = theme.GOOD if contrib > 0 else theme.BAD
+            w = int(abs(contrib) / maxc * 220)
+            vtxt = "n/a" if val != val else f"{val:+.2f}"
+            st.markdown(f'<div class="fa-term"><div class="tl">{lbl}</div>'
+                        f'<div class="bar" style="width:{w}px;background:{col}"></div>'
+                        f'<div class="tv">{coef} &times; {vtxt} = {contrib:+.2f}</div></div>',
+                        unsafe_allow_html=True)
         st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.8rem;margin-top:8px">'
-                    'Financials fetched live from Screener.in and scored on the same engine as the '
-                    'tracked companies. A production system would use a licensed data feed.</div>',
+                    'Financials and market cap fetched live from Screener.in. This is the original '
+                    '1968 Altman Z, which needs the market value of equity - available because these '
+                    'are listed companies. A production system would use a licensed feed.</div>',
                     unsafe_allow_html=True)
 
 

@@ -33,6 +33,12 @@ def _section_table(html: str, section_id: str):
     return df
 
 
+def _market_cap(html: str) -> float:
+    """Market cap in Rs Cr from Screener's top-ratios block."""
+    m = re.search(r'Market Cap.*?class=["\']number["\']>\s*([\d,]+)', html, re.S)
+    return float(m.group(1).replace(",", "")) if m else float("nan")
+
+
 def _latest_year(df) -> str | None:
     yrs = [c for c in df.columns if re.match(r"Mar \d{4}", str(c))]
     return yrs[-1] if yrs else None
@@ -72,7 +78,7 @@ def fetch_financials(ticker: str) -> ScreenerFinancials:
     sales = _val(pl, "Sales", yp)
     if sales != sales:                       # banks/finance label it Revenue
         sales = _val(pl, "Revenue", yp)
-    return ScreenerFinancials(
+    fin = ScreenerFinancials(
         company=tk, year=int(str(yb).split()[-1]),
         sales=sales,
         expenses=_val(pl, "Expenses", yp),
@@ -90,3 +96,4 @@ def fetch_financials(ticker: str) -> ScreenerFinancials:
         fixed_assets=_val(bs, "Fixed Assets", yb),
         working_capital_days=_val(ra, "Working Capital Days", yr) if ra is not None else None,
     )
+    return fin, _market_cap(html)

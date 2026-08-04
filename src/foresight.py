@@ -3475,6 +3475,45 @@ def band_for(risk: float) -> str:
     return _BANDS[-1][1]
 
 
+_OZ0, _OK = 2.40, 1.862   # original-Z risk anchoring: Z 2.99 -> 25, 2.40 -> 50, 1.81 -> 75
+
+
+def risk_from_original_z(z: float) -> float:
+    """Map the classic 1968 Altman Z to a 0-100 risk score (higher = riskier)."""
+    if z is None or (isinstance(z, float) and math.isnan(z)):
+        return float("nan")
+    return float(100.0 / (1.0 + math.exp(_OK * (z - _OZ0))))
+
+
+def original_z(fin: ScreenerFinancials, market_cap: float,
+               prior: ScreenerFinancials | None = None):
+    """The classic 1968 Altman Z with all five components, using the *market* value of
+    equity - available for listed companies, which is why the app can use it live.
+
+        Z = 1.2 A + 1.4 B + 3.3 C + 0.6 D + 1.0 E
+        A working capital / assets   B retained earnings / assets   C EBIT / assets
+        D market value of equity / total liabilities                E sales / assets
+
+    Returns (z, zone, components); each component is (label, coefficient, value,
+    contribution). Zones: Z > 2.99 Safe, 1.81-2.99 Grey, < 1.81 Distress.
+    """
+    feats = compute_features(fin, prior=prior)
+    total_liab = (fin.borrowings or 0.0) + (fin.other_liabilities or 0.0)
+    a = feats.get("Attr3", float("nan"))            # working capital / assets
+    b = feats.get("Attr6", float("nan"))            # retained earnings / assets
+    c = feats.get("Attr7", float("nan"))            # EBIT / assets
+    d = (market_cap / total_liab) if total_liab else float("nan")   # market equity / liabilities
+    e = (fin.sales / fin.total_assets) if fin.total_assets else float("nan")   # sales / assets
+    parts = [("Working capital / assets", 1.2, a),
+             ("Retained earnings / assets", 1.4, b),
+             ("EBIT / assets", 3.3, c),
+             ("Market value equity / liabilities", 0.6, d),
+             ("Sales / assets", 1.0, e)]
+    z = sum(co * v for _, co, v in parts if v == v)
+    zone = "Safe" if z > 2.99 else ("Distress" if z < 1.81 else "Grey")
+    return z, zone, [(lbl, co, v, co * v) for lbl, co, v in parts]
+
+
 def score_company(
     fin: ScreenerFinancials,
     prior: ScreenerFinancials | None = None,
