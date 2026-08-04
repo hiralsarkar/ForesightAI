@@ -384,6 +384,79 @@ def render_economics() -> None:
             f'costs Rs {e["review_everything_cr"]:.1f} cr in analyst time.</div>', unsafe_allow_html=True)
 
 
+# ==================================================================== Live Lookup
+def render_live() -> None:
+    with panel():
+        section_title("Live Company Lookup")
+        st.markdown('<div class="fa-headline">Type any NSE or BSE ticker. We fetch its latest '
+                    'reported financials live and score them through the same engine.</div>',
+                    unsafe_allow_html=True)
+        c1, c2 = st.columns([4, 1])
+        ticker = c1.text_input("ticker", value="", key="live_ticker",
+                               placeholder="e.g. TATAMOTORS, RCOM, DABUR, SUZLON, VEDL",
+                               label_visibility="collapsed")
+        run = c2.button("Score", key="live_go", use_container_width=True)
+
+    if not (run and ticker.strip()):
+        st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.9rem;margin-top:6px">'
+                    'Enter a ticker and press Score. The financials are pulled live from '
+                    'Screener.in and scored on the Altman Z&Prime; engine, exactly as the six '
+                    'tracked companies are.</div>', unsafe_allow_html=True)
+        return
+
+    from foresight import score_company
+    try:
+        with st.status(f"Scoring {ticker.strip().upper()} ...", expanded=True) as status:
+            import screener_live
+            st.write("Fetching latest financials from Screener ...")
+            fin = screener_live.fetch_financials(ticker)
+            st.write(f"Got FY{fin.year} financials. Computing the Altman Z&Prime; score ...")
+            s = score_company(fin)
+            status.update(label=f"{fin.company} scored (FY{fin.year})",
+                          state="complete", expanded=False)
+    except Exception as exc:
+        st.error(f"Could not fetch and score '{ticker}'. Use the exact NSE/BSE ticker "
+                 f"(e.g. TATAMOTORS). Details: {exc}")
+        return
+
+    def fmt(x):
+        return "n/a" if x != x else f"{x:,.0f}"
+
+    g1, g2 = st.columns([2, 3])
+    with g1:
+        with panel():
+            section_title("Financial Risk Score")
+            st.plotly_chart(risk_gauge(s.risk_score, s.band), width='stretch',
+                            config={"displayModeBar": False})
+            st.markdown(f'<div style="text-align:center;margin-top:-10px">{band_pill(s.band)}</div>',
+                        unsafe_allow_html=True)
+    with g2:
+        with panel():
+            section_title(f"{fin.company} - FY{fin.year} (live from Screener)")
+            rows = [("Sales", fmt(fin.sales)), ("Net profit", fmt(fin.net_profit)),
+                    ("Borrowings", fmt(fin.borrowings)), ("Reserves", fmt(fin.reserves)),
+                    ("Total assets", fmt(fin.total_assets)),
+                    ("Altman Z''", "n/a" if s.z_score != s.z_score else f"{s.z_score:.2f}")]
+            cells = "".join(f'<div class="fa-card"><div class="lbl">{lbl}</div>'
+                            f'<div class="val">{val}</div></div>' for lbl, val in rows)
+            st.markdown(f'<div style="display:flex;gap:10px;flex-wrap:wrap">{cells}</div>',
+                        unsafe_allow_html=True)
+
+    with panel():
+        section_title("Why This Score - Altman Z&Prime; Decomposition")
+        maxc = max((abs(t.contribution) for t in s.terms), default=1.0)
+        for t in s.terms:
+            c3 = theme.GOOD if t.contribution > 0 else theme.BAD
+            width = int(abs(t.contribution) / maxc * 220)
+            st.markdown(f'<div class="fa-term"><div class="tl">{t.label}</div>'
+                        f'<div class="bar" style="width:{width}px;background:{c3}"></div>'
+                        f'<div class="tv">{t.contribution:+.2f}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.8rem;margin-top:8px">'
+                    'Financials fetched live from Screener.in and scored on the same engine as the '
+                    'tracked companies. A production system would use a licensed data feed.</div>',
+                    unsafe_allow_html=True)
+
+
 # ===================================================================== header + tabs
 left, right = st.columns([3, 2])
 with left:
@@ -396,10 +469,12 @@ with right:
 
 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-tab_company, tab_portfolio, tab_case, tab_econ = st.tabs(
-    ["Company Analysis", "Portfolio Monitor", "Case Study", "Review Economics"])
+tab_company, tab_live, tab_portfolio, tab_case, tab_econ = st.tabs(
+    ["Company Analysis", "Live Lookup", "Portfolio Monitor", "Case Study", "Review Economics"])
 with tab_company:
     render_company(company)
+with tab_live:
+    render_live()
 with tab_portfolio:
     render_portfolio()
 with tab_case:
