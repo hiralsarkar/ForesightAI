@@ -9,3 +9,4 @@ scikit-learn
 imbalanced-learn
 reportlab
 requests
+lxml
