@@ -1,63 +1,90 @@
 # Foresight AI
 
-**Live corporate risk scoring for any listed Indian company.** Pick a company and it pulls
-the financials and the latest news off the internet in real time, scores the risk with the
-classic Altman Z-Score fused with a live news-sentiment signal, explains every point, and
-shows - on real bankruptcies - that it would have flagged the trouble early.
+### See corporate distress before the annual accounts admit it.
 
-Live app: [foresightai.streamlit.app](https://foresightai.streamlit.app).
+**Foresight AI turns any listed Indian company into a single, explainable 0-100 risk score** - the classic Altman Z-Score fused with the market signals that move *before* the books do: credit ratings, leadership changes, news, hiring and employee sentiment.
 
-## What it does
+> Altman tells you what the balance sheet already knows. Foresight AI tells you what deserves your attention *now*.
 
-- **Live Lookup** - pick any NSE company. It fetches the financials (Screener) and recent
-  news (Google News) live, scores them into one risk read, and shows the Altman decomposition
-  and the headlines it scored. Nothing is hard-coded - the whole pipeline runs on the spot.
-- **Hindsight** - five real collapses replayed, each merging the Altman Z trajectory with the
-  dated signals that led the accounts: auditor exits, rating actions, board changes, news shocks.
-  RCom (distress flagged FY2016, three years early) and Suzlon (crisis then recovery) are Altman
-  wins; DHFL and IL&FS are NBFCs where Altman is blind and only the signals led (IL&FS was rated
-  AAA until the end); Manpasand is a clean auditor-resignation warning, a year early.
-- **Company Analysis, Portfolio, Case Study, Review Economics** - deep-dive views on a curated
-  set of six current companies.
+**Live app:** [foresightai.streamlit.app](https://foresightai.streamlit.app) · **Run locally:** `streamlit run app/main.py`
 
-## How it works
+---
 
-Two legs, one score, always explainable:
+## Why it exists
 
-- **Financial** - the original 1968 Altman Z-Score, all five components, using the market value
-  of equity for listed companies. A trusted, decades-old distress formula, computed live and
-  decomposed term by term so every point traces to a real ratio.
-- **Market signals** - a five-signal pulse for the tracked companies: credit rating, leadership
-  changes, news sentiment, hiring and employee confidence. A rating cut to default or an auditor
-  exit is treated as a hard event and floors the score. These often move before the accounts do.
-- **Combined** - the two fused into one 0-100 risk read, with the legs shown side by side,
-  because the gap between them is the story.
+Distress is rarely a surprise - the warning signs are public for months. But today they are:
+
+- **Backward-looking** - financial statements update once a year.
+- **Scattered** - a rating cut here, an auditor exit there, a board resignation somewhere else.
+- **Manual** - analysts read filings one company at a time.
+
+Financial-only models like Altman Z are trusted but blind to everything that has not yet hit the accounts. **Unitech read "Safe" on Altman for years while its promoters were being arrested. Future Retail scored Safe the year before it defaulted.** Foresight AI closes that gap.
+
+## What you get - a four-tab dashboard
+
+| Tab | What it does |
+|-----|--------------|
+| **Overview** | What the score is, why it exists, and exactly how it is built. |
+| **Live Company Scoring** | Pick any NSE company. Six tracked names carry the full five-signal pulse; any other is fetched and scored live from Screener + Google News. |
+| **Portfolio** | Build your own watch-list - add or remove any company, ranked worst-risk first. |
+| **Track Record** | The proof. Real collapses replayed on real history, with the Altman financial base and the *added* signal risk stacked into one comprehensive score. |
+
+## How the score is built
+
+**One number, two legs, always explainable.**
+
+```
+Comprehensive risk  =  0.60 x  Altman Z (financial)   +   0.40 x  Market-signal pulse
+```
+
+The market-signal pulse, weighted by how much you can trust each source:
+
+| Signal | Weight | Reads |
+|--------|:------:|-------|
+| Credit rating | 0.30 | rating actions (CRISIL / ICRA / CARE / S&P) |
+| Leadership / board | 0.25 | dated filings, incl. auditor exits |
+| News sentiment | 0.25 | live Google News, distress-keyword scored |
+| Hiring trend | 0.10 | reported headcount |
+| Employee confidence | 0.10 | review-platform ratings |
+
+A **hard event** - a rating cut to default, an auditor walking out, a tribunal taking over the board - is a fact, not a mood: it *floors* the score and cannot be averaged away by softer signals. Every point traces back to a real ratio, rating or headline.
+
+## The proof (Track Record)
+
+Five real failures, five sectors, each scored on its own historical financials from Screener - with the amber band showing the risk Altman alone could not see:
+
+| Company | Sector | The story the chart tells |
+|---------|--------|---------------------------|
+| **Unitech** | Real Estate | Altman "Safe" until 2021; the signals were loud from 2015 |
+| **Future Retail** | Retail | Altman "Safe" in FY2019, defaulted 2022 |
+| **Reliance Communications** | Telecom | financial and market signals agree - a clean collapse |
+| **Jaiprakash Associates** | Infrastructure | Altman swings; the comprehensive score stays clear |
+| **Suzlon** | Renewables | it also reads *recovery* - the score falls before the accounts confirm it |
 
 ## The honest pitch
 
-We do not claim to beat Altman - the financial engine *is* Altman. The value is making it
-**live, automated, comprehensive and explainable for any company on demand**, adding market
-signals that can lead the accounts, and proving on history that it catches real distress early.
-
-We did test whether a trained model could beat the formula (see the notebooks): models trained
-on foreign bankruptcy data (Polish, Taiwanese) do not transfer to Indian balance sheets, and a
-model trained on scraped Indian companies matches the formula rather than beating it - which is
-exactly why the trusted linear Altman score is the right anchor.
+We do **not** claim to beat Altman - the financial engine *is* Altman. The value is making it **live, comprehensive, explainable, and validated on real history**. We tested trained models too (see the notebooks): foreign bankruptcy data does not transfer to Indian balance sheets, and an India-trained model *matches* the formula rather than beating it - which is exactly why the trusted linear Altman score stays the anchor.
 
 ## Under the hood
 
 ```
-src/foresight.py       the scoring engine (Altman Z, signals, fusion, stress)
+src/foresight.py       the engine - Altman Z, the five signals, fusion, stress test, benchmarks
 src/screener_live.py   live financials + market cap from Screener
-src/live_news.py       live news sentiment from Google News
-app/main.py            the Streamlit dashboard
-data/indian/           scraped Indian training set + the historical backtest
+src/live_news.py       live news sentiment from Google News (no API key)
+app/                   the Streamlit dashboard (main.py, scoring_service.py, theme.py)
+data/indian/           scraped Indian training set + NCLT labels + the historical backtest
 notebooks/             the model-building and evaluation story
+deck/                  the 5-slide pitch deck
+REPORT.md              the full project report
 ```
 
-Run locally: `streamlit run app/main.py`.
+**Quickstart**
+
+```bash
+pip install -r requirements.txt
+streamlit run app/main.py
+```
 
 ## Scope
 
-A decision-support tool, not a substitute for professional analysis. It uses public data
-(Screener, Google News) fetched live for the demo; a production version would use licensed feeds.
+A decision-support tool, not a substitute for professional analysis. It uses public data (Screener, Google News) fetched live; a production build would swap in licensed feeds. Share-price lines in Track Record are annual closes, indexed - direction, not tick data.

@@ -628,7 +628,7 @@ def render_track_record() -> None:
         pick = st.selectbox("case", list(TRACK_RECORD), label_visibility="collapsed", key="tr_pick")
 
     d = TRACK_RECORD[pick]
-    ALT = "#5B9BD5"
+    ALT = "#38BDF8"      # bright sky-blue for the Altman financial base
     axd = [_dt.date(y, 3, 31) for y, _ in d["altman"]]
     ay = [r for _, r in d["altman"]]
     axo = [x.toordinal() for x in axd]
@@ -652,50 +652,53 @@ def render_track_record() -> None:
     has_clear = any(s < a - 0.5 for a, s in zip(fa, fy))
 
     fig = go.Figure()
-    # Altman financial-only base (area to zero).
+    # Risk zone bands - the interpretation aid: low / medium / high.
+    for lo, hi, col in [(0, 30, theme.GOOD), (30, 70, theme.WATCH), (70, 100, theme.BAD)]:
+        fig.add_hrect(y0=lo, y1=hi, fillcolor=col, opacity=0.07, line_width=0, layer="below")
+    for yy, lab, col in [(15, "LOW RISK", theme.GOOD), (50, "MEDIUM", theme.WATCH), (86, "HIGH RISK", theme.BAD)]:
+        fig.add_annotation(xref="paper", x=0.006, y=yy, text=lab, showarrow=False, xanchor="left",
+                           font=dict(color=col, size=9.5), opacity=0.9)
+
+    # Altman financial-only base - bright blue area.
     fig.add_trace(go.Scatter(x=fx, y=fa, name="Altman (financial-only)", mode="lines",
-                             line=dict(color=ALT, width=2), fill="tozeroy",
-                             fillcolor="rgba(91,155,213,0.12)",
+                             line=dict(color=ALT, width=2.6), fill="tozeroy",
+                             fillcolor="rgba(56,189,248,0.16)",
                              hovertemplate="Altman (financial) risk %{y:.0f}<extra></extra>"))
-    # Added-risk band: signals pushing the score above Altman.
+    # Added-risk band - the extra risk only the market signals see.
     fig.add_trace(go.Scatter(x=fx, y=amber_top, name="Added risk: market signals", mode="lines",
                              line=dict(width=0), fill="tonexty",
-                             fillcolor="rgba(245,158,11,0.30)", hoverinfo="skip"))
+                             fillcolor="rgba(251,146,60,0.42)", hoverinfo="skip"))
     if has_clear:
         fig.add_trace(go.Scatter(x=fx, y=fa, mode="lines", line=dict(width=0),
                                  showlegend=False, hoverinfo="skip"))
         fig.add_trace(go.Scatter(x=fx, y=green_low, name="Risk cleared by signals", mode="lines",
                                  line=dict(width=0), fill="tonexty",
-                                 fillcolor="rgba(34,197,94,0.22)", hoverinfo="skip"))
-    # ForesightAI comprehensive top edge, with a reason on every point.
+                                 fillcolor="rgba(34,197,94,0.32)", hoverinfo="skip"))
+    # ForesightAI comprehensive score - the glowing top edge, a reason on every point.
     fig.add_trace(go.Scatter(x=fx, y=fy, name="ForesightAI (comprehensive)", mode="lines+markers",
-                             line=dict(color=theme.ACCENT, width=3),
-                             marker=dict(size=9, color=theme.ACCENT, line=dict(color="#0A1628", width=1.2)),
+                             line=dict(color="#F59E0B", width=3.6),
+                             marker=dict(size=10, color="#FBBF24", line=dict(color="#7C2D12", width=1.4)),
                              customdata=[[r] for r in reasons],
                              hovertemplate="<b>%{x|%d %b %Y} &middot; risk %{y:.0f}</b><br>%{customdata[0]}<extra></extra>"))
-    # Real Altman markers at each financial release.
-    fig.add_trace(go.Scatter(x=axd, y=ay, mode="markers", showlegend=False,
-                             marker=dict(size=7, color=ALT, line=dict(color="#0A1628", width=1)),
-                             hovertemplate="FY%{x|%Y}: Altman risk %{y}<extra></extra>"))
     px = PRICE.get(pick)
     if px:
         fig.add_trace(go.Scatter(x=[_dt.date(y, 3, 31) for y, _ in px], y=[v for _, v in px],
                                  name="Share price (annual close, indexed)", mode="lines", yaxis="y2",
-                                 line=dict(color=theme.TEXT_DIM, width=1.5, dash="dot"),
+                                 line=dict(color="#2DD4BF", width=2, dash="dot"),
                                  hovertemplate="FY%{x|%Y}: price index %{y}<extra></extra>"))
     ev = _dt.date.fromisoformat(d["event_date"])
-    fig.add_vline(x=ev, line=dict(color=theme.TEXT_DIM, width=1.5, dash="dash"))
+    fig.add_vline(x=ev, line=dict(color="#F87171", width=1.6, dash="dash"))
     fig.add_annotation(x=ev, y=100, text=d["event"], showarrow=False, yanchor="top", xanchor="right",
-                       font=dict(color=theme.TEXT_DIM, size=11))
+                       font=dict(color="#F87171", size=11))
     fig.update_layout(height=460, margin=dict(l=10, r=10, t=34, b=10),
                       paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                       font={"color": theme.TEXT},
                       legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, font=dict(size=10)),
                       hoverlabel=dict(bgcolor=theme.BG_PANEL_2, font_size=12, align="left"),
-                      yaxis=dict(range=[0, 100], title="Risk score (0-100)", gridcolor=theme.BORDER),
+                      yaxis=dict(range=[0, 100], title="Risk score (0-100)", gridcolor="rgba(255,255,255,0.06)"),
                       yaxis2=dict(title="Share price (annual close, indexed)", overlaying="y", side="right",
-                                  showgrid=False, rangemode="tozero"),
-                      xaxis=dict(title="", gridcolor=theme.BORDER, dtick="M12", tickformat="%Y"))
+                                  showgrid=False, rangemode="tozero", color="#2DD4BF"),
+                      xaxis=dict(title="", gridcolor="rgba(255,255,255,0.06)", dtick="M12", tickformat="%Y"))
 
     with panel():
         st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
