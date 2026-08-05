@@ -74,12 +74,13 @@ async function icon(name, hex, px = 300) {
     { x: 0.9, y: 3.05, w: 7.9, h: 1.2, fontFace: F, fontSize: 18, color: DIM, lineSpacingMultiple: 1.12 });
 
   // link pill
+  const heroLink = { url: "https://foresightai.streamlit.app", tooltip: "Open the live Foresight AI dashboard" };
   s.addShape(p.ShapeType.roundRect, { x: 0.9, y: 4.35, w: 4.55, h: 0.62, rectRadius: 0.31,
-    fill: { color: PANEL2 }, line: { color: AMBER, width: 1.25 } });
+    fill: { color: PANEL2 }, line: { color: AMBER, width: 1.25 }, hyperlink: heroLink });
   s.addText([
     { text: "Live demo   ", options: { color: DIM, fontSize: 13 } },
-    { text: "foresightai.streamlit.app", options: { color: AMBER, fontSize: 15, bold: true } },
-  ], { x: 0.9, y: 4.35, w: 4.55, h: 0.62, fontFace: F, align: "center", valign: "middle" });
+    { text: "foresightai.streamlit.app", options: { color: AMBER, fontSize: 15, bold: true, underline: true } },
+  ], { x: 0.9, y: 4.35, w: 4.55, h: 0.62, fontFace: F, align: "center", valign: "middle", hyperlink: heroLink });
 
   s.addText("Altman Z  +  credit ratings  +  leadership  +  news   .   NSE-listed   .   validated on 5 real collapses",
     { x: 0.9, y: 6.55, w: 9.5, h: 0.4, fontFace: F, fontSize: 12, color: DIM });
@@ -210,40 +211,29 @@ async function icon(name, hex, px = 300) {
     { text: "Suzlon ", options: { bold: true, color: WHITE } }, { text: "(renewables - a recovery). Real financials, real events.", options: { color: DIM } },
   ], { x: 1.08, y: 5.38, w: 3.9, h: 1.24, fontFace: F, fontSize: 10.5, valign: "top", lineSpacingMultiple: 1.03 });
 
-  // chart - two reads on one 0-100 risk timeline (Reliance Communications, real scores)
-  const PL = 5.85, PT = 2.15, PW = 6.85, PH = 4.4, PB = PT + PH, PR = PL + PW;
-  const yv = (v) => PT + (100 - v) / 100 * PH;
-  const yrs4 = [2015, 2016, 2017, 2018, 2019];
-  const xv = (i) => PL + (i / (yrs4.length - 1)) * PW;
-  const altman = [34, 60, 75, 95, 96];
-  const fore = [40, 63, 84, 92, 96];
+  // chart - stacked: Altman (financial) + added signal risk = the comprehensive score
+  const PL = 5.85, PT = 2.4, PW = 6.85, PH = 3.95;
   const BLUE = "5B9BD5";
-  s.addText("Example - Reliance Communications (telecom)", { x: PL, y: 1.82, w: PW, h: 0.25, fontFace: F, fontSize: 11, color: DIM });
-  // zone bands
-  s.addShape(p.ShapeType.rect, { x: PL, y: PT, w: PW, h: yv(70) - PT, fill: { color: BAD, transparency: 90 }, line: { type: "none" } });
-  s.addShape(p.ShapeType.rect, { x: PL, y: yv(30), w: PW, h: PB - yv(30), fill: { color: GOOD, transparency: 90 }, line: { type: "none" } });
-  s.addText("HIGH RISK", { x: PL + 0.12, y: PT + 0.02, w: 2, h: 0.25, fontFace: F, fontSize: 10, bold: true, color: BAD });
-  s.addText("HEALTHY", { x: PL + 0.12, y: PB - 0.28, w: 2, h: 0.25, fontFace: F, fontSize: 10, bold: true, color: GOOD });
-  seg(s, PL, PB, PR, PB, BORDER, 1);
-  // event marker (2019)
-  const exx = xv(4);
-  for (let yy = PT; yy < PB; yy += 0.28) seg(s, exx, yy, exx, Math.min(yy + 0.14, PB), DIM, 1.2);
-  s.addText("INSOLVENCY 2019", { x: exx - 1.9, y: PT - 0.05, w: 1.85, h: 0.25, fontFace: F, fontSize: 10, bold: true, color: DIM, align: "right" });
-  // Altman line
-  for (let i = 0; i < altman.length - 1; i++) seg(s, xv(i), yv(altman[i]), xv(i + 1), yv(altman[i + 1]), BLUE, 2.5);
-  altman.forEach((v, i) => dot(s, xv(i), yv(v), 0.06, BLUE, NAVY));
-  // ForesightAI line
-  for (let i = 0; i < fore.length - 1; i++) seg(s, xv(i), yv(fore[i]), xv(i + 1), yv(fore[i + 1]), AMBER, 3.5);
-  fore.forEach((v, i) => dot(s, xv(i), yv(v), 0.08, AMBER, NAVY));
-  // year labels
-  yrs4.forEach((yr, i) => s.addText("FY" + String(yr).slice(2), { x: xv(i) - 0.4, y: PB + 0.06, w: 0.8, h: 0.28, fontFace: F, fontSize: 11, color: DIM, align: "center" }));
-  // legend
-  const lgx = PR - 2.55, lgy = PT + 0.14;
-  s.addShape(p.ShapeType.roundRect, { x: lgx - 0.18, y: lgy - 0.12, w: 2.7, h: 0.88, rectRadius: 0.06, fill: { color: NAVY }, line: { color: BORDER, width: 1 } });
-  seg(s, lgx, lgy + 0.16, lgx + 0.4, lgy + 0.16, AMBER, 3.5);
-  s.addText("ForesightAI (comprehensive)", { x: lgx + 0.5, y: lgy + 0.02, w: 2.0, h: 0.26, fontFace: F, fontSize: 10, color: WHITE });
-  seg(s, lgx, lgy + 0.52, lgx + 0.4, lgy + 0.52, BLUE, 2.5);
-  s.addText("Altman (financial only)", { x: lgx + 0.5, y: lgy + 0.38, w: 2.0, h: 0.26, fontFace: F, fontSize: 10, color: DIM });
+  const yrs4 = ["FY15", "FY16", "FY17", "FY18", "FY19", "FY20", "FY21", "FY22", "FY23"];
+  const altman = [13, 20, 21, 29, 34, 49, 63, 69, 85];
+  const added = [15, 28, 37, 45, 43, 34, 23, 19, 5];
+  s.addText("Example - Unitech (real estate): Altman read Safe for years", { x: PL, y: 1.92, w: PW, h: 0.25, fontFace: F, fontSize: 11, color: DIM });
+  s.addChart(p.ChartType.bar, [
+    { name: "Altman (financial-only)", labels: yrs4, values: altman },
+    { name: "Added risk: market signals", labels: yrs4, values: added },
+  ], {
+    x: PL, y: PT, w: PW, h: PH,
+    barDir: "col", barGrouping: "stacked", barGapWidthPct: 45,
+    chartColors: [BLUE, AMBER],
+    showLegend: true, legendPos: "t", legendColor: WHITE, legendFontSize: 11,
+    showValue: false, showTitle: false,
+    valAxisMinVal: 0, valAxisMaxVal: 100, valAxisMajorUnit: 25,
+    catAxisLabelColor: DIM, catAxisLabelFontSize: 10, catAxisLineShow: false,
+    valAxisLabelColor: DIM, valAxisLabelFontSize: 9, valAxisLineShow: false,
+    valGridLine: { color: BORDER, size: 0.5 }, catGridLine: { style: "none" },
+  });
+  s.addText("The amber block is the risk Altman alone misses - only the comprehensive score shows it.",
+    { x: PL, y: PT + PH + 0.06, w: PW, h: 0.3, fontFace: F, fontSize: 10.5, italic: true, color: DIM });
 
   // ============================================================ SLIDE 5 - VALUE + CTA
   s = p.addSlide(); bg(s);
@@ -269,16 +259,19 @@ async function icon(name, hex, px = 300) {
     s.addText(tx, { x: x + 0.24, y: ty + 1.5, w: tw - 0.44, h: 0.9, fontFace: F, fontSize: 12.5, color: DIM, lineSpacingMultiple: 1.06 });
   });
 
-  // CTA row
+  // CTA row - a clickable live link to the deployed dashboard (works in slideshow)
+  const APP_URL = "https://foresightai.streamlit.app";
+  const appLink = { url: APP_URL, tooltip: "Open the live Foresight AI dashboard" };
   s.addShape(p.ShapeType.roundRect, { x: 0.85, y: 5.5, w: 6.2, h: 1.0, rectRadius: 0.5,
-    fill: { color: AMBER } });
+    fill: { color: AMBER }, hyperlink: appLink });
   s.addText([
-    { text: "Try it live   ", options: { color: NAVY, fontSize: 18, bold: true } },
-    { text: "foresightai.streamlit.app", options: { color: NAVY, fontSize: 20, bold: true } },
-  ], { x: 0.85, y: 5.5, w: 6.2, h: 1.0, fontFace: F, align: "center", valign: "middle" });
+    { text: "Open the live dashboard   ", options: { color: NAVY, fontSize: 17, bold: true } },
+    { text: "foresightai.streamlit.app", options: { color: NAVY, fontSize: 19, bold: true, underline: true } },
+  ], { x: 0.85, y: 5.5, w: 6.2, h: 1.0, fontFace: F, align: "center", valign: "middle", hyperlink: appLink });
   s.addText([
     { text: "Source & notebooks:  ", options: { color: DIM } },
-    { text: "github.com/hiralsarkar/ForesightAI", options: { color: WHITE, bold: true } },
+    { text: "github.com/hiralsarkar/ForesightAI", options: { color: WHITE, bold: true, underline: true,
+        hyperlink: { url: "https://github.com/hiralsarkar/ForesightAI", tooltip: "View the code on GitHub" } } },
   ], { x: 0.9, y: 6.62, w: 8, h: 0.35, fontFace: F, fontSize: 13 });
 
   // hero combined panel (right)

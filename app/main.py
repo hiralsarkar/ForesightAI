@@ -261,49 +261,45 @@ def _live_portfolio_score(name: str) -> dict:
 
 
 def render_portfolio() -> None:
+    ss = st.session_state
     tracked = svc.company_names()
-    st.session_state.setdefault("pf_tracked", list(tracked))
-    st.session_state.setdefault("pf_live", {})
+    prmap = {r.company: r for r in svc.portfolio()}
+
+    # One pool of scored companies (tracked + any live-added) and one selection list, so
+    # every company - tracked or added - is removed the same way: its chip's x below.
+    if "pf_pool" not in ss:
+        ss.pf_pool = {n: {"company": n, "sector": prmap[n].sector, "combined": prmap[n].combined,
+                          "financial": prmap[n].financial, "digital": prmap[n].digital,
+                          "band": prmap[n].band} for n in tracked}
+    ss.setdefault("pf_ms", list(ss.pf_pool))
 
     with panel():
         section_title("Portfolio - your watchlist")
-        st.markdown('<div class="fa-headline">Add or remove companies as you like. The six tracked '
-                    'names carry the full five-signal pulse; any other NSE company is scored live on '
-                    'its financials and news.</div>', unsafe_allow_html=True)
-        st.session_state.pf_tracked = st.multiselect(
-            "Tracked companies (full signals)", tracked,
-            default=[c for c in st.session_state.pf_tracked if c in tracked], key="pf_ms")
+        st.markdown('<div class="fa-headline">Add any NSE company (scored live), and remove any of '
+                    'them the same way - click the x on its chip below. The six tracked names carry the '
+                    'full five-signal pulse; others are scored on financials and news.</div>',
+                    unsafe_allow_html=True)
 
-        others = [n for n in NSE_TOP if n not in tracked]
+        addable = [n for n in NSE_TOP if n not in ss.pf_pool]
         cadd, cbtn = st.columns([5, 1])
-        addname = cadd.selectbox("add", ["- add any other NSE company -"] + others,
+        addname = cadd.selectbox("add", ["- add any other NSE company (scored live) -"] + addable,
                                  label_visibility="collapsed", key="pf_add")
         if cbtn.button("Add", key="pf_add_btn", use_container_width=True) and not addname.startswith("-"):
             try:
                 with st.spinner(f"Scoring {addname} live ..."):
-                    st.session_state.pf_live[addname] = _live_portfolio_score(addname)
+                    ss.pf_pool[addname] = _live_portfolio_score(addname)
+                if addname not in ss.pf_ms:
+                    ss.pf_ms = ss.pf_ms + [addname]
+                st.rerun()
             except Exception as exc:
                 st.error(f"Could not score {addname}: {exc}")
-        if st.session_state.pf_live:
-            crm, crmb = st.columns([5, 1])
-            rmname = crm.selectbox("remove", ["- remove a live company -"]
-                                   + list(st.session_state.pf_live),
-                                   label_visibility="collapsed", key="pf_rm")
-            if crmb.button("Remove", key="pf_rm_btn", use_container_width=True) \
-                    and not rmname.startswith("-"):
-                st.session_state.pf_live.pop(rmname, None)
-                st.rerun()
 
-    # Assemble rows: tracked (cached) + live-added, worst risk first.
-    pr = {r.company: r for r in svc.portfolio()}
-    rows = []
-    for name in st.session_state.pf_tracked:
-        r = pr[name]
-        rows.append((r.company, r.sector, r.combined, r.financial, r.digital, r.band))
-    for row in st.session_state.pf_live.values():
-        rows.append((row["company"], row["sector"], row["combined"], row["financial"],
-                     row["digital"], row["band"]))
-    rows.sort(key=lambda x: x[2], reverse=True)
+        # Single unified control: chips with crosses for every company in the portfolio.
+        st.multiselect("Companies in your portfolio (click the x to remove any)",
+                       options=list(ss.pf_pool), key="pf_ms")
+
+    rows = [ss.pf_pool[n] for n in ss.pf_ms if n in ss.pf_pool]
+    rows.sort(key=lambda r: r["combined"], reverse=True)
 
     with panel():
         section_title(f"Risk monitor - {len(rows)} companies, highest risk first")
@@ -318,19 +314,20 @@ def render_portfolio() -> None:
             'text-transform:uppercase;letter-spacing:0.05em">'
             '<div>Company</div><div>Sector</div><div>Combined</div><div>Financial</div>'
             '<div>Digital</div><div>Status</div></div>', unsafe_allow_html=True)
-        for company, sector, comb, finr, dig, band in rows:
-            c = band_color(band)
+        for r in rows:
+            c = band_color(r["band"])
+            dig = r["digital"]
             digtxt = "n/a" if dig is None else f"{dig:.0f}"
             st.markdown(
                 f'<div class="fa-row" style="display:grid;grid-template-columns:{grid};'
                 f'gap:8px;padding:12px;margin-bottom:6px;border-radius:8px;align-items:center;'
                 f'background:{c}14;border-left:4px solid {c}">'
-                f'<div style="font-weight:600">{company}</div>'
-                f'<div style="color:{theme.TEXT_DIM};font-size:0.85rem">{sector}</div>'
-                f'<div style="font-weight:800;font-size:1.15rem;color:{c}">{comb:.0f}</div>'
-                f'<div style="color:{theme.TEXT}">{finr:.0f}</div>'
+                f'<div style="font-weight:600">{r["company"]}</div>'
+                f'<div style="color:{theme.TEXT_DIM};font-size:0.85rem">{r["sector"]}</div>'
+                f'<div style="font-weight:800;font-size:1.15rem;color:{c}">{r["combined"]:.0f}</div>'
+                f'<div style="color:{theme.TEXT}">{r["financial"]:.0f}</div>'
                 f'<div style="color:{theme.TEXT}">{digtxt}</div>'
-                f'<div>{band_pill(band)}</div></div>', unsafe_allow_html=True)
+                f'<div>{band_pill(r["band"])}</div></div>', unsafe_allow_html=True)
 
 
 # ==================================================================== Live Lookup
