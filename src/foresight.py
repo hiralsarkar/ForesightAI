@@ -3143,6 +3143,9 @@ class ScreenerFinancials:
     days_payable: Optional[float] = None
     working_capital_days: Optional[float] = None
 
+    # Market value of equity (Rs Cr) for a listed company -> the original 1968 Altman Z.
+    market_cap: Optional[float] = None
+
     ticker: str = ""
 
     # ---- derived intermediates -------------------------------------------------
@@ -3526,7 +3529,21 @@ def score_company(
     assumption -- e.g. missing working capital -> WC/TA = 0) so the score still computes,
     and records it in `missing_terms`. With `fill_missing=False`, any missing component
     yields a NaN score, matching the strict training-path Altman behaviour.
+
+    For a listed company (`fin.market_cap` set), the *original 1968* Altman Z is used - all
+    five components, with the market value of equity - so the whole app speaks one Altman.
     """
+    mc = getattr(fin, "market_cap", None)
+    if mc is not None and not (isinstance(mc, float) and math.isnan(mc)):
+        z, zone_label, comps = original_z(fin, mc, prior=prior)
+        risk = risk_from_original_z(z)
+        terms = [ZTerm(lbl, lbl, coef, val, (coef * val if val == val else 0.0))
+                 for (lbl, coef, val, _cn) in comps]
+        missing = [lbl for (lbl, _co, val, _cn) in comps if val != val]
+        return FinancialScore(company=fin.company, year=fin.year, z_score=z, risk_score=risk,
+                              band=band_for(risk), zone=str(zone_label), terms=terms,
+                              missing_terms=missing)
+
     altman_zone = zone
 
     feats = compute_features(fin, prior=prior)
@@ -3670,7 +3687,7 @@ ROSTER: list[tuple[ScreenerFinancials, ScreenerFinancials | None, str]] = [
     (SPICEJET_2026, None, "distress"),
     (OLA_2026, None, "distress"),
     (VODAFONE_IDEA_2026, None, "distress"),
-    (VEDANTA_2026, None, "watch"),
+    (VEDANTA_2026, None, "distress"),
     (PAYTM_2026, None, "healthy"),
     (TCS_2026, None, "healthy"),
 ]
@@ -3680,6 +3697,12 @@ _ACCEPT = {
     "watch": {"Watch", "Elevated Risk"},
     "distress": {"Elevated Risk", "Critical"},
 }
+
+# Market value of equity for the listed roster, so scoring uses the original 1968 Altman Z.
+_MARKET_CAPS = {"SpiceJet": 1779, "Ola Electric": 17852, "Vodafone Idea": 139654,
+                "Vedanta": 106183, "Paytm": 91912, "TCS": 898659}
+for _fin, _prior, _expect in ROSTER:
+    _fin.market_cap = _MARKET_CAPS.get(_fin.company)
 
 
 def validate_roster() -> "list[dict]":
@@ -3981,13 +4004,23 @@ def _score(rec: ScreenerFinancials, prior) -> float:
     return z
 
 
+def _z_and_risk(rec: ScreenerFinancials, prior):
+    """(z, risk) using the original 1968 Z for a listed company, else the private-firm Z''."""
+    mc = getattr(rec, "market_cap", None)
+    if mc is not None and not (isinstance(mc, float) and math.isnan(mc)):
+        z, _zone, _comps = original_z(rec, mc, prior=prior)
+        return z, risk_from_original_z(z)
+    z = _score(rec, prior)
+    return z, risk_from_z(z)
+
+
 def run(rec: ScreenerFinancials, sector: str, sc: Scenario, prior=None) -> StressResult:
     """Apply a scenario and return the full before/after picture."""
     prof = sector_profile(sector)
 
-    base_z = _score(rec, prior)
+    base_z, base_score = _z_and_risk(rec, prior)
     shocked, extra_int = apply_to_financials(rec, sc, prof)
-    stressed_z = _score(shocked, prior)
+    stressed_z, stressed_score = _z_and_risk(shocked, prior)
 
     # Per-channel attribution: what each lever alone would do to the score. Lets the UI
     # say "rising rates account for N of the M-point move".
@@ -3997,11 +4030,10 @@ def run(rec: ScreenerFinancials, sector: str, sc: Scenario, prior=None) -> Stres
         "GDP growth": Scenario(gdp_pp=sc.gdp_pp),
         "Company-specific": Scenario(op_shock_pct=sc.op_shock_pct, leverage_pct=sc.leverage_pct),
     }
-    base_score = risk_from_z(base_z)
     contributions = {}
     for name, one in channels.items():
         one_shocked, _ = apply_to_financials(rec, one, prof)
-        contributions[name] = round(risk_from_z(_score(one_shocked, prior)) - base_score, 1)
+        contributions[name] = round(_z_and_risk(one_shocked, prior)[1] - base_score, 1)
 
     # Coverage after = shocked operating profit / shocked interest.
     new_interest = rec.interest + extra_int
@@ -4009,7 +4041,7 @@ def run(rec: ScreenerFinancials, sector: str, sc: Scenario, prior=None) -> Stres
 
     return StressResult(
         base_score=round(base_score, 1),
-        stressed_score=round(risk_from_z(stressed_z), 1),
+        stressed_score=round(stressed_score, 1),
         base_z=round(base_z, 2),
         stressed_z=round(stressed_z, 2),
         base_coverage=round(_coverage(rec), 2),
