@@ -33,3 +33,6 @@ AGENTS.md
 
 # deck build deps
 deck/node_modules/
+
+# Office lock/temp files
+~$*
