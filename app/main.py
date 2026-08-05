@@ -245,143 +245,89 @@ def render_company(company: str) -> None:
 
 
 # ==================================================================== Portfolio
-def render_portfolio() -> None:
-    rows = svc.portfolio()
-    with panel():
-        section_title(f'Portfolio Risk Monitor - {len(rows)} companies, highest risk first')
+def _live_portfolio_score(name: str) -> dict:
+    """Score any NSE company for the portfolio from live financials + news."""
+    import screener_live
+    import live_news
+    from foresight import original_z, risk_from_original_z, band_for
 
-        grid = "1.7fr 1.1fr 0.85fr 0.85fr 0.85fr 1.15fr"
+    fin, mcap = screener_live.fetch_financials(NSE_TOP[name])
+    z5, _zone, _ = original_z(fin, mcap)
+    fr = risk_from_original_z(z5)
+    nr, _, _ = live_news.news_signal(name)
+    comb = round(0.6 * fr + 0.4 * nr, 1) if nr == nr else round(fr, 1)
+    return {"company": name, "sector": "Live (fin + news)", "combined": comb,
+            "financial": fr, "digital": (nr if nr == nr else None), "band": band_for(comb)}
+
+
+def render_portfolio() -> None:
+    tracked = svc.company_names()
+    st.session_state.setdefault("pf_tracked", list(tracked))
+    st.session_state.setdefault("pf_live", {})
+
+    with panel():
+        section_title("Portfolio - your watchlist")
+        st.markdown('<div class="fa-headline">Add or remove companies as you like. The six tracked '
+                    'names carry the full five-signal pulse; any other NSE company is scored live on '
+                    'its financials and news.</div>', unsafe_allow_html=True)
+        st.session_state.pf_tracked = st.multiselect(
+            "Tracked companies (full signals)", tracked,
+            default=[c for c in st.session_state.pf_tracked if c in tracked], key="pf_ms")
+
+        others = [n for n in NSE_TOP if n not in tracked]
+        cadd, cbtn = st.columns([5, 1])
+        addname = cadd.selectbox("add", ["- add any other NSE company -"] + others,
+                                 label_visibility="collapsed", key="pf_add")
+        if cbtn.button("Add", key="pf_add_btn", use_container_width=True) and not addname.startswith("-"):
+            try:
+                with st.spinner(f"Scoring {addname} live ..."):
+                    st.session_state.pf_live[addname] = _live_portfolio_score(addname)
+            except Exception as exc:
+                st.error(f"Could not score {addname}: {exc}")
+        if st.session_state.pf_live:
+            keep = st.multiselect("Live-added companies (unselect to remove)",
+                                  list(st.session_state.pf_live),
+                                  default=list(st.session_state.pf_live), key="pf_rm")
+            for gone in [n for n in list(st.session_state.pf_live) if n not in keep]:
+                st.session_state.pf_live.pop(gone, None)
+
+    # Assemble rows: tracked (cached) + live-added, worst risk first.
+    pr = {r.company: r for r in svc.portfolio()}
+    rows = []
+    for name in st.session_state.pf_tracked:
+        r = pr[name]
+        rows.append((r.company, r.sector, r.combined, r.financial, r.digital, r.band))
+    for row in st.session_state.pf_live.values():
+        rows.append((row["company"], row["sector"], row["combined"], row["financial"],
+                     row["digital"], row["band"]))
+    rows.sort(key=lambda x: x[2], reverse=True)
+
+    with panel():
+        section_title(f"Risk monitor - {len(rows)} companies, highest risk first")
+        if not rows:
+            st.markdown(f'<div style="color:{theme.TEXT_DIM}">Your portfolio is empty. Add companies '
+                        'above.</div>', unsafe_allow_html=True)
+            return
+        grid = "1.7fr 1.3fr 0.85fr 0.85fr 0.85fr 1.15fr"
         st.markdown(
             f'<div style="display:grid;grid-template-columns:{grid};'
             f'gap:8px;padding:0 12px 8px;color:{theme.TEXT_DIM};font-size:0.72rem;'
             'text-transform:uppercase;letter-spacing:0.05em">'
             '<div>Company</div><div>Sector</div><div>Combined</div><div>Financial</div>'
-            '<div>Digital</div><div>Status</div></div>',
-            unsafe_allow_html=True)
-
-        for r in rows:
-            c = band_color(r.band)
+            '<div>Digital</div><div>Status</div></div>', unsafe_allow_html=True)
+        for company, sector, comb, finr, dig, band in rows:
+            c = band_color(band)
+            digtxt = "n/a" if dig is None else f"{dig:.0f}"
             st.markdown(
                 f'<div class="fa-row" style="display:grid;grid-template-columns:{grid};'
                 f'gap:8px;padding:12px;margin-bottom:6px;border-radius:8px;align-items:center;'
                 f'background:{c}14;border-left:4px solid {c}">'
-                f'<div style="font-weight:600">{r.company}</div>'
-                f'<div style="color:{theme.TEXT_DIM};font-size:0.85rem">{r.sector}</div>'
-                f'<div style="font-weight:800;font-size:1.15rem;color:{c}">{r.combined:.0f}</div>'
-                f'<div style="color:{theme.TEXT}">{r.financial:.0f}</div>'
-                f'<div style="color:{theme.TEXT}">{r.digital:.0f}</div>'
-                f'<div>{band_pill(r.band)}</div></div>', unsafe_allow_html=True)
-
-        st.markdown(
-            f'<div style="color:{theme.TEXT_DIM};font-size:0.8rem;margin-top:6px">Financial scores '
-            'are computed from FY2026 reported financials (Altman Z&Prime;). Digital scores fuse news '
-            'sentiment, leadership changes, hiring trend and employee sentiment for the same '
-            'period.</div>', unsafe_allow_html=True)
-
-
-# ================================================================== Case Study (timeline)
-def render_case_study() -> None:
-    company = "Ola Electric"
-    tl = svc.case_timeline(company)
-    labels = [p.label for p in tl]
-
-    fig = go.Figure()
-    # Band zones as background shapes.
-    for lo, hi, col in [(0, 25, "#14311F"), (25, 50, "#3A2F13"), (50, 75, "#3A2412"), (75, 100, "#3A1717")]:
-        fig.add_hrect(y0=lo, y1=hi, fillcolor=col, opacity=0.5, line_width=0, layer="below")
-
-    fig.add_trace(go.Scatter(
-        x=labels, y=[p.financial for p in tl], name="Financial (FY2026 filing)",
-        mode="lines+markers", line=dict(color=theme.TEXT_DIM, width=2, dash="dot"),
-        marker=dict(size=8)))
-    fig.add_trace(go.Scatter(
-        x=labels, y=[p.digital for p in tl], name="Digital Pulse (live signals)",
-        mode="lines+markers", line=dict(color=theme.ACCENT, width=3),
-        marker=dict(size=10)))
-    fig.update_layout(
-        height=380, margin=dict(l=10, r=10, t=10, b=10),
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font={"color": theme.TEXT}, yaxis=dict(range=[0, 100], title="Risk score", gridcolor=theme.BORDER),
-        xaxis=dict(gridcolor=theme.BORDER),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0))
-
-    with panel():
-        section_title(f'{company} - Signals Ahead of the Filing')
-        st.markdown('<div class="fa-headline">The annual accounts update once. The signals moved '
-                    'every month.</div>', unsafe_allow_html=True)
-        st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
-        st.markdown(
-            '<div class="fa-narrative">The FY2026 accounts are a single annual data point. '
-            'The market signals moved through the year: the chief technology and marketing '
-            'officers left in late 2025, the chief financial officer resigned on 19 January '
-            '2026, the company cut 5% of its workforce on 31 January, and retail '
-            'registrations stayed below 10,000 units for a third consecutive month while a '
-            'rival booked 20,786. Each of those was observable well before the annual filing '
-            'that confirmed them.</div>', unsafe_allow_html=True)
-
-
-# ==================================================================== Review Economics
-def render_economics() -> None:
-    with panel():
-        section_title("Review Economics - the cost-optimal policy")
-        st.markdown('<div class="fa-headline">Put a price on a miss and a review; the model '
-                    'tells you how deep to look.</div>', unsafe_allow_html=True)
-        c1, c2 = st.columns(2)
-        miss = c1.slider("Cost of a missed distress (Rs lakh)", 10, 500, 50, 10, key="ec_miss")
-        rev = c2.slider("Cost of one review (Rs lakh)", 1, 20, 1, 1, key="ec_rev")
-
-        e = svc.economics(float(miss), float(rev))
-        of, oa = e["opt_foresight"], e["opt_altman"]
-        pos = e["total_distress"]
-        saved = oa["cost_cr"] - of["cost_cr"]
-        pct_saved = saved / oa["cost_cr"] * 100 if oa["cost_cr"] else 0
-
-        def stat(lbl, val, color=theme.TEXT):
-            return (f'<div><span style="color:{theme.TEXT_DIM};font-size:0.72rem;'
-                    f'text-transform:uppercase;letter-spacing:0.05em">{lbl}</span><br>'
-                    f'<span style="font-size:1.5rem;font-weight:700;color:{color}">{val}</span></div>')
-
-        st.markdown(
-            f'<div style="display:flex;gap:34px;flex-wrap:wrap;margin-top:14px;align-items:flex-end">'
-            + stat("Recommended review", f'{of["budget_pct"]:.0f}%', theme.ACCENT)
-            + stat("Firms", f'{of["reviewed"]:,}')
-            + stat("Distress caught", f'{of["catch_rate"]*100:.0f}%')
-            + stat("Expected cost", f'Rs {of["cost_cr"]:.1f} cr')
-            + stat("vs Altman best", f'Rs {oa["cost_cr"]:.1f} cr', theme.TEXT_DIM)
-            + stat("Saving", f'Rs {saved:.1f} cr ({pct_saved:.0f}%)', theme.GOOD)
-            + '</div>', unsafe_allow_html=True)
-
-    with panel():
-        section_title("Expected cost by review budget")
-        fx = [r["budget_pct"] for r in e["foresight"]]
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=fx, y=[r["cost_cr"] for r in e["foresight"]],
-                                 mode="lines", name="Foresight AI",
-                                 line=dict(color=theme.ACCENT, width=3)))
-        fig.add_trace(go.Scatter(x=fx, y=[r["cost_cr"] for r in e["altman"]],
-                                 mode="lines", name="Altman Z'' screen",
-                                 line=dict(color=theme.TEXT_DIM, width=2, dash="dash")))
-        for opt, col in ((of, theme.ACCENT), (oa, theme.TEXT_DIM)):
-            fig.add_trace(go.Scatter(x=[opt["budget_pct"]], y=[opt["cost_cr"]], mode="markers",
-                                     marker=dict(color=col, size=13, line=dict(color="white", width=1)),
-                                     showlegend=False))
-        fig.add_annotation(x=of["budget_pct"], y=of["cost_cr"], text=f"optimal {of['budget_pct']:.0f}%",
-                           font=dict(color=theme.ACCENT, size=12), showarrow=True, arrowcolor=theme.ACCENT,
-                           ax=30, ay=-30)
-        fig.update_layout(height=360, margin=dict(l=10, r=10, t=10, b=10),
-                          paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                          font={"color": theme.TEXT},
-                          xaxis=dict(title="Review budget (% of portfolio)", gridcolor=theme.BORDER),
-                          yaxis=dict(title="Expected cost (Rs cr)", gridcolor=theme.BORDER),
-                          legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0))
-        st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
-        st.markdown(
-            f'<div class="fa-narrative">On the validation portfolio ({e["n"]:,} firms, {pos} in '
-            f'distress), ranking by risk and reviewing the cost-optimal {of["budget_pct"]:.0f}% catches '
-            f'{of["caught"]}/{pos} distress for Rs {of["cost_cr"]:.1f} cr. The Altman screen\'s best '
-            f'policy costs Rs {oa["cost_cr"]:.1f} cr and catches {oa["caught"]}/{pos}. Reviewing nothing '
-            f'costs Rs {e["review_nothing_cr"]:.1f} cr in undetected exposures; reviewing everything '
-            f'costs Rs {e["review_everything_cr"]:.1f} cr in analyst time.</div>', unsafe_allow_html=True)
+                f'<div style="font-weight:600">{company}</div>'
+                f'<div style="color:{theme.TEXT_DIM};font-size:0.85rem">{sector}</div>'
+                f'<div style="font-weight:800;font-size:1.15rem;color:{c}">{comb:.0f}</div>'
+                f'<div style="color:{theme.TEXT}">{finr:.0f}</div>'
+                f'<div style="color:{theme.TEXT}">{digtxt}</div>'
+                f'<div>{band_pill(band)}</div></div>', unsafe_allow_html=True)
 
 
 # ==================================================================== Live Lookup
@@ -406,24 +352,9 @@ NSE_TOP = {
 }
 
 
-def render_live() -> None:
-    with panel():
-        section_title("Live Company Lookup")
-        st.markdown('<div class="fa-headline">Pick any listed company. We fetch its financials '
-                    'and latest news live, and fuse them into one risk read.</div>',
-                    unsafe_allow_html=True)
-        c1, c2 = st.columns([4, 1])
-        name = c1.selectbox("company", list(NSE_TOP), index=None, key="live_name",
-                            placeholder="Search a company (e.g. Vedanta, Vodafone Idea, TCS) ...",
-                            label_visibility="collapsed")
-        run = c2.button("Score", key="live_go", use_container_width=True)
-
-    if not (run and name):
-        st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.9rem;margin-top:6px">'
-                    'Pick a company and press Score. Financials come live from Screener.in and '
-                    'recent news from Google News, fused into the Altman Z engine plus a live '
-                    'news-sentiment signal.</div>', unsafe_allow_html=True)
-        return
+def render_live(name: str) -> None:
+    """Fetch and score any NSE company live (financials + news). The company is chosen in
+    the Live Company Scoring tab; this renders the result for `name`."""
     ticker = NSE_TOP[name]
 
     try:
@@ -557,294 +488,296 @@ def render_live() -> None:
                 unsafe_allow_html=True)
 
 
-# ==================================================================== Hindsight
-# Each case merges the Altman Z trajectory (where the firm is a non-financial listed
-# company and Z is meaningful) with the dated market-intelligence events that preceded
-# the collapse - auditor exits, rating actions, management/board changes, news shocks and
-# the terminal default. The story is the LEAD TIME: which signal fired first, and how far
-# ahead of the accounts. All events are drawn from public reporting.
-#
-# `traj`   : optional [(year, Altman Z)] - present only where Z is a fair read.
-# `signals`: chronological [(date, kind, headline, why-it-matters)].
-#            kind in {altman, auditor, rating, management, news, default}.
-# `lead`   : the one-line lead-time claim shown as the hero metric.
-# `verdict`: how to read the case.
-HINDSIGHT = {
-    "Reliance Communications": {
-        "traj": [(2015, 1.98), (2016, 0.53), (2017, -0.37), (2018, -2.81), (2019, -3.11)],
-        "sector": "Telecom", "z_ok": True,
-        "lead": "Altman flagged distress in FY2016 - three years before the 2019 NCLT admission.",
-        "verdict": "Financials and market signals pointed the same way. A clean confirmation case: "
-                   "here Altman alone already caught it, and every softer signal agreed.",
-        "signals": [
-            ("FY2016", "altman", "Altman Z falls into distress (0.53)",
-             "Z slid from 1.98 (grey) to 0.53 as the telecom price war destroyed cash flows - "
-             "three years before insolvency."),
-            ("2017", "rating", "Loan defaults; debt cut to default grade",
-             "RCom began missing bank repayments through 2017; agencies moved the debt to default."),
-            ("Sep 2017", "management", "Ericsson files insolvency plea over unpaid dues",
-             "An operational creditor moved the NCLT - the first formal insolvency trigger."),
-            ("Feb 2019", "default", "Board opts for NCLT resolution",
-             "After failed asset sales to Jio, RCom said it would seek resolution via insolvency."),
-            ("2019", "default", "NCLT admits insolvency",
-             "The terminal event the engine had signalled for three years."),
+# ==================================================================== Track Record
+# Real non-financial companies, scored on their real Screener financials (the `altman`
+# arrays are the engine's own risk score per fiscal year). `foresight` reconstructs how the
+# combined score would have moved on the dated public events between filings - each point
+# carries the reason shown on hover. The picture makes the case on its own: the annual
+# Altman line is slow, the signal-driven line turns earlier.
+TRACK_RECORD = {
+    "Unitech (Real Estate)": {
+        "sector": "Real Estate", "event_date": "2020-01-20", "event": "Board superseded, 2020",
+        "lead": "High-risk in 2017; Altman not until 2021 - a four-year lead.",
+        "altman": [(2015, 13), (2016, 20), (2017, 21), (2018, 29), (2019, 34), (2020, 49),
+                   (2021, 63), (2022, 69), (2023, 85)],
+        "foresight": [
+            ("2015-06-30", 24, "Baseline: Altman reads Safe, but homebuyer delivery delays and refund complaints are piling up."),
+            ("2016-08-01", 40, "Thousands of homebuyer complaints; consumer forums order refunds the company cannot fund."),
+            ("2017-04-26", 64, "Promoters Sanjay and Ajay Chandra are arrested - the company is left without functioning management."),
+            ("2017-12-01", 70, "The Supreme Court steps in over diverted homebuyer funds and stalled projects."),
+            ("2020-01-20", 80, "The Supreme Court supersedes the board and installs a government-nominated management."),
+            ("2021-06-30", 84, "Altman finally confirms distress - four years after the signals did."),
         ],
+        "takeaway": "Altman read Safe right through the years the promoters were arrested and the "
+                    "Supreme Court intervened. ForesightAI was in high-risk territory by 2017 because "
+                    "it reads the arrests, the court orders and the homebuyer complaints - not just the "
+                    "balance sheet. Combining the two is what buys the four-year lead.",
     },
-    "Suzlon Energy": {
-        "traj": [(2018, -3.35), (2019, -7.57), (2020, -20.02), (2021, -0.96), (2022, -2.02),
-                 (2023, 4.77), (2024, 4.26), (2025, 3.77), (2026, 4.66)],
-        "sector": "Renewables", "z_ok": True,
-        "lead": "Deep distress 2018-20, then Altman tracks the turnaround back to safe from FY2023.",
-        "verdict": "The only case that recovers. Proof the engine reads the real trajectory - down "
-                   "into the crisis and back out - rather than only predicting doom.",
-        "signals": [
-            ("2012", "default", "$209M FCCB default - the largest Indian convertible default then",
-             "Foreign-bond holders were not repaid; the balance sheet never recovered on its own."),
-            ("2013", "management", "Corporate debt restructuring (CDR) invoked",
-             "Lenders recast ~₹9,500 cr of debt - a formal admission of financial stress."),
-            ("FY2020", "altman", "Altman Z bottoms near -20",
-             "The deepest distress of the crisis, fully visible in the financial engine."),
-            ("2020", "rating", "Debt recast again amid liquidity stress",
-             "A second restructuring as COVID compounded the strain."),
-            ("FY2023", "altman", "Altman Z back above 4 - safe zone",
-             "A rights issue, deleveraging and a return to profit; the engine tracks the recovery."),
+    "Future Retail (Retail)": {
+        "sector": "Retail", "event_date": "2022-07-20", "event": "Insolvency (NCLT), 2022",
+        "lead": "High-risk by late 2020, while Altman still read Grey.",
+        "altman": [(2019, 15), (2020, 45), (2021, 85)],
+        "foresight": [
+            ("2019-03-31", 20, "Baseline: aggressive store expansion on heavy lease-adjusted debt, despite a Safe Altman."),
+            ("2019-08-22", 32, "Amazon invests in Future Coupons with contested control rights over the retail business."),
+            ("2020-03-25", 46, "COVID shuts malls; footfall and cash collections collapse."),
+            ("2020-08-29", 58, "A Reliance rescue deal is announced as the debt turns unmanageable."),
+            ("2020-10-25", 70, "Amazon wins an emergency arbitration that freezes the Reliance deal - a liquidity trap."),
+            ("2021-12-24", 84, "Lenders reject the Reliance scheme; the standstill ends."),
+            ("2022-04-15", 94, "Defaults on Rs 3,494 crore; Reliance takes over 900-plus stores."),
         ],
+        "takeaway": "Altman scored Future Retail Safe in FY2019, the year the control fight and the "
+                    "debt problem were already public. ForesightAI was elevated by late 2020 on the "
+                    "blocked deal and tightening liquidity - a full year before the accounts caught up.",
     },
-    "DHFL": {
-        "traj": None, "sector": "Housing finance (NBFC)", "z_ok": False,
-        "lead": "The news signal fired ~4 months before the first default and ~10 months before NCLT.",
-        "verdict": "Altman is unreliable for financial firms - and here it stayed quiet. The news and "
-                   "rating cascade led the accounts by months. This is the fusion case: the value is "
-                   "the alternate signals, not the Z.",
-        "signals": [
-            ("29 Jan 2019", "news", "Cobrapost alleges ~₹31,000 cr of fund diversion",
-             "The stock fell ~10% in a day. The first public crack - four months before any missed "
-             "payment and long before the annual accounts could show it."),
-            ("Feb-May 2019", "rating", "Agencies move ratings to watch as liquidity tightens",
-             "Rollover risk on commercial paper built while the reported financials still looked servicing-capable."),
-            ("4 Jun 2019", "default", "Misses ₹900 cr interest payment - technical default",
-             "The event the news signal had front-run by a full quarter."),
-            ("Jun 2019", "rating", "CRISIL, ICRA and CARE downgrade to 'D' (default)",
-             "The ratings only caught up after the miss - months behind the news."),
-            ("Nov 2019", "management", "RBI supersedes the board; referred to NCLT",
-             "The first NBFC taken into insolvency under the IBC."),
+    "Reliance Communications (Telecom)": {
+        "sector": "Telecom", "event_date": "2019-02-01", "event": "Insolvency (NCLT), 2019",
+        "lead": "At high-risk by mid-2017 on the rating cut and the Ericsson plea.",
+        "altman": [(2015, 34), (2016, 60), (2017, 75), (2018, 95), (2019, 96)],
+        "foresight": [
+            ("2015-06-30", 40, "Baseline: debt rising as a brutal telecom tariff war begins."),
+            ("2016-09-05", 62, "Jio's free launch collapses industry pricing; RCom's cash flows crater."),
+            ("2017-05-30", 78, "Debt is downgraded to default grade after missed bank repayments."),
+            ("2017-09-15", 85, "Ericsson files an insolvency plea over unpaid dues."),
+            ("2018-03-01", 92, "The asset sale to Jio unravels, cutting off the deleveraging plan."),
+            ("2019-02-01", 96, "The board opts for resolution through insolvency."),
         ],
+        "takeaway": "Here the two legs agree - Altman turned in FY2016 and the signals confirmed it. "
+                    "ForesightAI still leads on timing, reacting to the rating cut and the Ericsson plea "
+                    "through 2017 rather than waiting for the next annual filing.",
     },
-    "IL&FS": {
-        "traj": None, "sector": "Infrastructure finance (NBFC)", "z_ok": False,
-        "lead": "Rated AAA to mid-2018; only the short-term default and liquidity signals led.",
-        "verdict": "The 'even the rating agencies missed it' case. Ratings AND Altman both read it "
-                   "safe until the very end - the strongest argument for watching many signals at "
-                   "once instead of trusting any single score.",
-        "signals": [
-            ("to mid-2018", "rating", "Rated AAA - top investment grade",
-             "The market and the models saw no risk. This is the trap the case exposes."),
-            ("Jun-Jul 2018", "default", "First defaults on commercial paper",
-             "Short-term obligations cracked while the long-term rating still held AAA."),
-            ("Aug-Sep 2018", "rating", "Downgraded AAA -> D within weeks - the ratings cliff",
-             "One of the fastest AAA-to-default collapses on record; the rating was a lagging signal."),
-            ("Sep 2018", "default", "Defaults on a SIDBI loan; NBFC liquidity panic spreads",
-             "The failure became systemic, freezing short-term funding across the sector."),
-            ("1 Oct 2018", "management", "Government supersedes the board; Uday Kotak appointed",
-             "The state stepped in to contain contagion."),
-            ("2018-19", "auditor", "Auditors later charged with lapses (SFIO)",
-             "The audit signal failed too - a caution that no single source is enough."),
+    "Jaiprakash Associates (Infrastructure)": {
+        "sector": "Infrastructure", "event_date": "2024-06-03", "event": "Insolvency (NCLT), 2024",
+        "lead": "A steady climb where Altman only swung up and down.",
+        "altman": [(2016, 39), (2017, 82), (2018, 50), (2019, 67), (2020, 37), (2021, 42),
+                   (2022, 46), (2023, 44), (2024, 49)],
+        "foresight": [
+            ("2016-06-30", 48, "Baseline: one of the most indebted infrastructure groups, selling assets to survive."),
+            ("2017-06-01", 66, "Named among the RBI's stressed accounts flagged for resolution."),
+            ("2018-09-01", 72, "Repeated rating downgrades as debt-recast talks stall."),
+            ("2021-03-01", 78, "Lenders classify the loans as non-performing and move to recover."),
+            ("2022-09-01", 82, "Rating agencies at default grade; asset monetisation slows."),
+            ("2024-06-03", 90, "Admitted to insolvency on a lender petition."),
         ],
+        "takeaway": "Altman swung between grey and distress year after year - hard to act on. "
+                    "ForesightAI rose steadily from 2017 to the 2024 filing because the rating and "
+                    "recovery signals kept pointing one way. The value here is a clear signal through "
+                    "the noise.",
     },
-    "Manpasand Beverages": {
-        "traj": None, "sector": "Beverages", "z_ok": False,
-        "lead": "The auditor walked out ~12 months before the fraud arrest.",
-        "verdict": "The auditor-resignation signal in a single case - exactly the hard event our "
-                   "engine floors on. One dated filing said more than a year of financials could.",
-        "signals": [
-            ("26 May 2018", "auditor", "Deloitte resigns as auditor, citing missing information",
-             "The cleanest early warning there is - an auditor refusing to sign off and walking away."),
-            ("late May 2018", "news", "Stock hits lower circuit; ~40% wiped out in days",
-             "The market priced the auditor exit instantly, with no financials yet restated."),
-            ("May 2019", "default", "Promoters arrested in a ~₹40 cr GST fraud",
-             "A year after the auditor left, the fraud it had hinted at surfaced."),
-            ("2019-20", "default", "Trading collapse and near-delisting",
-             "The terminal decline, telegraphed a year earlier by one resignation."),
+    "Suzlon Energy (Renewables)": {
+        "sector": "Renewables", "event_date": "2019-07-01", "event": "Near-default / recast, 2019",
+        "lead": "It also falls: ForesightAI turned down in late 2021, ahead of the FY2023 recovery.",
+        "altman": [(2017, 98), (2018, 96), (2019, 100), (2020, 100), (2021, 82), (2022, 91),
+                   (2023, 6), (2024, 9), (2025, 12), (2026, 7)],
+        "foresight": [
+            ("2017-06-30", 94, "Baseline: crushing FCCB and term debt after years of losses."),
+            ("2018-07-01", 96, "Liquidity stress deepens; ratings cut further."),
+            ("2019-07-01", 99, "Misses payments; a formal debt restructuring is invoked."),
+            ("2020-06-01", 96, "COVID compounds the strain; a second recast follows."),
+            ("2021-11-01", 72, "A large rights issue and deleveraging begin as the order book recovers."),
+            ("2022-11-01", 48, "Return to operating profit; net debt falls sharply."),
+            ("2023-08-01", 18, "A debt-light balance sheet; Altman climbs back to Safe."),
+            ("2024-09-01", 10, "Sustained profits and record order inflows."),
         ],
+        "takeaway": "The score moves both ways. ForesightAI read deep distress through the 2019-20 "
+                    "crisis, then turned down through late 2021 as the rights issue and order book "
+                    "recovered - ahead of Altman confirming the turnaround from FY2023.",
     },
 }
 
-# Signal-kind styling for the Hindsight timeline: colour, swim-lane row, display label.
-_KIND = {
-    "default":    (theme.BAD,     5, "Default / Legal"),
-    "auditor":    ("#A855F7",     4, "Auditor"),
-    "rating":     (theme.ELEVATED, 3, "Credit rating"),
-    "management": ("#3B82F6",     2, "Management / Board"),
-    "news":       (theme.TEXT_DIM, 1, "News shock"),
-    "altman":     (theme.ACCENT,  0, "Altman Z"),
-}
 
-_MONTHS = {"jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6, "jul": 7,
-           "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12}
+def render_track_record() -> None:
+    import datetime as _dt
 
-
-def _event_x(date_str: str) -> float:
-    """Approximate float year for positioning an event on the time axis.
-
-    Handles 'FY2016', '29 Jan 2019', 'Feb-May 2019', '2018-19', 'to mid-2018'. Grabs the
-    last four-digit year and, if a month token is present, offsets within the year.
-    """
-    import re as _re
-
-    years = _re.findall(r"\d{4}", date_str)
-    yr = int(years[-1]) if years else 2019
-    low = date_str.lower()
-    for tok, m in _MONTHS.items():
-        if tok in low:
-            return yr + (m - 0.5) / 12.0
-    return yr + 0.5
-
-
-def render_hindsight() -> None:
     with panel():
-        section_title("Hindsight - would the engine have warned you?")
-        st.markdown('<div class="fa-headline">Real companies that failed, replayed on the record. '
-                    'Each case merges the Altman Z trajectory with the dated market signals - '
-                    'auditor exits, rating actions, board changes, news shocks - that preceded the '
-                    'collapse. The story is which signal fired first, and how far ahead.</div>',
-                    unsafe_allow_html=True)
-        c1, c2 = st.columns([2, 3])
-        pick = c1.selectbox("case", list(HINDSIGHT), index=0, key="hind_pick",
-                            label_visibility="collapsed")
-        d = HINDSIGHT[pick]
+        section_title("Track Record - would it have warned you?")
+        st.markdown('<div class="fa-headline">Real companies, scored on their real history. The '
+                    'Altman line updates once a year with the filings. The ForesightAI line moves the '
+                    'day a signal does - a rating cut, an arrest, a blocked deal - so it turns earlier. '
+                    'Hover any orange point for the reason it moved.</div>', unsafe_allow_html=True)
+        pick = st.selectbox("case", list(TRACK_RECORD), label_visibility="collapsed", key="tr_pick")
+
+    d = TRACK_RECORD[pick]
+    ALT = "#5B9BD5"
+    xA = [_dt.date(y, 3, 31) for y, _ in d["altman"]]
+    yA = [r for _, r in d["altman"]]
+    xF = [_dt.date.fromisoformat(dd) for dd, _, _ in d["foresight"]]
+    yF = [s for _, s, _ in d["foresight"]]
+    reasons = [r for _, _, r in d["foresight"]]
+
+    fig = go.Figure()
+    fig.add_hrect(y0=70, y1=100, fillcolor=theme.BAD, opacity=0.06, line_width=0, layer="below")
+    fig.add_hrect(y0=0, y1=30, fillcolor=theme.GOOD, opacity=0.06, line_width=0, layer="below")
+    fig.add_trace(go.Scatter(
+        x=xA, y=yA, name="Altman (annual filing)", mode="lines+markers",
+        line=dict(color=ALT, width=2.5), marker=dict(size=7),
+        hovertemplate="FY%{x|%Y}: Altman risk %{y}<extra></extra>"))
+    fig.add_trace(go.Scatter(
+        x=xF, y=yF, name="ForesightAI (live signals)", mode="lines+markers",
+        line=dict(color=theme.ACCENT, width=3),
+        marker=dict(size=11, color=theme.ACCENT, line=dict(color="#0A1628", width=1.5)),
+        customdata=[[r] for r in reasons],
+        hovertemplate="<b>%{x|%d %b %Y} &middot; risk %{y}</b><br>%{customdata[0]}<extra></extra>"))
+    ev = _dt.date.fromisoformat(d["event_date"])
+    fig.add_vline(x=ev, line=dict(color=theme.TEXT_DIM, width=1.5, dash="dash"))
+    fig.add_annotation(x=ev, y=100, text=d["event"], showarrow=False, yanchor="top", xanchor="right",
+                       font=dict(color=theme.TEXT_DIM, size=11))
+    fig.update_layout(height=440, margin=dict(l=10, r=10, t=34, b=10),
+                      paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                      font={"color": theme.TEXT},
+                      legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0),
+                      hoverlabel=dict(bgcolor=theme.BG_PANEL_2, font_size=12, align="left"),
+                      yaxis=dict(range=[0, 100], title="Risk score (0-100)", gridcolor=theme.BORDER),
+                      xaxis=dict(title="", gridcolor=theme.BORDER, dtick="M12", tickformat="%Y"))
+
+    with panel():
+        st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
         st.markdown(
-            f'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">'
+            f'<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 8px">'
             f'<span class="fa-card" style="padding:8px 14px"><span class="lbl">Sector</span>'
             f'<span class="val" style="font-size:0.95rem">{d["sector"]}</span></span>'
-            f'<span class="fa-card" style="padding:8px 14px"><span class="lbl">Lead time</span>'
+            f'<span class="fa-card" style="padding:8px 14px"><span class="lbl">Early-warning lead</span>'
             f'<span class="val" style="font-size:0.95rem;color:{theme.ACCENT}">{d["lead"]}</span></span>'
             '</div>', unsafe_allow_html=True)
-
-    events = d["signals"]
-    xs_all = [_event_x(dt) for dt, *_ in events]
-    order = sorted(range(len(events)), key=lambda i: xs_all[i])
-
-    # Immersive scrubber: reveal the cascade one step at a time so a viewer can watch the
-    # warning build, or jump straight to the full picture (default).
-    with panel():
-        steps = len(events)
-        reveal = st.slider("Reveal the signal cascade up to step", 1, steps, steps,
-                           key=f"hind_reveal_{pick}")
-        shown = set(order[:reveal])
-
-        fig = go.Figure()
-
-        # Altman Z line on a secondary axis where the score is a fair read.
-        if d["traj"]:
-            yrs = [y for y, _ in d["traj"]]
-            zs = [z for _, z in d["traj"]]
-            fig.add_trace(go.Scatter(
-                x=yrs, y=zs, mode="lines+markers", name="Altman Z", yaxis="y2",
-                line=dict(color=theme.ACCENT, width=3), marker=dict(size=8),
-                hovertemplate="FY%{x}: Altman Z %{y:.2f}<extra></extra>"))
-            fig.add_hline(y=1.10, line=dict(color=theme.BAD, width=1, dash="dot"), yref="y2",
-                          annotation_text="distress", annotation_font_color=theme.TEXT_DIM,
-                          annotation_font_size=10)
-
-        # Signal events as a colour-coded swim-lane timeline.
-        for kind, (col, lane, klabel) in _KIND.items():
-            if kind == "altman":
-                continue
-            idx = [i for i, e in enumerate(events) if e[1] == kind and i in shown]
-            if not idx:
-                continue
-            fig.add_trace(go.Scatter(
-                x=[xs_all[i] for i in idx], y=[lane for _ in idx], mode="markers",
-                name=klabel, marker=dict(size=15, color=col, line=dict(color="#0A1628", width=1.5)),
-                customdata=[[events[i][0], events[i][2], events[i][3]] for i in idx],
-                hovertemplate="<b>%{customdata[0]} &middot; " + klabel +
-                              "</b><br>%{customdata[1]}<br><span style='color:#94A3B8'>"
-                              "%{customdata[2]}</span><extra></extra>"))
-
-        # Terminal event marker.
-        term_i = order[-1]
-        fig.add_vline(x=xs_all[term_i], line=dict(color=theme.BAD, width=1.5, dash="dash"))
-
-        lane_labels = ["News shock", "Management / Board", "Credit rating", "Auditor", "Default / Legal"]
-        layout = dict(
-            height=300 if not d["traj"] else 420, showlegend=True,
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, font=dict(size=10)),
-            margin=dict(l=10, r=10, t=30, b=10),
-            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font={"color": theme.TEXT},
-            hoverlabel=dict(bgcolor=theme.BG_PANEL_2, font_size=12),
-            xaxis=dict(title="Timeline", gridcolor=theme.BORDER, dtick=1),
-            yaxis=dict(range=[0.5, 5.5], tickvals=[1, 2, 3, 4, 5], ticktext=lane_labels,
-                       gridcolor=theme.BORDER),
-        )
-        if d["traj"]:
-            layout["yaxis2"] = dict(title="Altman Z", overlaying="y", side="right",
-                                    showgrid=False, zeroline=False)
-        fig.update_layout(**layout)
-        st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
-
-        if not d["z_ok"]:
-            st.markdown(
-                f'<div style="color:{theme.ELEVATED};font-size:0.82rem;margin-top:-4px">'
-                'Altman Z is a known blind spot for financial firms (NBFCs, banks) - so it is not '
-                'plotted here. That is the point of the case: the alternate signals carried the '
-                'warning the Z could not.</div>', unsafe_allow_html=True)
-
-    # The cascade in reading order: dated, cited, with why-it-matters. This is where the
-    # human actually reads the story - each entry earns its space.
-    with panel():
-        section_title("What led to the collapse - in order")
-        for rank, i in enumerate(order, 1):
-            if i not in shown:
-                continue
-            dt, kind, head, why = events[i]
-            col, _lane, klabel = _KIND[kind]
-            st.markdown(
-                f'<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid {theme.BORDER}">'
-                f'<div style="flex:0 0 96px;color:{theme.TEXT_DIM};font-size:0.8rem;padding-top:2px">{dt}</div>'
-                f'<div style="flex:0 0 132px"><span style="background:{col}22;color:{col};'
-                f'border:1px solid {col}55;border-radius:6px;padding:2px 8px;font-size:0.7rem;'
-                f'font-weight:700;text-transform:uppercase">{klabel}</span></div>'
-                f'<div style="flex:1"><div style="color:{theme.TEXT};font-weight:600;font-size:0.92rem">{head}</div>'
-                f'<div style="color:{theme.TEXT_DIM};font-size:0.83rem;margin-top:2px">{why}</div></div>'
-                '</div>', unsafe_allow_html=True)
-
-    with panel():
-        st.markdown(f'<div class="fa-narrative">{d["verdict"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="fa-narrative">{d["takeaway"]}</div>', unsafe_allow_html=True)
         st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.78rem;margin-top:6px">'
-                    'Altman Z scored on historical financials (Screener.in) with the same engine the '
-                    'app uses; signal events drawn from public reporting. Not a claim to beat Altman - '
-                    'the engine is Altman - but proof that the engine, plus the market signals, run '
-                    'automatically on history, would have flagged the distress early.</div>',
+                    'Altman risk is the engine\'s own score on each year of reported financials from '
+                    'Screener.in. The ForesightAI line reconstructs how the combined score would have '
+                    'moved on the dated public events - rating actions, filings, leadership and news.</div>',
                     unsafe_allow_html=True)
+
+
+# ==================================================================== Overview
+def render_overview() -> None:
+    # Hero
+    with panel():
+        st.markdown(
+            '<div style="padding:8px 6px">'
+            '<div class="fa-brand" style="font-size:2.5rem">Foresight <span class="amber">AI</span></div>'
+            '<div style="font-size:1.2rem;color:#fff;font-weight:600;margin-top:8px">'
+            'See corporate distress before the annual accounts admit it.</div>'
+            f'<div style="color:{theme.TEXT_DIM};font-size:1rem;margin-top:10px;max-width:860px;'
+            'line-height:1.5">Foresight AI scores any listed Indian company on a single 0-100 risk '
+            'scale, fusing the classic Altman Z-Score with live market signals - credit ratings, '
+            'leadership changes, news, hiring and employee sentiment - and explains every point.</div>'
+            '</div>', unsafe_allow_html=True)
+
+    # Why we exist
+    with panel():
+        section_title("Why we exist")
+        cards = [
+            ("Accounts lag reality", "Financial statements update once a year. By the time the ratios turn, the collapse is often already public."),
+            ("Signals sit scattered", "A rating cut, an auditor exit, a board resignation - each lands somewhere different, and nobody joins them up in time."),
+            ("Coverage is manual", "Analysts read filings one company at a time. The slowest, riskiest names get watched last."),
+        ]
+        for col, (h, t) in zip(st.columns(3), cards):
+            col.markdown(
+                f'<div class="fa-card" style="height:100%"><div class="val" '
+                f'style="font-size:1.02rem;color:{theme.ACCENT}">{h}</div>'
+                f'<div class="ctx" style="margin-top:8px">{t}</div></div>', unsafe_allow_html=True)
+
+    # How the score is built - weights bar + sample gauge
+    c1, c2 = st.columns([3, 2])
+    with c1:
+        with panel():
+            section_title("How the score is built")
+            st.markdown('<div class="fa-headline">One number, two legs, always explainable.</div>',
+                        unsafe_allow_html=True)
+            labels = ["Employee confidence", "Hiring trend", "News sentiment",
+                      "Leadership changes", "Credit rating", "Altman Z (financial)"]
+            vals = [4, 4, 10, 10, 12, 60]
+            cols = ["#64748B", "#64748B", "#3B82F6", "#3B82F6", theme.ELEVATED, theme.ACCENT]
+            fig = go.Figure(go.Bar(x=vals, y=labels, orientation="h",
+                                   marker=dict(color=cols),
+                                   text=[f"{v}%" for v in vals], textposition="outside",
+                                   textfont=dict(color=theme.TEXT),
+                                   hovertemplate="%{y}: %{x}% of the score<extra></extra>"))
+            fig.update_layout(height=250, margin=dict(l=10, r=30, t=6, b=6),
+                              paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                              font={"color": theme.TEXT},
+                              xaxis=dict(range=[0, 70], showgrid=False, visible=False),
+                              yaxis=dict(gridcolor=theme.BORDER))
+            st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
+            st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.82rem">Financial (Altman Z) '
+                        'is 60% of the score; the five market signals make up the other 40%. Each '
+                        'contribution is shown, and a rating cut to default or an auditor exit is '
+                        'treated as a hard fact that floors the score.</div>', unsafe_allow_html=True)
+    with c2:
+        with panel():
+            section_title("A sample read")
+            st.plotly_chart(risk_gauge(59, "Elevated Risk"), width='stretch',
+                            config={"displayModeBar": False})
+            st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.85rem;text-align:center;'
+                        'margin-top:-8px">Every point traces to a real ratio, rating or headline.</div>',
+                        unsafe_allow_html=True)
+
+    # Proven early
+    with panel():
+        section_title("Proven on real collapses")
+        proof = [
+            ("4 years", "earlier than Altman on Unitech - flagged the year the promoters were arrested."),
+            ("Safe -> crash", "Altman scored Future Retail Safe the year before it defaulted."),
+            ("Both ways", "It also reads recovery - Suzlon's turn back to the safe zone."),
+        ]
+        for col, (big, t) in zip(st.columns(3), proof):
+            col.markdown(
+                f'<div class="fa-card" style="height:100%"><div style="font-size:1.35rem;'
+                f'font-weight:800;color:{theme.ACCENT}">{big}</div>'
+                f'<div class="ctx" style="margin-top:6px">{t}</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.85rem;margin-top:10px">'
+                    'Open the <b>Track Record</b> tab to replay each case year by year. Open '
+                    '<b>Live Company Scoring</b> to score any company right now.</div>',
+                    unsafe_allow_html=True)
+
+
+# ==================================================================== Live Company Scoring
+def render_live_scoring() -> None:
+    tracked = svc.company_names()
+    others = [n for n in NSE_TOP if n not in tracked]
+    TAG = "   -  full signals"
+
+    with panel():
+        section_title("Live Company Scoring")
+        st.markdown('<div class="fa-headline">Score any listed company. The six tracked names carry '
+                    'the full five-signal market pulse; any other NSE company is fetched and scored '
+                    'live on its financials and news.</div>', unsafe_allow_html=True)
+        c1, c2 = st.columns([5, 1])
+        opts = ["- select a company -"] + [t + TAG for t in tracked] + others
+        sel = c1.selectbox("scoring_company", opts, label_visibility="collapsed", key="score_pick")
+        go_btn = c2.button("Score", key="score_go", use_container_width=True)
+
+    if go_btn and not sel.startswith("- select"):
+        st.session_state["scored_name"] = sel
+    name = st.session_state.get("scored_name")
+    if not name:
+        st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.9rem;margin-top:6px">'
+                    'Pick a company and press Score. Tracked companies show the full analysis with all '
+                    'five market signals; any other NSE name is scored live from Screener and Google '
+                    'News.</div>', unsafe_allow_html=True)
+        return
+
+    if name.endswith(TAG):
+        render_company(name[: -len(TAG)])
+    else:
+        render_live(name)
 
 
 # ===================================================================== header + tabs
-left, right = st.columns([3, 2])
-with left:
-    st.markdown('<div class="fa-brand">Foresight <span class="amber">AI</span></div>'
-                '<div class="fa-tagline">Live corporate risk scoring - any listed company, financials plus market signals</div>',
-                unsafe_allow_html=True)
-with right:
-    company = st.selectbox("Company", svc.company_names(), label_visibility="collapsed",
-                           index=svc.company_names().index("Vedanta"))
+st.markdown('<div class="fa-brand">Foresight <span class="amber">AI</span></div>'
+            '<div class="fa-tagline">Live corporate risk scoring - Altman Z fused with market signals</div>',
+            unsafe_allow_html=True)
+st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
 
-st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-
-tab_live, tab_hind, tab_company, tab_portfolio, tab_case, tab_econ = st.tabs(
-    ["Live Lookup", "Hindsight", "Company Analysis", "Portfolio Monitor", "Case Study",
-     "Review Economics"])
-with tab_live:
-    render_live()
-with tab_hind:
-    render_hindsight()
-with tab_company:
-    render_company(company)
+tab_overview, tab_score, tab_portfolio, tab_track = st.tabs(
+    ["Overview", "Live Company Scoring", "Portfolio", "Track Record"])
+with tab_overview:
+    render_overview()
+with tab_score:
+    render_live_scoring()
 with tab_portfolio:
     render_portfolio()
-with tab_case:
-    render_case_study()
-with tab_econ:
-    render_economics()
+with tab_track:
+    render_track_record()
 
 st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.72rem;text-align:center;margin-top:8px">'
             'Foresight AI Analytics Engine &middot; A supplementary analytics tool, not a substitute '
