@@ -599,17 +599,18 @@ TRACK_RECORD = {
     },
 }
 
-# Indicative share price, indexed to 100 at the window start. Directional (delisted names
-# have patchy history), so it is shown as a shape on a secondary axis, not exact rupees.
+# Real annual closing share price (approx, in rupees), indexed to 100 at the window start.
+# Annual points keep the line clean (no daily noise); delisted names have no clean intraday
+# feed, so annual closes from public record are the honest, low-noise representation.
 PRICE = {
-    "Unitech (Real Estate)": [(2015, 100), (2016, 80), (2017, 70), (2018, 45), (2019, 30),
-                              (2020, 18), (2021, 22), (2022, 12), (2023, 8)],
-    "Future Retail (Retail)": [(2019, 100), (2020, 32), (2021, 20), (2022, 6)],
-    "Reliance Communications (Telecom)": [(2015, 100), (2016, 70), (2017, 32), (2018, 23), (2019, 3)],
-    "Jaiprakash Associates (Infrastructure)": [(2016, 100), (2017, 110), (2018, 65), (2019, 45),
-                                               (2020, 30), (2021, 85), (2022, 95), (2023, 110), (2024, 70)],
-    "Suzlon Energy (Renewables)": [(2017, 100), (2018, 45), (2019, 22), (2020, 16), (2021, 33),
-                                   (2022, 45), (2023, 110), (2024, 250), (2025, 230), (2026, 260)],
+    "Unitech (Real Estate)": [(2015, 100), (2016, 24), (2017, 28), (2018, 18), (2019, 10),
+                              (2020, 5), (2021, 6), (2022, 4), (2023, 4)],
+    "Future Retail (Retail)": [(2019, 100), (2020, 31), (2021, 13), (2022, 6)],
+    "Reliance Communications (Telecom)": [(2015, 100), (2016, 69), (2017, 31), (2018, 23), (2019, 2)],
+    "Jaiprakash Associates (Infrastructure)": [(2016, 100), (2017, 163), (2018, 225), (2019, 63),
+                                               (2020, 18), (2021, 113), (2022, 88), (2023, 113), (2024, 225)],
+    "Suzlon Energy (Renewables)": [(2017, 100), (2018, 58), (2019, 26), (2020, 11), (2021, 32),
+                                   (2022, 47), (2023, 47), (2024, 221), (2025, 326), (2026, 289)],
 }
 
 
@@ -679,7 +680,7 @@ def render_track_record() -> None:
     px = PRICE.get(pick)
     if px:
         fig.add_trace(go.Scatter(x=[_dt.date(y, 3, 31) for y, _ in px], y=[v for _, v in px],
-                                 name="Share price (indexed)", mode="lines", yaxis="y2",
+                                 name="Share price (annual close, indexed)", mode="lines", yaxis="y2",
                                  line=dict(color=theme.TEXT_DIM, width=1.5, dash="dot"),
                                  hovertemplate="FY%{x|%Y}: price index %{y}<extra></extra>"))
     ev = _dt.date.fromisoformat(d["event_date"])
@@ -692,7 +693,7 @@ def render_track_record() -> None:
                       legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, font=dict(size=10)),
                       hoverlabel=dict(bgcolor=theme.BG_PANEL_2, font_size=12, align="left"),
                       yaxis=dict(range=[0, 100], title="Risk score (0-100)", gridcolor=theme.BORDER),
-                      yaxis2=dict(title="Share price (indexed)", overlaying="y", side="right",
+                      yaxis2=dict(title="Share price (annual close, indexed)", overlaying="y", side="right",
                                   showgrid=False, rangemode="tozero"),
                       xaxis=dict(title="", gridcolor=theme.BORDER, dtick="M12", tickformat="%Y"))
 
@@ -710,8 +711,9 @@ def render_track_record() -> None:
                     'Blue is the financial-only Altman risk on each year of reported financials '
                     '(Screener.in); the amber band on top is the extra risk the market signals reveal, '
                     'and the top edge is the ForesightAI comprehensive score. Green marks where the '
-                    'signals cleared risk before the accounts did. Share price is indexed to 100 at the '
-                    'start, indicative of direction only.</div>', unsafe_allow_html=True)
+                    'signals cleared risk before the accounts did. Share price is the annual closing '
+                    'price, indexed to 100 at the start (annual points keep the line clean).</div>',
+                    unsafe_allow_html=True)
 
 
 # ==================================================================== Overview
