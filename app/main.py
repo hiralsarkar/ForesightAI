@@ -385,40 +385,65 @@ def render_economics() -> None:
 
 
 # ==================================================================== Live Lookup
+NSE_TOP = {
+    "Reliance Industries": "RELIANCE", "TCS": "TCS", "HDFC Bank": "HDFCBANK",
+    "ICICI Bank": "ICICIBANK", "Infosys": "INFY", "Hindustan Unilever": "HINDUNILVR",
+    "ITC": "ITC", "State Bank of India": "SBIN", "Bharti Airtel": "BHARTIARTL",
+    "Kotak Mahindra Bank": "KOTAKBANK", "Larsen & Toubro": "LT", "Axis Bank": "AXISBANK",
+    "Bajaj Finance": "BAJFINANCE", "Asian Paints": "ASIANPAINT", "Maruti Suzuki": "MARUTI",
+    "HCL Technologies": "HCLTECH", "Sun Pharma": "SUNPHARMA", "Titan": "TITAN", "Wipro": "WIPRO",
+    "UltraTech Cement": "ULTRACEMCO", "Nestle India": "NESTLEIND", "Tata Steel": "TATASTEEL",
+    "NTPC": "NTPC", "Power Grid": "POWERGRID", "Bajaj Finserv": "BAJAJFINSV",
+    "Adani Enterprises": "ADANIENT", "Adani Ports": "ADANIPORTS", "Coal India": "COALINDIA",
+    "JSW Steel": "JSWSTEEL", "Hindalco": "HINDALCO", "Tech Mahindra": "TECHM", "Grasim": "GRASIM",
+    "Dr Reddys Labs": "DRREDDY", "Cipla": "CIPLA", "Britannia": "BRITANNIA",
+    "Eicher Motors": "EICHERMOT", "Divis Labs": "DIVISLAB", "Hero MotoCorp": "HEROMOTOCO",
+    "Apollo Hospitals": "APOLLOHOSP", "Tata Consumer": "TATACONSUM", "ONGC": "ONGC",
+    "Vedanta": "VEDL", "IndusInd Bank": "INDUSINDBK", "Dabur": "DABUR",
+    "Vodafone Idea": "IDEA", "MTNL": "MTNL", "Reliance Communications": "RCOM",
+    "Yes Bank": "YESBANK", "Suzlon Energy": "SUZLON", "SpiceJet": "SPICEJET",
+    "Jaiprakash Associates": "JPASSOCIAT", "Reliance Power": "RPOWER",
+}
+
+
 def render_live() -> None:
     with panel():
         section_title("Live Company Lookup")
-        st.markdown('<div class="fa-headline">Type any NSE or BSE ticker. We fetch its latest '
-                    'reported financials live and score them through the same engine.</div>',
+        st.markdown('<div class="fa-headline">Pick any listed company. We fetch its financials '
+                    'and latest news live, and fuse them into one risk read.</div>',
                     unsafe_allow_html=True)
         c1, c2 = st.columns([4, 1])
-        ticker = c1.text_input("ticker", value="", key="live_ticker",
-                               placeholder="e.g. TATAMOTORS, RCOM, DABUR, SUZLON, VEDL",
-                               label_visibility="collapsed")
+        name = c1.selectbox("company", list(NSE_TOP), index=None, key="live_name",
+                            placeholder="Search a company (e.g. Vedanta, Vodafone Idea, TCS) ...",
+                            label_visibility="collapsed")
         run = c2.button("Score", key="live_go", use_container_width=True)
 
-    if not (run and ticker.strip()):
+    if not (run and name):
         st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.9rem;margin-top:6px">'
-                    'Enter a ticker and press Score. The financials are pulled live from '
-                    'Screener.in and scored on the Altman Z&Prime; engine, exactly as the six '
-                    'tracked companies are.</div>', unsafe_allow_html=True)
+                    'Pick a company and press Score. Financials come live from Screener.in and '
+                    'recent news from Google News, fused into the Altman Z engine plus a live '
+                    'news-sentiment signal.</div>', unsafe_allow_html=True)
         return
+    ticker = NSE_TOP[name]
 
     try:
-        with st.status(f"Scoring {ticker.strip().upper()} ...", expanded=True) as status:
+        with st.status(f"Scoring {name} ...", expanded=True) as status:
             import screener_live
+            import live_news
             from foresight import original_z, risk_from_original_z, band_for
-            st.write("Fetching latest financials and market cap from Screener ...")
+            st.write("Fetching financials and market cap from Screener ...")
             fin, mcap = screener_live.fetch_financials(ticker)
-            st.write(f"Got FY{fin.year} data. Computing the Altman Z-Score ...")
             z5, zone5, comps = original_z(fin, mcap)
-            risk = risk_from_original_z(z5)
-            band = band_for(risk)
+            fin_risk = risk_from_original_z(z5)
+            st.write("Fetching recent news and scoring sentiment ...")
+            news_risk, avg_sent, heads = live_news.news_signal(name)
+            combined = (round(0.6 * fin_risk + 0.4 * news_risk, 1)
+                        if news_risk == news_risk else fin_risk)
+            band = band_for(combined)
             status.update(label=f"{fin.company} scored (FY{fin.year})",
                           state="complete", expanded=False)
     except Exception as exc:
-        st.error(f"Could not fetch and score '{ticker}'. Use the exact NSE/BSE ticker "
-                 f"(e.g. TATAMOTORS). Details: {exc}")
+        st.error(f"Could not fetch and score '{name}'. Details: {exc}")
         return
 
     def fmt(x):
@@ -428,22 +453,34 @@ def render_live() -> None:
     g1, g2 = st.columns([2, 3])
     with g1:
         with panel():
-            section_title("Financial Risk Score")
-            st.plotly_chart(risk_gauge(risk, band), width='stretch',
+            section_title("Combined Risk Score")
+            st.plotly_chart(risk_gauge(combined, band), width='stretch',
                             config={"displayModeBar": False})
             st.markdown(f'<div style="text-align:center;margin-top:-10px">{band_pill(band)}</div>',
                         unsafe_allow_html=True)
     with g2:
         with panel():
-            section_title(f"{fin.company} - FY{fin.year} (live from Screener)")
-            rows = [("Sales", fmt(fin.sales)), ("Net profit", fmt(fin.net_profit)),
-                    ("Borrowings", fmt(fin.borrowings)), ("Market cap", fmt(mcap)),
-                    ("Total assets", fmt(fin.total_assets)),
-                    ("Altman Z", "n/a" if z5 != z5 else f"{z5:.2f}")]
-            cells = "".join(f'<div class="fa-card"><div class="lbl">{lbl}</div>'
-                            f'<div class="val">{val}</div></div>' for lbl, val in rows)
-            st.markdown(f'<div style="display:flex;gap:10px;flex-wrap:wrap">{cells}</div>',
+            section_title("Contributing Signals")
+            st.markdown(component_bar("Financial (Altman Z)", fin_risk, 0.6), unsafe_allow_html=True)
+            st.markdown(component_bar("News sentiment (live)",
+                                      news_risk if news_risk == news_risk else None, 0.4),
                         unsafe_allow_html=True)
+            note = (f"Altman Z {z5:.2f} ({zone5}). "
+                    + (f"{len(heads)} recent headlines, average tone {avg_sent:+.2f}."
+                       if heads else "No recent news found."))
+            st.markdown(f'<div class="fa-narrative" style="margin-top:12px">{note}</div>',
+                        unsafe_allow_html=True)
+
+    with panel():
+        section_title(f"{fin.company} - FY{fin.year} (live from Screener)")
+        rows = [("Sales", fmt(fin.sales)), ("Net profit", fmt(fin.net_profit)),
+                ("Borrowings", fmt(fin.borrowings)), ("Market cap", fmt(mcap)),
+                ("Total assets", fmt(fin.total_assets)),
+                ("Altman Z", "n/a" if z5 != z5 else f"{z5:.2f}")]
+        cells = "".join(f'<div class="fa-card"><div class="lbl">{lbl}</div>'
+                        f'<div class="val">{val}</div></div>' for lbl, val in rows)
+        st.markdown(f'<div style="display:flex;gap:10px;flex-wrap:wrap">{cells}</div>',
+                    unsafe_allow_html=True)
 
     with panel():
         section_title("Altman Z-Score (1968) - all five components")
@@ -463,10 +500,19 @@ def render_live() -> None:
                         f'<div class="tv">{coef} &times; {vtxt} = {contrib:+.2f}</div></div>',
                         unsafe_allow_html=True)
         st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.8rem;margin-top:8px">'
-                    'Financials and market cap fetched live from Screener.in. This is the original '
-                    '1968 Altman Z, which needs the market value of equity - available because these '
-                    'are listed companies. A production system would use a licensed feed.</div>',
-                    unsafe_allow_html=True)
+                    'The original 1968 Altman Z, using the live market value of equity - available '
+                    'because these are listed companies.</div>', unsafe_allow_html=True)
+
+    if heads:
+        with panel():
+            section_title("Recent headlines scored (live)")
+            for h in heads[:10]:
+                st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.85rem;padding:3px 0">'
+                            f'&middot; {h}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.78rem;margin-top:6px">'
+                'Financials and market cap from Screener.in; news from Google News, scored with a '
+                'distress-keyword lexicon. A production system would use licensed feeds.</div>',
+                unsafe_allow_html=True)
 
 
 # ===================================================================== header + tabs
