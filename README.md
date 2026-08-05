@@ -1,12 +1,24 @@
-# Foresight AI
+<p align="center">
+  <img src="docs/banner.svg" alt="Foresight AI" width="100%">
+</p>
 
-### See corporate distress before the annual accounts admit it.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white">
+  <img src="https://img.shields.io/badge/Streamlit-live%20app-FF4B4B?logo=streamlit&logoColor=white">
+  <img src="https://img.shields.io/badge/Plotly-interactive-3F4F75?logo=plotly&logoColor=white">
+  <img src="https://img.shields.io/badge/data-Screener%20%2B%20Google%20News-22C55E">
+  <img src="https://img.shields.io/badge/license-MIT-F59E0B">
+</p>
 
-**Foresight AI turns any listed Indian company into a single, explainable 0-100 risk score** - the classic Altman Z-Score fused with the market signals that move *before* the books do: credit ratings, leadership changes, news, hiring and employee sentiment.
+<h3 align="center">See corporate distress before the annual accounts admit it.</h3>
 
-> Altman tells you what the balance sheet already knows. Foresight AI tells you what deserves your attention *now*.
+<p align="center"><b>Foresight AI</b> turns any listed Indian company into a single, explainable <b>0-100 risk score</b> — the classic Altman Z-Score fused with the market signals that move <i>before</i> the books do: credit ratings, leadership changes, news, hiring and employee sentiment.</p>
 
-**Live app:** [foresightai.streamlit.app](https://foresightai.streamlit.app) · **Run locally:** `streamlit run app/main.py`
+<p align="center">
+  <a href="https://foresightai.streamlit.app"><b>▶&nbsp; Open the live app</b></a> &nbsp;·&nbsp; <code>streamlit run app/main.py</code>
+</p>
+
+> Altman tells you what the balance sheet already knows. **Foresight AI tells you what deserves your attention _now_.**
 
 ---
 
@@ -29,6 +41,25 @@ Financial-only models like Altman Z are trusted but blind to everything that has
 | **Portfolio** | Build your own watch-list - add or remove any company, ranked worst-risk first. |
 | **Track Record** | The proof. Real collapses replayed on real history, with the Altman financial base and the *added* signal risk stacked into one comprehensive score. |
 
+### One live pipeline, nothing hard-coded
+
+```mermaid
+flowchart LR
+    A([Any NSE company]):::in --> B[Screener<br/>financials]:::src
+    A --> C[Google News<br/>+ ratings & filings]:::src
+    B --> D[Altman Z<br/>financial leg · 60%]:::fin
+    C --> E[Five market signals<br/>40%]:::sig
+    D --> F([Comprehensive<br/>0-100 risk score]):::out
+    E --> F
+    F --> G[[Explained, point by point]]:::exp
+    classDef in fill:#1E3350,stroke:#38BDF8,color:#ffffff;
+    classDef src fill:#152740,stroke:#1E3350,color:#cbd5e1;
+    classDef fin fill:#0c2a44,stroke:#38BDF8,color:#7dd3fc;
+    classDef sig fill:#3a2a12,stroke:#F59E0B,color:#FBBF24;
+    classDef out fill:#3a2412,stroke:#F59E0B,color:#ffffff;
+    classDef exp fill:#14311F,stroke:#22C55E,color:#86efac;
+```
+
 ## How the score is built
 
 **One number, two legs, always explainable.**
@@ -46,6 +77,16 @@ The market-signal pulse, weighted by how much you can trust each source:
 | News sentiment | 0.25 | live Google News, distress-keyword scored |
 | Hiring trend | 0.10 | reported headcount |
 | Employee confidence | 0.10 | review-platform ratings |
+
+```mermaid
+pie showData title What makes up the final score
+    "Altman Z (financial)" : 60
+    "Credit rating" : 12
+    "Leadership / board" : 10
+    "News sentiment" : 10
+    "Hiring" : 4
+    "Employee confidence" : 4
+```
 
 A **hard event** - a rating cut to default, an auditor walking out, a tribunal taking over the board - is a fact, not a mood: it *floors* the score and cannot be averaged away by softer signals. Every point traces back to a real ratio, rating or headline.
 

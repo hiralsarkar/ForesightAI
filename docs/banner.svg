@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" font-family="Segoe UI, Calibri, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0A1628"/>
+      <stop offset="1" stop-color="#0F1E33"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="blueFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38BDF8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#38BDF8" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="amberFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FB923C" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#FB923C" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="340" fill="url(#bg)"/>
+  <rect width="1200" height="6" fill="url(#amber)"/>
+
+  <!-- wordmark -->
+  <text x="70" y="140" font-size="76" font-weight="800" fill="#FFFFFF">Foresight <tspan fill="#F59E0B">AI</tspan></text>
+  <text x="74" y="188" font-size="26" fill="#CBD5E1">See corporate distress before the annual accounts admit it.</text>
+
+  <!-- one-line formula chips -->
+  <g font-size="18" font-weight="700">
+    <rect x="74" y="222" width="250" height="40" rx="20" fill="#152740" stroke="#1E3350"/>
+    <text x="92" y="248" fill="#38BDF8">Altman Z</text><text x="192" y="248" fill="#94A3B8">financial 60%</text>
+    <rect x="338" y="222" width="300" height="40" rx="20" fill="#152740" stroke="#1E3350"/>
+    <text x="356" y="248" fill="#FBBF24">+ 5 market signals</text><text x="548" y="248" fill="#94A3B8">40%</text>
+  </g>
+  <text x="74" y="300" font-size="15" fill="#64748B">Live, explainable corporate-risk scoring for any listed Indian company</text>
+
+  <!-- mini stacked-area chart motif -->
+  <g transform="translate(780,70)">
+    <rect x="-10" y="-6" width="380" height="210" rx="14" fill="#0C1D33" stroke="#1E3350"/>
+    <!-- blue Altman base -->
+    <path d="M10,180 L90,150 L170,120 L250,150 L330,60 L330,190 L10,190 Z" fill="url(#blueFill)"/>
+    <!-- amber added-risk band -->
+    <path d="M10,120 L90,95 L170,60 L250,70 L330,30 L330,60 L250,150 L170,120 L90,150 L10,180 Z" fill="url(#amberFill)"/>
+    <!-- comprehensive gold line -->
+    <path d="M10,120 L90,95 L170,60 L250,70 L330,30" fill="none" stroke="#FBBF24" stroke-width="4" stroke-linejoin="round"/>
+    <g fill="#FCD34D" stroke="#FFFFFF" stroke-width="1.5">
+      <circle cx="10" cy="120" r="5"/><circle cx="90" cy="95" r="5"/><circle cx="170" cy="60" r="5"/><circle cx="250" cy="70" r="5"/><circle cx="330" cy="30" r="5"/>
+    </g>
+    <text x="16" y="24" font-size="12" font-weight="700" fill="#F59E0B">COMPREHENSIVE RISK</text>
+    <text x="16" y="205" font-size="11" fill="#64748B">Altman base + the risk the signals add</text>
+  </g>
+</svg>

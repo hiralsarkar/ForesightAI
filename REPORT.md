@@ -1,7 +1,18 @@
-# Foresight AI - Project Report
+<p align="center">
+  <img src="docs/banner.svg" alt="Foresight AI" width="100%">
+</p>
 
-**A live, comprehensive corporate-risk engine for listed Indian companies.**
-Live app: [foresightai.streamlit.app](https://foresightai.streamlit.app) · Code: [github.com/hiralsarkar/ForesightAI](https://github.com/hiralsarkar/ForesightAI)
+<h1 align="center">Project Report</h1>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/type-Corporate%20Risk%20Analytics-38BDF8">
+  <img src="https://img.shields.io/badge/engine-Altman%20Z%20%2B%205%20signals-F59E0B">
+  <img src="https://img.shields.io/badge/validation-5%20real%20collapses-22C55E">
+  <img src="https://img.shields.io/badge/status-live-FF4B4B">
+</p>
+
+<p align="center"><b>A live, comprehensive corporate-risk engine for listed Indian companies.</b><br>
+Live app: <a href="https://foresightai.streamlit.app">foresightai.streamlit.app</a> &nbsp;·&nbsp; Code: <a href="https://github.com/hiralsarkar/ForesightAI">github.com/hiralsarkar/ForesightAI</a></p>
 
 ---
 
@@ -43,6 +54,24 @@ Foresight AI produces **one 0-100 risk score** for any NSE-listed company, on de
 4. **Track Record** - the validation view: real companies replayed on their real history, with the Altman financial-only risk (blue) and the extra risk the signals add (amber) stacked into the comprehensive score.
 
 **Architecture:** `src/foresight.py` (one-file engine: Altman, signals, fusion, stress test, benchmark models), `src/screener_live.py` + `src/live_news.py` (live data), `app/` (dashboard), `data/` (training + backtest), `notebooks/` (model-building and evaluation).
+
+**System architecture**
+
+```mermaid
+flowchart TB
+    S[Screener<br/>financials]:::src --> Z[Altman Z · 60%]:::fin
+    N[Google News<br/>ratings · filings]:::src --> P[Signal pulse · 40%<br/>rating · leadership · news · hiring · employee]:::sig
+    H{{Hard-event floor:<br/>default · auditor exit · board takeover}}:::hard -.-> C
+    Z --> C([Comprehensive 0-100 score]):::out
+    P --> C
+    C --> UI[Streamlit dashboard<br/>Overview · Live Scoring · Portfolio · Track Record]:::ui
+    classDef src fill:#152740,stroke:#1E3350,color:#cbd5e1;
+    classDef fin fill:#0c2a44,stroke:#38BDF8,color:#7dd3fc;
+    classDef sig fill:#3a2a12,stroke:#F59E0B,color:#FBBF24;
+    classDef hard fill:#3a1717,stroke:#EF4444,color:#fca5a5;
+    classDef out fill:#3a2412,stroke:#F59E0B,color:#ffffff;
+    classDef ui fill:#14311F,stroke:#22C55E,color:#86efac;
+```
 
 ## 3. Key Findings
 

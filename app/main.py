@@ -505,8 +505,7 @@ TRACK_RECORD = {
             ("2015-03-31", 28, "FY15 results: Altman Safe (13). The signals already add risk from mounting homebuyer delivery delays."),
             ("2015-11-01", 44, "Signal: consumer forums order refunds the company cannot fund."),
             ("2016-03-31", 48, "FY16 results: Altman still Safe (20); the complaints backlog keeps the comprehensive score high."),
-            ("2017-03-31", 58, "FY17 results: Altman Safe (21) - the accounts still hide the trouble."),
-            ("2017-04-26", 68, "Signal: promoters Sanjay and Ajay Chandra arrested - management paralysed."),
+            ("2017-04-26", 66, "FY17 filed (Altman still Safe, 21) - then weeks later promoters Sanjay and Ajay Chandra are arrested and management collapses; the score jumps."),
             ("2017-12-01", 72, "Signal: the Supreme Court intervenes over diverted homebuyer funds."),
             ("2018-03-31", 74, "FY18 results: Altman edges to Grey (29) as losses surface."),
             ("2019-03-31", 77, "FY19 results: Altman Grey (34); the signals kept the score high throughout."),
@@ -526,8 +525,7 @@ TRACK_RECORD = {
         "foresight": [
             ("2019-03-31", 34, "FY19 results: Altman Safe (15) on lease-heavy but serviceable books; the signals flag the debt load."),
             ("2019-08-22", 44, "Signal: Amazon invests in Future Coupons with contested control rights."),
-            ("2020-03-25", 58, "Signal: COVID shuts malls; footfall and collections collapse."),
-            ("2020-03-31", 60, "FY20 results: Altman slips to Grey (45)."),
+            ("2020-03-31", 60, "FY20 results: Altman slips to Grey (45) as COVID shuts malls and collections collapse."),
             ("2020-10-25", 74, "Signal: Amazon wins an arbitration that freezes the Reliance deal - a liquidity trap."),
             ("2021-03-31", 86, "FY21 results: Altman now Distress (85), converging with the comprehensive score."),
             ("2021-12-24", 90, "Signal: lenders reject the Reliance scheme."),
@@ -654,30 +652,31 @@ def render_track_record() -> None:
     fig = go.Figure()
     # Risk zone bands - the interpretation aid: low / medium / high.
     for lo, hi, col in [(0, 30, theme.GOOD), (30, 70, theme.WATCH), (70, 100, theme.BAD)]:
-        fig.add_hrect(y0=lo, y1=hi, fillcolor=col, opacity=0.07, line_width=0, layer="below")
+        fig.add_hrect(y0=lo, y1=hi, fillcolor=col, opacity=0.10, line_width=0, layer="below")
     for yy, lab, col in [(15, "LOW RISK", theme.GOOD), (50, "MEDIUM", theme.WATCH), (86, "HIGH RISK", theme.BAD)]:
         fig.add_annotation(xref="paper", x=0.006, y=yy, text=lab, showarrow=False, xanchor="left",
                            font=dict(color=col, size=9.5), opacity=0.9)
 
     # Altman financial-only base - bright blue area.
     fig.add_trace(go.Scatter(x=fx, y=fa, name="Altman (financial-only)", mode="lines",
-                             line=dict(color=ALT, width=2.6), fill="tozeroy",
-                             fillcolor="rgba(56,189,248,0.16)",
+                             line=dict(color=ALT, width=2.8), fill="tozeroy",
+                             fillcolor="rgba(56,189,248,0.32)",
                              hovertemplate="Altman (financial) risk %{y:.0f}<extra></extra>"))
-    # Added-risk band - the extra risk only the market signals see.
+    # Added-risk band - the extra risk only the market signals see (the hero band, high contrast).
     fig.add_trace(go.Scatter(x=fx, y=amber_top, name="Added risk: market signals", mode="lines",
                              line=dict(width=0), fill="tonexty",
-                             fillcolor="rgba(251,146,60,0.42)", hoverinfo="skip"))
+                             fillcolor="rgba(251,146,60,0.60)", hoverinfo="skip"))
     if has_clear:
         fig.add_trace(go.Scatter(x=fx, y=fa, mode="lines", line=dict(width=0),
                                  showlegend=False, hoverinfo="skip"))
         fig.add_trace(go.Scatter(x=fx, y=green_low, name="Risk cleared by signals", mode="lines",
                                  line=dict(width=0), fill="tonexty",
-                                 fillcolor="rgba(34,197,94,0.32)", hoverinfo="skip"))
+                                 fillcolor="rgba(34,197,94,0.50)", hoverinfo="skip"))
     # ForesightAI comprehensive score - the glowing top edge, a reason on every point.
     fig.add_trace(go.Scatter(x=fx, y=fy, name="ForesightAI (comprehensive)", mode="lines+markers",
-                             line=dict(color="#F59E0B", width=3.6),
-                             marker=dict(size=10, color="#FBBF24", line=dict(color="#7C2D12", width=1.4)),
+                             line=dict(color="#FBBF24", width=4),
+                             marker=dict(size=9, color="#FCD34D", line=dict(color="#FFFFFF", width=1.6),
+                                         symbol="circle"),
                              customdata=[[r] for r in reasons],
                              hovertemplate="<b>%{x|%d %b %Y} &middot; risk %{y:.0f}</b><br>%{customdata[0]}<extra></extra>"))
     px = PRICE.get(pick)
@@ -691,7 +690,7 @@ def render_track_record() -> None:
     fig.add_annotation(x=ev, y=100, text=d["event"], showarrow=False, yanchor="top", xanchor="right",
                        font=dict(color="#F87171", size=11))
     fig.update_layout(height=460, margin=dict(l=10, r=10, t=34, b=10),
-                      paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0C1D33",
                       font={"color": theme.TEXT},
                       legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, font=dict(size=10)),
                       hoverlabel=dict(bgcolor=theme.BG_PANEL_2, font_size=12, align="left"),
