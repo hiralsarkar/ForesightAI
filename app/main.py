@@ -644,10 +644,26 @@ def render_track_record() -> None:
     fx = [_dt.date.fromisoformat(dd) for dd, _, _ in d["foresight"]]
     fy = [float(s) for _, s, _ in d["foresight"]]
     reasons = [r for _, _, r in d["foresight"]]
-    fa = [_a_at(x) for x in fx]
-    amber_top = [max(a, s) for a, s in zip(fa, fy)]
-    green_low = [min(a, s) for a, s in zip(fa, fy)]
-    has_clear = any(s < a - 0.5 for a, s in zip(fa, fy))
+    fxo = [x.toordinal() for x in fx]
+
+    def _f_at(dt):
+        t = dt.toordinal()
+        if t <= fxo[0]:
+            return fy[0]
+        if t >= fxo[-1]:
+            return fy[-1]
+        i = bisect.bisect_right(fxo, t) - 1
+        f = (t - fxo[i]) / (fxo[i + 1] - fxo[i])
+        return fy[i] + f * (fy[i + 1] - fy[i])
+
+    # Master grid = every filing date and every signal date, so both lines run end to end and
+    # every marker sits on its line - no floating points.
+    master = sorted(set(axd) | set(fx))
+    m_alt = [_a_at(x) for x in master]
+    m_for = [_f_at(x) for x in master]
+    m_top = [max(a, s) for a, s in zip(m_alt, m_for)]
+    m_low = [min(a, s) for a, s in zip(m_alt, m_for)]
+    has_clear = any(s < a - 0.5 for a, s in zip(m_alt, m_for))
 
     fig = go.Figure()
     # Risk zone bands - the interpretation aid: low / medium / high.
@@ -657,26 +673,28 @@ def render_track_record() -> None:
         fig.add_annotation(xref="paper", x=0.006, y=yy, text=lab, showarrow=False, xanchor="left",
                            font=dict(color=col, size=9.5), opacity=0.9)
 
-    # Altman financial-only base - bright blue area.
-    fig.add_trace(go.Scatter(x=fx, y=fa, name="Altman (financial-only)", mode="lines",
-                             line=dict(color=ALT, width=2.8), fill="tozeroy",
-                             fillcolor="rgba(56,189,248,0.32)",
-                             hovertemplate="Altman (financial) risk %{y:.0f}<extra></extra>"))
-    # Added-risk band - the extra risk only the market signals see (the hero band, high contrast).
-    fig.add_trace(go.Scatter(x=fx, y=amber_top, name="Added risk: market signals", mode="lines",
+    # Blue shaded base = financial-only Altman risk (edge hidden; the clean line is drawn on top).
+    fig.add_trace(go.Scatter(x=master, y=m_alt, mode="lines", line=dict(width=0), fill="tozeroy",
+                             fillcolor="rgba(56,189,248,0.30)", showlegend=False, hoverinfo="skip"))
+    # Amber band = the extra risk only the market signals see (the hero band).
+    fig.add_trace(go.Scatter(x=master, y=m_top, name="Added risk: market signals", mode="lines",
                              line=dict(width=0), fill="tonexty",
-                             fillcolor="rgba(251,146,60,0.60)", hoverinfo="skip"))
+                             fillcolor="rgba(251,146,60,0.58)", hoverinfo="skip"))
     if has_clear:
-        fig.add_trace(go.Scatter(x=fx, y=fa, mode="lines", line=dict(width=0),
+        fig.add_trace(go.Scatter(x=master, y=m_alt, mode="lines", line=dict(width=0),
                                  showlegend=False, hoverinfo="skip"))
-        fig.add_trace(go.Scatter(x=fx, y=green_low, name="Risk cleared by signals", mode="lines",
+        fig.add_trace(go.Scatter(x=master, y=m_low, name="Risk cleared by signals", mode="lines",
                                  line=dict(width=0), fill="tonexty",
-                                 fillcolor="rgba(34,197,94,0.50)", hoverinfo="skip"))
-    # ForesightAI comprehensive score - the glowing top edge, a reason on every point.
+                                 fillcolor="rgba(34,197,94,0.48)", hoverinfo="skip"))
+    # Altman clean line + markers at every real filing - always connected.
+    fig.add_trace(go.Scatter(x=axd, y=ay, name="Altman (financial-only)", mode="lines+markers",
+                             line=dict(color=ALT, width=2.8),
+                             marker=dict(size=7, color=ALT, line=dict(color="#0A1628", width=1)),
+                             hovertemplate="FY%{x|%Y}: Altman risk %{y}<extra></extra>"))
+    # ForesightAI comprehensive line + markers, a reason on every point.
     fig.add_trace(go.Scatter(x=fx, y=fy, name="ForesightAI (comprehensive)", mode="lines+markers",
                              line=dict(color="#FBBF24", width=4),
-                             marker=dict(size=9, color="#FCD34D", line=dict(color="#FFFFFF", width=1.6),
-                                         symbol="circle"),
+                             marker=dict(size=9, color="#FCD34D", line=dict(color="#FFFFFF", width=1.6)),
                              customdata=[[r] for r in reasons],
                              hovertemplate="<b>%{x|%d %b %Y} &middot; risk %{y:.0f}</b><br>%{customdata[0]}<extra></extra>"))
     px = PRICE.get(pick)
