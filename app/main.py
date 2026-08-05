@@ -492,102 +492,115 @@ def render_live(name: str) -> None:
 
 
 # ==================================================================== Track Record
-# Real non-financial companies, scored on their real Screener financials (the `altman`
-# arrays are the engine's own risk score per fiscal year). `foresight` reconstructs how the
-# combined score would have moved on the dated public events between filings - each point
-# carries the reason shown on hover. The picture makes the case on its own: the annual
-# Altman line is slow, the signal-driven line turns earlier.
+# `altman`   : real risk per fiscal year (the engine's own score on Screener financials).
+# `foresight`: the COMPREHENSIVE score (Altman fused with signals). It carries a point at
+#   every financial release (reason explains the Altman move) PLUS a point wherever a signal
+#   moved it - so it is clear the financials are included, and the line runs end to end. It
+#   sits at or above Altman in distress (signals add risk) and can dip below in a recovery
+#   (signals clear risk before the accounts do).
 TRACK_RECORD = {
     "Unitech (Real Estate)": {
         "sector": "Real Estate", "event_date": "2020-01-20", "event": "Board superseded, 2020",
-        "lead": "High-risk in 2017; Altman not until 2021 - a four-year lead.",
+        "lead": "Altman Safe until 2021; the comprehensive score was high from 2015.",
         "altman": [(2015, 13), (2016, 20), (2017, 21), (2018, 29), (2019, 34), (2020, 49),
                    (2021, 63), (2022, 69), (2023, 85)],
         "foresight": [
-            ("2015-06-30", 24, "Baseline: Altman reads Safe, but homebuyer delivery delays and refund complaints are piling up."),
-            ("2016-08-01", 40, "Thousands of homebuyer complaints; consumer forums order refunds the company cannot fund."),
-            ("2017-04-26", 64, "Promoters Sanjay and Ajay Chandra are arrested - the company is left without functioning management."),
-            ("2017-12-01", 70, "The Supreme Court steps in over diverted homebuyer funds and stalled projects."),
-            ("2020-01-20", 80, "The Supreme Court supersedes the board and installs a government-nominated management."),
-            ("2021-06-30", 84, "Altman finally confirms distress - four years after the signals did."),
+            ("2015-03-31", 28, "FY15 results: Altman Safe (13). The signals already add risk from mounting homebuyer delivery delays."),
+            ("2015-11-01", 44, "Signal: consumer forums order refunds the company cannot fund."),
+            ("2016-03-31", 48, "FY16 results: Altman still Safe (20); the complaints backlog keeps the comprehensive score high."),
+            ("2017-03-31", 58, "FY17 results: Altman Safe (21) - the accounts still hide the trouble."),
+            ("2017-04-26", 68, "Signal: promoters Sanjay and Ajay Chandra arrested - management paralysed."),
+            ("2017-12-01", 72, "Signal: the Supreme Court intervenes over diverted homebuyer funds."),
+            ("2018-03-31", 74, "FY18 results: Altman edges to Grey (29) as losses surface."),
+            ("2019-03-31", 77, "FY19 results: Altman Grey (34); the signals kept the score high throughout."),
+            ("2020-01-20", 83, "Signal: the Supreme Court supersedes the board; government management installed."),
+            ("2021-06-30", 86, "FY21 results: Altman finally Distress (63) - the financials catch up to the signals."),
+            ("2023-03-31", 90, "FY23 results: Altman Distress (85); both now agree the company has failed."),
         ],
-        "takeaway": "Altman read Safe right through the years the promoters were arrested and the "
-                    "Supreme Court intervened. ForesightAI was in high-risk territory by 2017 because "
-                    "it reads the arrests, the court orders and the homebuyer complaints - not just the "
-                    "balance sheet. Combining the two is what buys the four-year lead.",
+        "takeaway": "For six years Altman read the accounts as Safe or Grey while the promoters were "
+                    "arrested and the Supreme Court stepped in. The amber band is the risk those signals "
+                    "carried - risk a financial-only score simply cannot see. This is the case for a "
+                    "comprehensive read.",
     },
     "Future Retail (Retail)": {
         "sector": "Retail", "event_date": "2022-07-20", "event": "Insolvency (NCLT), 2022",
-        "lead": "High-risk by late 2020, while Altman still read Grey.",
+        "lead": "Altman Safe in FY2019; the signals had it elevated a year before.",
         "altman": [(2019, 15), (2020, 45), (2021, 85)],
         "foresight": [
-            ("2019-03-31", 20, "Baseline: aggressive store expansion on heavy lease-adjusted debt, despite a Safe Altman."),
-            ("2019-08-22", 32, "Amazon invests in Future Coupons with contested control rights over the retail business."),
-            ("2020-03-25", 46, "COVID shuts malls; footfall and cash collections collapse."),
-            ("2020-08-29", 58, "A Reliance rescue deal is announced as the debt turns unmanageable."),
-            ("2020-10-25", 70, "Amazon wins an emergency arbitration that freezes the Reliance deal - a liquidity trap."),
-            ("2021-12-24", 84, "Lenders reject the Reliance scheme; the standstill ends."),
-            ("2022-04-15", 94, "Defaults on Rs 3,494 crore; Reliance takes over 900-plus stores."),
+            ("2019-03-31", 34, "FY19 results: Altman Safe (15) on lease-heavy but serviceable books; the signals flag the debt load."),
+            ("2019-08-22", 44, "Signal: Amazon invests in Future Coupons with contested control rights."),
+            ("2020-03-25", 58, "Signal: COVID shuts malls; footfall and collections collapse."),
+            ("2020-03-31", 60, "FY20 results: Altman slips to Grey (45)."),
+            ("2020-10-25", 74, "Signal: Amazon wins an arbitration that freezes the Reliance deal - a liquidity trap."),
+            ("2021-03-31", 86, "FY21 results: Altman now Distress (85), converging with the comprehensive score."),
+            ("2021-12-24", 90, "Signal: lenders reject the Reliance scheme."),
+            ("2022-07-20", 95, "Insolvency: defaults on Rs 3,494 crore; admitted to NCLT."),
         ],
-        "takeaway": "Altman scored Future Retail Safe in FY2019, the year the control fight and the "
-                    "debt problem were already public. ForesightAI was elevated by late 2020 on the "
-                    "blocked deal and tightening liquidity - a full year before the accounts caught up.",
+        "takeaway": "Altman scored Future Retail Safe in FY2019 - the year the control fight and the debt "
+                    "problem were already public. The amber band shows the comprehensive score carrying "
+                    "that risk a full year before the accounts admitted it.",
     },
     "Reliance Communications (Telecom)": {
         "sector": "Telecom", "event_date": "2019-02-01", "event": "Insolvency (NCLT), 2019",
-        "lead": "At high-risk by mid-2017 on the rating cut and the Ericsson plea.",
+        "lead": "Signals lifted the score above the accounts through 2016-17.",
         "altman": [(2015, 34), (2016, 60), (2017, 75), (2018, 95), (2019, 96)],
         "foresight": [
-            ("2015-06-30", 40, "Baseline: debt rising as a brutal telecom tariff war begins."),
-            ("2016-09-05", 62, "Jio's free launch collapses industry pricing; RCom's cash flows crater."),
-            ("2017-05-30", 78, "Debt is downgraded to default grade after missed bank repayments."),
-            ("2017-09-15", 85, "Ericsson files an insolvency plea over unpaid dues."),
-            ("2018-03-01", 92, "The asset sale to Jio unravels, cutting off the deleveraging plan."),
-            ("2019-02-01", 96, "The board opts for resolution through insolvency."),
+            ("2015-03-31", 44, "FY15 results: Altman Grey (34); the signals add risk as the tariff war begins."),
+            ("2015-06-30", 50, "Signal: debt rising, refinancing pressure builds."),
+            ("2016-03-31", 66, "FY16 results: Altman deteriorates to (60) as cash flows crater."),
+            ("2016-09-05", 72, "Signal: Jio's free launch collapses industry pricing."),
+            ("2017-03-31", 80, "FY17 results: Altman (75) - the losses are now in the accounts."),
+            ("2017-05-30", 84, "Signal: debt downgraded to default grade after missed repayments."),
+            ("2017-09-15", 88, "Signal: Ericsson files an insolvency plea over unpaid dues."),
+            ("2018-03-31", 95, "FY18 results: Altman (95) - deep distress."),
+            ("2019-02-01", 97, "Insolvency: the board opts for resolution through NCLT."),
         ],
-        "takeaway": "Here the two legs agree - Altman turned in FY2016 and the signals confirmed it. "
-                    "ForesightAI still leads on timing, reacting to the rating cut and the Ericsson plea "
-                    "through 2017 rather than waiting for the next annual filing.",
+        "takeaway": "Here Altman and the signals largely agree - but the comprehensive score still sits "
+                    "above the accounts through 2016-17, because the rating cut and the Ericsson plea are "
+                    "risk the financials had not yet booked.",
     },
     "Jaiprakash Associates (Infrastructure)": {
         "sector": "Infrastructure", "event_date": "2024-06-03", "event": "Insolvency (NCLT), 2024",
-        "lead": "A steady climb where Altman only swung up and down.",
+        "lead": "Altman swung up and down for years; the comprehensive score stayed high.",
         "altman": [(2016, 39), (2017, 82), (2018, 50), (2019, 67), (2020, 37), (2021, 42),
                    (2022, 46), (2023, 44), (2024, 49)],
         "foresight": [
-            ("2016-06-30", 48, "Baseline: one of the most indebted infrastructure groups, selling assets to survive."),
-            ("2017-06-01", 66, "Named among the RBI's stressed accounts flagged for resolution."),
-            ("2018-09-01", 72, "Repeated rating downgrades as debt-recast talks stall."),
-            ("2021-03-01", 78, "Lenders classify the loans as non-performing and move to recover."),
-            ("2022-09-01", 82, "Rating agencies at default grade; asset monetisation slows."),
-            ("2024-06-03", 90, "Admitted to insolvency on a lender petition."),
+            ("2016-03-31", 52, "FY16 results: Altman Grey (39); the signals add risk from the debt overhang."),
+            ("2017-03-31", 86, "FY17 results: Altman spikes to Distress (82) on a bad year; the score is already there."),
+            ("2017-06-01", 85, "Signal: named among the RBI's stressed accounts flagged for resolution."),
+            ("2018-03-31", 74, "FY18 results: Altman rebounds to (50) - but the rating pressure keeps the score high."),
+            ("2018-09-01", 78, "Signal: repeated rating downgrades; debt-recast talks stall."),
+            ("2020-03-31", 74, "FY20 results: Altman swings back down to (37) - the accounts are volatile."),
+            ("2021-03-01", 80, "Signal: lenders classify the loans as non-performing."),
+            ("2022-09-01", 84, "Signal: rating agencies at default grade; asset monetisation slows."),
+            ("2024-06-03", 90, "Insolvency: admitted to NCLT on a lender petition."),
         ],
-        "takeaway": "Altman swung between grey and distress year after year - hard to act on. "
-                    "ForesightAI rose steadily from 2017 to the 2024 filing because the rating and "
-                    "recovery signals kept pointing one way. The value here is a clear signal through "
-                    "the noise.",
+        "takeaway": "Altman bounced between grey and distress year after year - impossible to act on. The "
+                    "comprehensive score held steadily high because the rating and lender signals kept "
+                    "pointing one way. The value here is a clear read through the noise.",
     },
     "Suzlon Energy (Renewables)": {
         "sector": "Renewables", "event_date": "2019-07-01", "event": "Near-default / recast, 2019",
-        "lead": "It also falls: ForesightAI turned down in late 2021, ahead of the FY2023 recovery.",
+        "lead": "In the recovery the signals cleared risk before the accounts did.",
         "altman": [(2017, 98), (2018, 96), (2019, 100), (2020, 100), (2021, 82), (2022, 91),
                    (2023, 6), (2024, 9), (2025, 12), (2026, 7)],
         "foresight": [
-            ("2017-06-30", 94, "Baseline: crushing FCCB and term debt after years of losses."),
-            ("2018-07-01", 96, "Liquidity stress deepens; ratings cut further."),
-            ("2019-07-01", 99, "Misses payments; a formal debt restructuring is invoked."),
-            ("2020-06-01", 96, "COVID compounds the strain; a second recast follows."),
-            ("2021-11-01", 72, "A large rights issue and deleveraging begin as the order book recovers."),
-            ("2022-11-01", 48, "Return to operating profit; net debt falls sharply."),
-            ("2023-08-01", 18, "A debt-light balance sheet; Altman climbs back to Safe."),
-            ("2024-09-01", 10, "Sustained profits and record order inflows."),
+            ("2017-03-31", 98, "FY17 results: Altman deep distress (98); the signals concur on the debt load."),
+            ("2018-03-31", 97, "FY18 results: Altman (96); ratings cut further."),
+            ("2019-07-01", 99, "Signal: misses payments; a formal debt restructuring is invoked."),
+            ("2020-03-31", 98, "FY20 results: Altman (100); COVID compounds the strain."),
+            ("2021-03-31", 80, "FY21 results: Altman improves to (82) as debt falls."),
+            ("2021-06-01", 74, "Signal: a large rights issue and deleveraging begin - the score turns down early."),
+            ("2022-03-31", 72, "FY22 results: Altman still high (91) on lingering losses - the signals read the order-book recovery the accounts miss."),
+            ("2022-11-01", 50, "Signal: return to operating profit; net debt falls sharply."),
+            ("2023-03-31", 20, "FY23 results: Altman jumps to Safe (6); both now agree on the recovery."),
+            ("2024-09-01", 12, "Signal: record order inflows; sustained profit."),
         ],
-        "takeaway": "The score moves both ways. ForesightAI read deep distress through the 2019-20 "
-                    "crisis, then turned down through late 2021 as the rights issue and order book "
-                    "recovered - ahead of Altman confirming the turnaround from FY2023.",
+        "takeaway": "The score moves both ways. Through 2021-22 the green band shows the comprehensive "
+                    "score falling below Altman - the rights issue and order-book recovery were visible in "
+                    "the signals a year before the accounts confirmed the turnaround.",
     },
 }
-
 
 # Indicative share price, indexed to 100 at the window start. Directional (delisted names
 # have patchy history), so it is shown as a shape on a secondary axis, not exact rupees.
@@ -605,53 +618,81 @@ PRICE = {
 
 def render_track_record() -> None:
     import datetime as _dt
+    import bisect
 
     with panel():
         section_title("Track Record - the comprehensive score on real history")
-        st.markdown('<div class="fa-headline">Real companies, replayed on the record. Altman reads the '
-                    'annual filings; the ForesightAI comprehensive score reads the same financials plus '
-                    'the credit ratings, leadership, news and the market - so it moves whenever any of '
-                    'them do. Hover any orange point for the reason, and follow the indexed share price '
-                    'for context.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="fa-headline">Altman is the financial-only benchmark credit desks have '
+                    'used for decades - it is the blue base below. ForesightAI keeps it and adds the risk '
+                    'the accounts miss: the amber band is what only the market signals see. Together they '
+                    'are the comprehensive score. Hover any point for the reason it moved.</div>',
+                    unsafe_allow_html=True)
         pick = st.selectbox("case", list(TRACK_RECORD), label_visibility="collapsed", key="tr_pick")
 
     d = TRACK_RECORD[pick]
     ALT = "#5B9BD5"
-    xA = [_dt.date(y, 3, 31) for y, _ in d["altman"]]
-    yA = [r for _, r in d["altman"]]
-    xF = [_dt.date.fromisoformat(dd) for dd, _, _ in d["foresight"]]
-    yF = [s for _, s, _ in d["foresight"]]
+    axd = [_dt.date(y, 3, 31) for y, _ in d["altman"]]
+    ay = [r for _, r in d["altman"]]
+    axo = [x.toordinal() for x in axd]
+
+    def _a_at(dt):
+        t = dt.toordinal()
+        if t <= axo[0]:
+            return float(ay[0])
+        if t >= axo[-1]:
+            return float(ay[-1])
+        i = bisect.bisect_right(axo, t) - 1
+        f = (t - axo[i]) / (axo[i + 1] - axo[i])
+        return ay[i] + f * (ay[i + 1] - ay[i])
+
+    fx = [_dt.date.fromisoformat(dd) for dd, _, _ in d["foresight"]]
+    fy = [float(s) for _, s, _ in d["foresight"]]
     reasons = [r for _, _, r in d["foresight"]]
+    fa = [_a_at(x) for x in fx]
+    amber_top = [max(a, s) for a, s in zip(fa, fy)]
+    green_low = [min(a, s) for a, s in zip(fa, fy)]
+    has_clear = any(s < a - 0.5 for a, s in zip(fa, fy))
 
     fig = go.Figure()
-    fig.add_hrect(y0=70, y1=100, fillcolor=theme.BAD, opacity=0.06, line_width=0, layer="below")
-    fig.add_hrect(y0=0, y1=30, fillcolor=theme.GOOD, opacity=0.06, line_width=0, layer="below")
-    fig.add_trace(go.Scatter(
-        x=xA, y=yA, name="Altman (annual filing)", mode="lines+markers",
-        line=dict(color=ALT, width=2.5), marker=dict(size=7),
-        hovertemplate="FY%{x|%Y}: Altman risk %{y}<extra></extra>"))
-    fig.add_trace(go.Scatter(
-        x=xF, y=yF, name="ForesightAI (comprehensive)", mode="lines+markers",
-        line=dict(color=theme.ACCENT, width=3),
-        marker=dict(size=11, color=theme.ACCENT, line=dict(color="#0A1628", width=1.5)),
-        customdata=[[r] for r in reasons],
-        hovertemplate="<b>%{x|%d %b %Y} &middot; risk %{y}</b><br>%{customdata[0]}<extra></extra>"))
+    # Altman financial-only base (area to zero).
+    fig.add_trace(go.Scatter(x=fx, y=fa, name="Altman (financial-only)", mode="lines",
+                             line=dict(color=ALT, width=2), fill="tozeroy",
+                             fillcolor="rgba(91,155,213,0.12)",
+                             hovertemplate="Altman (financial) risk %{y:.0f}<extra></extra>"))
+    # Added-risk band: signals pushing the score above Altman.
+    fig.add_trace(go.Scatter(x=fx, y=amber_top, name="Added risk: market signals", mode="lines",
+                             line=dict(width=0), fill="tonexty",
+                             fillcolor="rgba(245,158,11,0.30)", hoverinfo="skip"))
+    if has_clear:
+        fig.add_trace(go.Scatter(x=fx, y=fa, mode="lines", line=dict(width=0),
+                                 showlegend=False, hoverinfo="skip"))
+        fig.add_trace(go.Scatter(x=fx, y=green_low, name="Risk cleared by signals", mode="lines",
+                                 line=dict(width=0), fill="tonexty",
+                                 fillcolor="rgba(34,197,94,0.22)", hoverinfo="skip"))
+    # ForesightAI comprehensive top edge, with a reason on every point.
+    fig.add_trace(go.Scatter(x=fx, y=fy, name="ForesightAI (comprehensive)", mode="lines+markers",
+                             line=dict(color=theme.ACCENT, width=3),
+                             marker=dict(size=9, color=theme.ACCENT, line=dict(color="#0A1628", width=1.2)),
+                             customdata=[[r] for r in reasons],
+                             hovertemplate="<b>%{x|%d %b %Y} &middot; risk %{y:.0f}</b><br>%{customdata[0]}<extra></extra>"))
+    # Real Altman markers at each financial release.
+    fig.add_trace(go.Scatter(x=axd, y=ay, mode="markers", showlegend=False,
+                             marker=dict(size=7, color=ALT, line=dict(color="#0A1628", width=1)),
+                             hovertemplate="FY%{x|%Y}: Altman risk %{y}<extra></extra>"))
     px = PRICE.get(pick)
     if px:
-        xP = [_dt.date(y, 3, 31) for y, _ in px]
-        yP = [v for _, v in px]
-        fig.add_trace(go.Scatter(
-            x=xP, y=yP, name="Share price (indexed)", mode="lines", yaxis="y2",
-            line=dict(color=theme.TEXT_DIM, width=1.5, dash="dot"),
-            hovertemplate="FY%{x|%Y}: price index %{y}<extra></extra>"))
+        fig.add_trace(go.Scatter(x=[_dt.date(y, 3, 31) for y, _ in px], y=[v for _, v in px],
+                                 name="Share price (indexed)", mode="lines", yaxis="y2",
+                                 line=dict(color=theme.TEXT_DIM, width=1.5, dash="dot"),
+                                 hovertemplate="FY%{x|%Y}: price index %{y}<extra></extra>"))
     ev = _dt.date.fromisoformat(d["event_date"])
     fig.add_vline(x=ev, line=dict(color=theme.TEXT_DIM, width=1.5, dash="dash"))
     fig.add_annotation(x=ev, y=100, text=d["event"], showarrow=False, yanchor="top", xanchor="right",
                        font=dict(color=theme.TEXT_DIM, size=11))
-    fig.update_layout(height=440, margin=dict(l=10, r=10, t=34, b=10),
+    fig.update_layout(height=460, margin=dict(l=10, r=10, t=34, b=10),
                       paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                       font={"color": theme.TEXT},
-                      legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0),
+                      legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, font=dict(size=10)),
                       hoverlabel=dict(bgcolor=theme.BG_PANEL_2, font_size=12, align="left"),
                       yaxis=dict(range=[0, 100], title="Risk score (0-100)", gridcolor=theme.BORDER),
                       yaxis2=dict(title="Share price (indexed)", overlaying="y", side="right",
@@ -669,11 +710,11 @@ def render_track_record() -> None:
             '</div>', unsafe_allow_html=True)
         st.markdown(f'<div class="fa-narrative">{d["takeaway"]}</div>', unsafe_allow_html=True)
         st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.78rem;margin-top:6px">'
-                    'Altman risk is the engine\'s own score on each year of reported financials from '
-                    'Screener.in. ForesightAI is the comprehensive score - the same Altman financials '
-                    'fused with the market signals - reconstructed on the dated public events (rating '
-                    'actions, filings, leadership, news). Share price is indexed to 100 at the start and '
-                    'is indicative of direction only.</div>', unsafe_allow_html=True)
+                    'Blue is the financial-only Altman risk on each year of reported financials '
+                    '(Screener.in); the amber band on top is the extra risk the market signals reveal, '
+                    'and the top edge is the ForesightAI comprehensive score. Green marks where the '
+                    'signals cleared risk before the accounts did. Share price is indexed to 100 at the '
+                    'start, indicative of direction only.</div>', unsafe_allow_html=True)
 
 
 # ==================================================================== Overview
