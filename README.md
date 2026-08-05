@@ -116,8 +116,11 @@ app/                   the Streamlit dashboard (main.py, scoring_service.py, the
 data/indian/           scraped Indian training set + NCLT labels + the historical backtest
 notebooks/             the model-building and evaluation story
 deck/                  the 5-slide pitch deck
-REPORT.md              the full project report
+REPORT.md              the formal project report
+UNDERSTANDING.md       complete technical guide - read this to understand everything
 ```
+
+> **New here?** [**UNDERSTANDING.md**](UNDERSTANDING.md) explains the whole system from zero - data, engine, models, diagrams, and an easy/medium/hard question bank.
 
 **Quickstart**
 
