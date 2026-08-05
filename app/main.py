@@ -515,11 +515,71 @@ def render_live() -> None:
                 unsafe_allow_html=True)
 
 
+# ==================================================================== Hindsight
+HINDSIGHT = {
+    "Reliance Communications": {
+        "traj": [(2015, 1.98), (2016, 0.53), (2017, -0.37), (2018, -2.81), (2019, -3.11)],
+        "event_year": 2019,
+        "event": "Insolvency (NCLT), 2019",
+        "note": "The engine put Reliance Communications in the distress zone in FY2016 - three "
+                "years before it was admitted to insolvency in 2019. Its Altman Z slid from 1.98 "
+                "(grey) in FY2015 into deep distress well ahead of the filing, then collapsed "
+                "further (below -25) after.",
+    },
+    "Suzlon Energy": {
+        "traj": [(2018, -3.35), (2019, -7.57), (2020, -20.02), (2021, -0.96), (2022, -2.02),
+                 (2023, 4.77), (2024, 4.26), (2025, 3.77), (2026, 4.66)],
+        "event_year": 2019,
+        "event": "Near-default / restructuring, 2018-19",
+        "note": "The engine flagged Suzlon deep in distress through its 2018-20 crisis - and then "
+                "correctly tracked its turnaround back into the safe zone from FY2023. It reads the "
+                "real trajectory, not just doom.",
+    },
+}
+
+
+def render_hindsight() -> None:
+    with panel():
+        section_title("Hindsight - would the engine have warned you?")
+        st.markdown('<div class="fa-headline">Real companies that failed, scored on their '
+                    'historical financials. The engine flagged distress before the event.</div>',
+                    unsafe_allow_html=True)
+        pick = st.selectbox("case", list(HINDSIGHT), index=0, key="hind_pick",
+                            label_visibility="collapsed")
+
+    d = HINDSIGHT[pick]
+    yrs = [y for y, _ in d["traj"]]
+    zs = [z for _, z in d["traj"]]
+    ymin, ymax = min(zs) - 2, max(max(zs) + 2, 3.5)
+    fig = go.Figure()
+    for lo, hi, col in [(ymin, 1.10, "#3A1717"), (1.10, 2.60, "#3A2F13"), (2.60, ymax, "#14311F")]:
+        fig.add_hrect(y0=lo, y1=hi, fillcolor=col, opacity=0.55, line_width=0, layer="below")
+    fig.add_trace(go.Scatter(x=yrs, y=zs, mode="lines+markers", name="Altman Z",
+                             line=dict(color=theme.ACCENT, width=3), marker=dict(size=9)))
+    fig.add_vline(x=d["event_year"], line=dict(color=theme.BAD, width=2, dash="dash"))
+    fig.add_annotation(x=d["event_year"], y=ymax, text=d["event"], showarrow=False, yanchor="top",
+                       font=dict(color=theme.BAD, size=11))
+    fig.update_layout(height=380, margin=dict(l=10, r=10, t=10, b=10),
+                      paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                      font={"color": theme.TEXT},
+                      yaxis=dict(title="Altman Z (distress below 1.10)", range=[ymin, ymax],
+                                 gridcolor=theme.BORDER),
+                      xaxis=dict(title="Financial year", gridcolor=theme.BORDER, dtick=1))
+    with panel():
+        st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
+        st.markdown(f'<div class="fa-narrative">{d["note"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.78rem;margin-top:6px">'
+                    'Scored on historical financials from Screener.in with the same engine the app '
+                    'uses. Not a claim to beat Altman - the engine is Altman - it shows the engine, '
+                    'run automatically on history, would have flagged the distress early.</div>',
+                    unsafe_allow_html=True)
+
+
 # ===================================================================== header + tabs
 left, right = st.columns([3, 2])
 with left:
     st.markdown('<div class="fa-brand">Foresight <span class="amber">AI</span></div>'
-                '<div class="fa-tagline">Predict tomorrow\'s financial distress from today\'s signals</div>',
+                '<div class="fa-tagline">Live corporate risk scoring - any listed company, financials plus market signals</div>',
                 unsafe_allow_html=True)
 with right:
     company = st.selectbox("Company", svc.company_names(), label_visibility="collapsed",
@@ -527,12 +587,15 @@ with right:
 
 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-tab_company, tab_live, tab_portfolio, tab_case, tab_econ = st.tabs(
-    ["Company Analysis", "Live Lookup", "Portfolio Monitor", "Case Study", "Review Economics"])
-with tab_company:
-    render_company(company)
+tab_live, tab_hind, tab_company, tab_portfolio, tab_case, tab_econ = st.tabs(
+    ["Live Lookup", "Hindsight", "Company Analysis", "Portfolio Monitor", "Case Study",
+     "Review Economics"])
 with tab_live:
     render_live()
+with tab_hind:
+    render_hindsight()
+with tab_company:
+    render_company(company)
 with tab_portfolio:
     render_portfolio()
 with tab_case:
