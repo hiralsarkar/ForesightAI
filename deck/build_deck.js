@@ -70,8 +70,8 @@ async function icon(name, hex, px = 300) {
     { text: "Foresight ", options: { color: WHITE } },
     { text: "AI", options: { color: AMBER } },
   ], { x: 0.85, y: 1.55, w: 8.4, h: 1.4, fontFace: F, fontSize: 66, bold: true });
-  s.addText("Point it at any listed Indian company. Get a live, explainable\nrisk read in seconds - the Altman Z-Score fused with market signals:\ncredit ratings, leadership changes and live news.",
-    { x: 0.9, y: 3.05, w: 7.7, h: 1.2, fontFace: F, fontSize: 18, color: DIM, lineSpacingMultiple: 1.12 });
+  s.addText("Point it at any listed Indian company. Get one explainable 0-100 score\nthat fuses the Altman Z-Score with the market signals others read separately:\ncredit ratings, leadership, news, hiring and employee sentiment.",
+    { x: 0.9, y: 3.05, w: 7.9, h: 1.2, fontFace: F, fontSize: 18, color: DIM, lineSpacingMultiple: 1.12 });
 
   // link pill
   s.addShape(p.ShapeType.roundRect, { x: 0.9, y: 4.35, w: 4.55, h: 0.62, rectRadius: 0.31,
@@ -125,21 +125,19 @@ async function icon(name, hex, px = 300) {
   // RCom foreshadow callout (right)
   const rx = 7.75, rw = 4.75;
   panel(s, rx, 2.15, rw, 4.28, PANEL2);
-  s.addText("SEEN IN HINDSIGHT", { x: rx + 0.35, y: 2.42, w: rw - 0.7, h: 0.35, fontFace: F,
+  s.addText("THE FORESIGHT FIX", { x: rx + 0.35, y: 2.42, w: rw - 0.7, h: 0.35, fontFace: F,
     fontSize: 11.5, bold: true, color: AMBER, charSpacing: 3 });
-  s.addText("Reliance Communications", { x: rx + 0.35, y: 2.78, w: rw - 0.7, h: 0.4, fontFace: F,
+  s.addText("Everything public, in one score", { x: rx + 0.35, y: 2.78, w: rw - 0.7, h: 0.4, fontFace: F,
     fontSize: 19, bold: true, color: WHITE });
-  s.addText("3", { x: rx + 0.3, y: 3.35, w: 1.6, h: 1.1, fontFace: F, fontSize: 74, bold: true, color: AMBER, align: "left" });
+  s.addText("6", { x: rx + 0.3, y: 3.32, w: 1.4, h: 1.1, fontFace: F, fontSize: 74, bold: true, color: AMBER, align: "left" });
   s.addText([
-    { text: "years", options: { bold: true, color: WHITE, fontSize: 20 } },
-    { text: "\nof warning before\ninsolvency", options: { color: DIM, fontSize: 14 } },
-  ], { x: rx + 1.85, y: 3.5, w: rw - 2.1, h: 1.0, fontFace: F, lineSpacingMultiple: 1.02 });
-  // down sparkline
-  const sp = [[rx + 0.4, 4.95], [rx + 1.25, 5.15], [rx + 2.1, 5.35], [rx + 2.95, 5.7], [rx + 3.9, 5.8]];
-  for (let i = 0; i < sp.length - 1; i++) seg(s, sp[i][0], sp[i][1], sp[i + 1][0], sp[i + 1][1], BAD, 2.5);
-  sp.forEach((pt, i) => dot(s, pt[0], pt[1], 0.055, i === 1 ? AMBER : BAD));
-  s.addText("Altman Z entered distress in FY2016. Filed for insolvency in 2019.",
-    { x: rx + 0.35, y: 6.02, w: rw - 0.7, h: 0.35, fontFace: F, fontSize: 11.5, italic: true, color: DIM });
+    { text: "signals", options: { bold: true, color: WHITE, fontSize: 20 } },
+    { text: "\nfused into one\n0-100 read", options: { color: DIM, fontSize: 14 } },
+  ], { x: rx + 1.7, y: 3.5, w: rw - 1.95, h: 1.0, fontFace: F, lineSpacingMultiple: 1.02 });
+  s.addText("Financials  .  credit ratings  .  leadership  .  news  .  hiring  .  employee sentiment",
+    { x: rx + 0.35, y: 4.95, w: rw - 0.7, h: 0.7, fontFace: F, fontSize: 12.5, color: WHITE, lineSpacingMultiple: 1.1 });
+  s.addText("Read together and explained - not scattered across ten browser tabs.",
+    { x: rx + 0.35, y: 5.95, w: rw - 0.7, h: 0.4, fontFace: F, fontSize: 11.5, italic: true, color: DIM });
 
   // ============================================================ SLIDE 3 - HOW (flow)
   s = p.addSlide(); bg(s);
@@ -186,75 +184,66 @@ async function icon(name, hex, px = 300) {
     { text: "   Five signals that move before the accounts do: credit rating (0.30), leadership changes (0.25), news sentiment (0.25), hiring (0.10), employee confidence (0.10). A rating cut to 'D' or an auditor exit floors the score - facts, not moods.", options: { color: DIM, fontSize: 12 } },
   ], { x: 8.1, y: ly + 0.58, w: 4.55, h: 0.95, fontFace: F, valign: "top", lineSpacingMultiple: 1.0 });
 
-  // ============================================================ SLIDE 4 - HINDSIGHT chart
+  // ============================================================ SLIDE 4 - TRACK RECORD
   s = p.addSlide(); bg(s);
   s.addText([
-    { text: "Would it have warned you? ", options: { color: WHITE } },
-    { text: "Years early.", options: { color: AMBER } },
+    { text: "One ", options: { color: WHITE } },
+    { text: "comprehensive", options: { color: AMBER } },
+    { text: " score, on real history", options: { color: WHITE } },
   ], { x: 0.85, y: 0.55, w: 11.7, h: 0.7, fontFace: F, fontSize: 33, bold: true });
-  s.addText("Five real collapses, replayed - the Altman Z merged with the signals that led the accounts.",
+  s.addText("Altman reads the annual filings. ForesightAI reads the same financials plus the credit ratings, leadership, news and the market.",
     { x: 0.87, y: 1.34, w: 11.6, h: 0.4, fontFace: F, fontSize: 15.5, color: DIM });
 
-  // left text
-  s.addText("3 years", { x: 0.85, y: 2.05, w: 4.4, h: 0.8, fontFace: F, fontSize: 44, bold: true, color: AMBER });
-  s.addText("of early warning on Reliance Communications.", { x: 0.87, y: 2.85, w: 4.3, h: 0.55, fontFace: F, fontSize: 15.5, bold: true, color: WHITE });
-  s.addText("Altman Z slid into distress by FY2016 - and the rating cut, the Ericsson insolvency plea and the news cascade all pointed the same way, three years before the 2019 filing.",
-    { x: 0.87, y: 3.4, w: 4.35, h: 1.35, fontFace: F, fontSize: 12.5, color: DIM, lineSpacingMultiple: 1.08 });
-  panel(s, 0.85, 4.95, 4.35, 1.72, PANEL2);
-  s.addText("FIVE CASES, FIVE DYNAMICS", { x: 1.08, y: 5.08, w: 3.9, h: 0.28, fontFace: F, fontSize: 10.5, bold: true, color: AMBER, charSpacing: 2 });
+  // left column - comprehensiveness
+  s.addText("6 inputs", { x: 0.85, y: 2.05, w: 4.4, h: 0.75, fontFace: F, fontSize: 40, bold: true, color: AMBER });
+  s.addText("financials, credit ratings, leadership, news, hiring and employee sentiment - fused into one 0-100 score.",
+    { x: 0.87, y: 2.82, w: 4.35, h: 0.9, fontFace: F, fontSize: 13, color: WHITE, lineSpacingMultiple: 1.1 });
+  s.addText("Altman is the financial leg. ForesightAI adds the market signals, so the score reflects the full public picture - and moves the day any of them do.",
+    { x: 0.87, y: 3.72, w: 4.35, h: 1.15, fontFace: F, fontSize: 12, color: DIM, lineSpacingMultiple: 1.08 });
+  panel(s, 0.85, 4.98, 4.35, 1.7, PANEL2);
+  s.addText("FIVE CASES, FIVE SECTORS", { x: 1.08, y: 5.1, w: 3.9, h: 0.28, fontFace: F, fontSize: 10.5, bold: true, color: AMBER, charSpacing: 2 });
   s.addText([
-    { text: "RCom & Suzlon ", options: { bold: true, color: WHITE } },
-    { text: "- Altman leads (Suzlon even recovers).  ", options: { color: DIM } },
-    { text: "DHFL & IL&FS ", options: { bold: true, color: WHITE } },
-    { text: "- NBFCs where Altman is blind; IL&FS was rated AAA and only the signals led.  ", options: { color: DIM } },
-    { text: "Manpasand ", options: { bold: true, color: WHITE } },
-    { text: "- an auditor exit, 12 months early.", options: { color: DIM } },
-  ], { x: 1.08, y: 5.36, w: 3.9, h: 1.24, fontFace: F, fontSize: 10.5, valign: "top", lineSpacingMultiple: 1.03 });
+    { text: "Unitech ", options: { bold: true, color: WHITE } }, { text: "(real estate), ", options: { color: DIM } },
+    { text: "Future Retail ", options: { bold: true, color: WHITE } }, { text: "(retail), ", options: { color: DIM } },
+    { text: "Reliance Communications ", options: { bold: true, color: WHITE } }, { text: "(telecom), ", options: { color: DIM } },
+    { text: "Jaiprakash Associates ", options: { bold: true, color: WHITE } }, { text: "(infrastructure), ", options: { color: DIM } },
+    { text: "Suzlon ", options: { bold: true, color: WHITE } }, { text: "(renewables - a recovery). Real financials, real events.", options: { color: DIM } },
+  ], { x: 1.08, y: 5.38, w: 3.9, h: 1.24, fontFace: F, fontSize: 10.5, valign: "top", lineSpacingMultiple: 1.03 });
 
-  // chart geometry
+  // chart - two reads on one 0-100 risk timeline (Reliance Communications, real scores)
   const PL = 5.85, PT = 2.15, PW = 6.85, PH = 4.4, PB = PT + PH, PR = PL + PW;
-  const vTop = 3.0, vBot = -3.6, vr = vTop - vBot;
-  const yv = (v) => PT + (vTop - v) / vr * PH;
-  const years = [2015, 2016, 2017, 2018, 2019];
-  const xv = (i) => PL + (i / (years.length - 1)) * PW;
-  const rcom = [1.98, 0.53, -0.37, -2.81, -3.11];
+  const yv = (v) => PT + (100 - v) / 100 * PH;
+  const yrs4 = [2015, 2016, 2017, 2018, 2019];
+  const xv = (i) => PL + (i / (yrs4.length - 1)) * PW;
+  const altman = [34, 60, 75, 95, 96];
+  const fore = [40, 63, 84, 92, 96];
+  const BLUE = "5B9BD5";
+  s.addText("Example - Reliance Communications (telecom)", { x: PL, y: 1.82, w: PW, h: 0.25, fontFace: F, fontSize: 11, color: DIM });
   // zone bands
-  s.addShape(p.ShapeType.rect, { x: PL, y: PT, w: PW, h: yv(2.6) - PT, fill: { color: GOOD, transparency: 88 }, line: { type: "none" } });
-  s.addShape(p.ShapeType.rect, { x: PL, y: yv(2.6), w: PW, h: yv(1.1) - yv(2.6), fill: { color: DIM, transparency: 90 }, line: { type: "none" } });
-  s.addShape(p.ShapeType.rect, { x: PL, y: yv(1.1), w: PW, h: PB - yv(1.1), fill: { color: BAD, transparency: 84 }, line: { type: "none" } });
-  // threshold lines + labels
-  seg(s, PL, yv(2.6), PR, yv(2.6), GOOD, 1);
-  seg(s, PL, yv(1.1), PR, yv(1.1), BAD, 1);
-  s.addText("SAFE  Z'' > 2.6", { x: PL + 0.12, y: PT + 0.02, w: 2, h: 0.25, fontFace: F, fontSize: 10, bold: true, color: GOOD, align: "left" });
-  s.addText("DISTRESS  Z'' < 1.1", { x: PL + 0.12, y: yv(1.1) + 0.06, w: 2, h: 0.25, fontFace: F, fontSize: 10, bold: true, color: BAD, align: "left" });
-  // axes baseline
+  s.addShape(p.ShapeType.rect, { x: PL, y: PT, w: PW, h: yv(70) - PT, fill: { color: BAD, transparency: 90 }, line: { type: "none" } });
+  s.addShape(p.ShapeType.rect, { x: PL, y: yv(30), w: PW, h: PB - yv(30), fill: { color: GOOD, transparency: 90 }, line: { type: "none" } });
+  s.addText("HIGH RISK", { x: PL + 0.12, y: PT + 0.02, w: 2, h: 0.25, fontFace: F, fontSize: 10, bold: true, color: BAD });
+  s.addText("HEALTHY", { x: PL + 0.12, y: PB - 0.28, w: 2, h: 0.25, fontFace: F, fontSize: 10, bold: true, color: GOOD });
   seg(s, PL, PB, PR, PB, BORDER, 1);
-  // event marker (2019 insolvency)
+  // event marker (2019)
   const exx = xv(4);
-  for (let yy = PT; yy < PB; yy += 0.28) seg(s, exx, yy, exx, Math.min(yy + 0.14, PB), AMBER, 1.5);
-  s.addText("INSOLVENCY 2019", { x: exx - 1.9, y: PT - 0.05, w: 1.85, h: 0.25, fontFace: F, fontSize: 10, bold: true, color: AMBER, align: "right" });
-  // rcom line
-  for (let i = 0; i < rcom.length - 1; i++) seg(s, xv(i), yv(rcom[i]), xv(i + 1), yv(rcom[i + 1]), AMBER, 3);
-  rcom.forEach((v, i) => {
-    const hi = i === 1;
-    dot(s, xv(i), yv(v), hi ? 0.11 : 0.075, hi ? WHITE : AMBER, hi ? AMBER : NAVY);
-  });
+  for (let yy = PT; yy < PB; yy += 0.28) seg(s, exx, yy, exx, Math.min(yy + 0.14, PB), DIM, 1.2);
+  s.addText("INSOLVENCY 2019", { x: exx - 1.9, y: PT - 0.05, w: 1.85, h: 0.25, fontFace: F, fontSize: 10, bold: true, color: DIM, align: "right" });
+  // Altman line
+  for (let i = 0; i < altman.length - 1; i++) seg(s, xv(i), yv(altman[i]), xv(i + 1), yv(altman[i + 1]), BLUE, 2.5);
+  altman.forEach((v, i) => dot(s, xv(i), yv(v), 0.06, BLUE, NAVY));
+  // ForesightAI line
+  for (let i = 0; i < fore.length - 1; i++) seg(s, xv(i), yv(fore[i]), xv(i + 1), yv(fore[i + 1]), AMBER, 3.5);
+  fore.forEach((v, i) => dot(s, xv(i), yv(v), 0.08, AMBER, NAVY));
   // year labels
-  years.forEach((yr, i) => s.addText("FY" + String(yr).slice(2), { x: xv(i) - 0.4, y: PB + 0.06, w: 0.8, h: 0.28, fontFace: F, fontSize: 11, color: DIM, align: "center" }));
-  // callout at 2016
-  s.addText("distress flagged FY16", { x: xv(1) - 0.35, y: yv(0.53) + 0.18, w: 2.2, h: 0.3, fontFace: F, fontSize: 10.5, bold: true, color: WHITE });
-
-  // signal-cascade markers on the timeline + legend (the merged signals, not just Altman)
-  const BLUE = "3B82F6", PURPLE = "A855F7";
-  const evs = [[2, ORANGE, "rating cut to default"], [3, BLUE, "Ericsson insolvency plea"]];
-  evs.forEach(([i, col]) => dot(s, xv(i), yv(rcom[i]), 0.075, col, WHITE));
-  const lgx = PR - 2.05, lgy = PT + 0.12;
-  s.addText("SIGNALS MERGED", { x: lgx, y: lgy - 0.02, w: 2.0, h: 0.24, fontFace: F, fontSize: 9, bold: true, color: DIM, charSpacing: 1.5 });
-  [["Credit rating", ORANGE], ["Leadership", BLUE], ["News", DIM], ["Auditor", PURPLE]].forEach(([lab, col], k) => {
-    const yy = lgy + 0.28 + k * 0.26;
-    dot(s, lgx + 0.08, yy + 0.08, 0.055, col);
-    s.addText(lab, { x: lgx + 0.24, y: yy - 0.06, w: 1.8, h: 0.26, fontFace: F, fontSize: 10, color: WHITE });
-  });
+  yrs4.forEach((yr, i) => s.addText("FY" + String(yr).slice(2), { x: xv(i) - 0.4, y: PB + 0.06, w: 0.8, h: 0.28, fontFace: F, fontSize: 11, color: DIM, align: "center" }));
+  // legend
+  const lgx = PR - 2.55, lgy = PT + 0.14;
+  s.addShape(p.ShapeType.roundRect, { x: lgx - 0.18, y: lgy - 0.12, w: 2.7, h: 0.88, rectRadius: 0.06, fill: { color: NAVY }, line: { color: BORDER, width: 1 } });
+  seg(s, lgx, lgy + 0.16, lgx + 0.4, lgy + 0.16, AMBER, 3.5);
+  s.addText("ForesightAI (comprehensive)", { x: lgx + 0.5, y: lgy + 0.02, w: 2.0, h: 0.26, fontFace: F, fontSize: 10, color: WHITE });
+  seg(s, lgx, lgy + 0.52, lgx + 0.4, lgy + 0.52, BLUE, 2.5);
+  s.addText("Altman (financial only)", { x: lgx + 0.5, y: lgy + 0.38, w: 2.0, h: 0.26, fontFace: F, fontSize: 10, color: DIM });
 
   // ============================================================ SLIDE 5 - VALUE + CTA
   s = p.addSlide(); bg(s);
@@ -266,10 +255,10 @@ async function icon(name, hex, px = 300) {
     { x: 0.87, y: 1.44, w: 11.5, h: 0.4, fontFace: F, fontSize: 15.5, color: DIM });
 
   const tiles = [
-    ["FiZap", "Live & automated", "Any company, on demand. No manual pull, no waiting on filings."],
-    ["FiGrid", "Comprehensive", "Altman Z fused with credit ratings, leadership, news and hiring."],
-    ["FiEye", "Explainable", "Every point traces to a real ratio or a real headline."],
-    ["FiCheckCircle", "Validated on history", "Flags real bankruptcies years before the event."],
+    ["FiGrid", "Comprehensive", "Six inputs - financials, ratings, leadership, news, hiring, sentiment - in one score."],
+    ["FiZap", "Live & automated", "Any listed company, on demand. No manual pull, no waiting on filings."],
+    ["FiEye", "Explainable", "Every point traces to a real ratio, rating or headline."],
+    ["FiCheckCircle", "Proven on real cases", "Replayed across five real collapses, in five sectors."],
   ];
   const tx0 = 0.85, tw = 2.78, tgap = 0.24, tstep = tw + tgap, ty = 2.25, th = 2.55;
   tiles.forEach(([ic, hd, tx], i) => {

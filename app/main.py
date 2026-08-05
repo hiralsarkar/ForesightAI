@@ -285,11 +285,14 @@ def render_portfolio() -> None:
             except Exception as exc:
                 st.error(f"Could not score {addname}: {exc}")
         if st.session_state.pf_live:
-            keep = st.multiselect("Live-added companies (unselect to remove)",
-                                  list(st.session_state.pf_live),
-                                  default=list(st.session_state.pf_live), key="pf_rm")
-            for gone in [n for n in list(st.session_state.pf_live) if n not in keep]:
-                st.session_state.pf_live.pop(gone, None)
+            crm, crmb = st.columns([5, 1])
+            rmname = crm.selectbox("remove", ["- remove a live company -"]
+                                   + list(st.session_state.pf_live),
+                                   label_visibility="collapsed", key="pf_rm")
+            if crmb.button("Remove", key="pf_rm_btn", use_container_width=True) \
+                    and not rmname.startswith("-"):
+                st.session_state.pf_live.pop(rmname, None)
+                st.rerun()
 
     # Assemble rows: tracked (cached) + live-added, worst risk first.
     pr = {r.company: r for r in svc.portfolio()}
@@ -586,15 +589,30 @@ TRACK_RECORD = {
 }
 
 
+# Indicative share price, indexed to 100 at the window start. Directional (delisted names
+# have patchy history), so it is shown as a shape on a secondary axis, not exact rupees.
+PRICE = {
+    "Unitech (Real Estate)": [(2015, 100), (2016, 80), (2017, 70), (2018, 45), (2019, 30),
+                              (2020, 18), (2021, 22), (2022, 12), (2023, 8)],
+    "Future Retail (Retail)": [(2019, 100), (2020, 32), (2021, 20), (2022, 6)],
+    "Reliance Communications (Telecom)": [(2015, 100), (2016, 70), (2017, 32), (2018, 23), (2019, 3)],
+    "Jaiprakash Associates (Infrastructure)": [(2016, 100), (2017, 110), (2018, 65), (2019, 45),
+                                               (2020, 30), (2021, 85), (2022, 95), (2023, 110), (2024, 70)],
+    "Suzlon Energy (Renewables)": [(2017, 100), (2018, 45), (2019, 22), (2020, 16), (2021, 33),
+                                   (2022, 45), (2023, 110), (2024, 250), (2025, 230), (2026, 260)],
+}
+
+
 def render_track_record() -> None:
     import datetime as _dt
 
     with panel():
-        section_title("Track Record - would it have warned you?")
-        st.markdown('<div class="fa-headline">Real companies, scored on their real history. The '
-                    'Altman line updates once a year with the filings. The ForesightAI line moves the '
-                    'day a signal does - a rating cut, an arrest, a blocked deal - so it turns earlier. '
-                    'Hover any orange point for the reason it moved.</div>', unsafe_allow_html=True)
+        section_title("Track Record - the comprehensive score on real history")
+        st.markdown('<div class="fa-headline">Real companies, replayed on the record. Altman reads the '
+                    'annual filings; the ForesightAI comprehensive score reads the same financials plus '
+                    'the credit ratings, leadership, news and the market - so it moves whenever any of '
+                    'them do. Hover any orange point for the reason, and follow the indexed share price '
+                    'for context.</div>', unsafe_allow_html=True)
         pick = st.selectbox("case", list(TRACK_RECORD), label_visibility="collapsed", key="tr_pick")
 
     d = TRACK_RECORD[pick]
@@ -613,11 +631,19 @@ def render_track_record() -> None:
         line=dict(color=ALT, width=2.5), marker=dict(size=7),
         hovertemplate="FY%{x|%Y}: Altman risk %{y}<extra></extra>"))
     fig.add_trace(go.Scatter(
-        x=xF, y=yF, name="ForesightAI (live signals)", mode="lines+markers",
+        x=xF, y=yF, name="ForesightAI (comprehensive)", mode="lines+markers",
         line=dict(color=theme.ACCENT, width=3),
         marker=dict(size=11, color=theme.ACCENT, line=dict(color="#0A1628", width=1.5)),
         customdata=[[r] for r in reasons],
         hovertemplate="<b>%{x|%d %b %Y} &middot; risk %{y}</b><br>%{customdata[0]}<extra></extra>"))
+    px = PRICE.get(pick)
+    if px:
+        xP = [_dt.date(y, 3, 31) for y, _ in px]
+        yP = [v for _, v in px]
+        fig.add_trace(go.Scatter(
+            x=xP, y=yP, name="Share price (indexed)", mode="lines", yaxis="y2",
+            line=dict(color=theme.TEXT_DIM, width=1.5, dash="dot"),
+            hovertemplate="FY%{x|%Y}: price index %{y}<extra></extra>"))
     ev = _dt.date.fromisoformat(d["event_date"])
     fig.add_vline(x=ev, line=dict(color=theme.TEXT_DIM, width=1.5, dash="dash"))
     fig.add_annotation(x=ev, y=100, text=d["event"], showarrow=False, yanchor="top", xanchor="right",
@@ -628,6 +654,8 @@ def render_track_record() -> None:
                       legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0),
                       hoverlabel=dict(bgcolor=theme.BG_PANEL_2, font_size=12, align="left"),
                       yaxis=dict(range=[0, 100], title="Risk score (0-100)", gridcolor=theme.BORDER),
+                      yaxis2=dict(title="Share price (indexed)", overlaying="y", side="right",
+                                  showgrid=False, rangemode="tozero"),
                       xaxis=dict(title="", gridcolor=theme.BORDER, dtick="M12", tickformat="%Y"))
 
     with panel():
@@ -636,15 +664,16 @@ def render_track_record() -> None:
             f'<div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 8px">'
             f'<span class="fa-card" style="padding:8px 14px"><span class="lbl">Sector</span>'
             f'<span class="val" style="font-size:0.95rem">{d["sector"]}</span></span>'
-            f'<span class="fa-card" style="padding:8px 14px"><span class="lbl">Early-warning lead</span>'
+            f'<span class="fa-card" style="padding:8px 14px"><span class="lbl">What the signals add</span>'
             f'<span class="val" style="font-size:0.95rem;color:{theme.ACCENT}">{d["lead"]}</span></span>'
             '</div>', unsafe_allow_html=True)
         st.markdown(f'<div class="fa-narrative">{d["takeaway"]}</div>', unsafe_allow_html=True)
         st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.78rem;margin-top:6px">'
                     'Altman risk is the engine\'s own score on each year of reported financials from '
-                    'Screener.in. The ForesightAI line reconstructs how the combined score would have '
-                    'moved on the dated public events - rating actions, filings, leadership and news.</div>',
-                    unsafe_allow_html=True)
+                    'Screener.in. ForesightAI is the comprehensive score - the same Altman financials '
+                    'fused with the market signals - reconstructed on the dated public events (rating '
+                    'actions, filings, leadership, news). Share price is indexed to 100 at the start and '
+                    'is indicative of direction only.</div>', unsafe_allow_html=True)
 
 
 # ==================================================================== Overview
