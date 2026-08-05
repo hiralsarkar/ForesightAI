@@ -30,3 +30,6 @@ reports/*.svg
 
 # Internal working notes - not part of the public repo
 AGENTS.md
+
+# deck build deps
+deck/node_modules/

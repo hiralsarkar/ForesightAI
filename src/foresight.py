@@ -750,6 +750,7 @@ from typing import Optional
 class SignalKind(str, Enum):
     NEWS_SENTIMENT = "News Sentiment"
     LEADERSHIP = "Leadership Stability"
+    CREDIT_RATING = "Credit Rating"
     HIRING = "Hiring Activity"
     EMPLOYEE = "Employee Confidence"
 
@@ -1367,6 +1368,99 @@ def sentiment_score_as_of(
         label=label, datum=datum, raw=float(recent),
     )
 
+"""Credit-rating signal.
+
+A long-term issuer/instrument rating from a recognised agency (CRISIL, ICRA, CARE, S&P,
+Fitch, Moody's) is the single most CRO-defensible external signal there is. We map the
+latest grade to the shared 0-100 risk scale, read the trend against the prior action
+(upgrade / affirm / downgrade), and floor the score as a HARD EVENT when the grade is 'D'
+(default) - a rating agency declaring default is a fact, not an inference, exactly like an
+auditor walking out.
+
+Grades are curated per company from public rating-agency press releases - never inferred.
+"""
+
+# Base-letter risk anchors on the 0-100 scale. The +/- modifier nudges within the band.
+_GRADE_RISK: dict[str, float] = {
+    "AAA": 8.0, "AA": 18.0, "A": 30.0, "BBB": 42.0, "BB": 55.0, "B": 68.0, "C": 82.0, "D": 95.0,
+}
+# Ordinal rank for trend comparison (higher rank = stronger credit).
+_GRADE_RANK = {g: i for i, g in enumerate(("D", "C", "B", "BB", "BBB", "A", "AA", "AAA"))}
+
+
+@dataclass(frozen=True)
+class CreditRatingObservation:
+    """One dated rating action. `grade` is the base letter class (e.g. 'AA', 'BB', 'D');
+    `notch` is the +/-/'' modifier; `agency` and `scale` ('domestic'/'international') label it."""
+
+    action_date: date
+    grade: str
+    agency: str
+    notch: str = ""            # "+", "-", or ""
+    scale: str = "domestic"    # domestic long-term unless noted
+
+
+def _grade_risk(grade: str, notch: str) -> float:
+    base = _GRADE_RISK.get(grade.upper(), 50.0)
+    adj = -4.0 if notch == "+" else 4.0 if notch == "-" else 0.0
+    return clamp_score(base + adj)
+
+
+def credit_rating_score_as_of(
+    events: list[CreditRatingObservation],
+    when: date,
+    company: str = "",
+) -> SignalReading | None:
+    """Latest rating on or before `when`, plus the direction of the last action.
+
+    Returns None when there is no rated history - the composite then renormalises, so an
+    unrated company is not penalised for the gap.
+    """
+    history = sorted((e for e in events if e.action_date <= when), key=lambda e: e.action_date)
+    if not history:
+        return None
+    latest = history[-1]
+    risk = _grade_risk(latest.grade, latest.notch)
+    is_default = latest.grade.upper() == "D"
+
+    # Trend from the prior distinct grade.
+    prior = next((e for e in reversed(history[:-1])
+                  if (e.grade, e.notch) != (latest.grade, latest.notch)), None)
+    _notch = {"+": 1, "": 0, "-": -1}
+
+    def _fine(e: CreditRatingObservation) -> int:
+        return _GRADE_RANK.get(e.grade.upper(), 3) * 3 + _notch.get(e.notch, 0)
+
+    if prior is None:
+        label, moved = "Affirmed", "no prior action on record"
+    else:
+        now_rank = _fine(latest)
+        was_rank = _fine(prior)
+        if now_rank > was_rank:
+            label, moved = "Upgraded", f"up from {prior.grade}{prior.notch} ({prior.agency})"
+        elif now_rank < was_rank:
+            label, moved = "Downgraded", f"down from {prior.grade}{prior.notch} ({prior.agency})"
+        else:
+            label, moved = "Affirmed", f"held at {prior.grade}{prior.notch}"
+
+    grade_str = f"{latest.grade}{latest.notch}"
+    band = "investment grade" if _GRADE_RANK.get(latest.grade.upper(), 0) >= _GRADE_RANK["BBB"] \
+        else "sub-investment (junk) grade"
+    if is_default:
+        datum = (f"{latest.agency} rates {company or 'the issuer'} at 'D' - default. A hard event: "
+                 "the agency is confirming missed payment, not forecasting risk.")
+        label = "Default"
+    else:
+        datum = (f"Latest: {latest.agency} {grade_str} ({latest.scale} long-term), {band}; "
+                 f"last action {moved}.")
+
+    return SignalReading(
+        kind=SignalKind.CREDIT_RATING, as_of=when, risk_score=risk,
+        label=label, datum=datum, raw=float(_GRADE_RANK.get(latest.grade.upper(), 0)),
+        hard_event=is_default,
+    )
+
+
 """Digital Pulse composite.
 
 Fuses the four signal readings into one 0-100 digital risk score on the same scale and
@@ -1390,10 +1484,11 @@ from typing import Optional
 
 
 _WEIGHTS: dict[SignalKind, float] = {
-    SignalKind.LEADERSHIP: 0.35,
-    SignalKind.NEWS_SENTIMENT: 0.35,
-    SignalKind.HIRING: 0.15,
-    SignalKind.EMPLOYEE: 0.15,
+    SignalKind.CREDIT_RATING: 0.30,   # most CRO-defensible external signal
+    SignalKind.LEADERSHIP: 0.25,      # dated public filings, no selection bias
+    SignalKind.NEWS_SENTIMENT: 0.25,  # can move before the accounts
+    SignalKind.HIRING: 0.10,          # soft, illustrative
+    SignalKind.EMPLOYEE: 0.10,        # soft, illustrative
 }
 
 
@@ -1467,6 +1562,7 @@ hiring_score = hiring_score_as_of
 leadership_score = leadership_score_as_of
 reviews_score = reviews_score_as_of
 sentiment_score = sentiment_score_as_of
+credit_rating_score = credit_rating_score_as_of
 
 AS_OF = date(2026, 5, 31)
 
@@ -1492,6 +1588,11 @@ SPICEJET = dict(
     ratings=[
         RatingObservation(date(2025, 6, 1), 3.0),
         RatingObservation(date(2026, 5, 15), 2.7),   # published review-platform score
+    ],
+    # CARE long-term: distress band; upgraded from C to B- after the 2024 fundraise, still junk.
+    credit_ratings=[
+        CreditRatingObservation(date(2024, 8, 20), "C", "CARE"),
+        CreditRatingObservation(date(2025, 6, 1), "B", "CARE", notch="-"),
     ],
 )
 
@@ -1549,6 +1650,11 @@ VODAFONE_IDEA = dict(
         RatingObservation(date(2025, 6, 1), 3.9),
         RatingObservation(date(2026, 5, 15), 3.8),
     ],
+    # Deep junk; small upgrade as government equity conversion improved the capital structure.
+    credit_ratings=[
+        CreditRatingObservation(date(2025, 6, 1), "B", "CARE"),
+        CreditRatingObservation(date(2026, 3, 15), "B", "CARE", notch="+"),
+    ],
 )
 
 # ===================================================================== VEDANTA
@@ -1572,6 +1678,11 @@ VEDANTA = dict(
     ratings=[
         RatingObservation(date(2025, 6, 1), 3.4),
         RatingObservation(date(2026, 5, 15), 3.5),
+    ],
+    # The signal-led story: domestic long-term upgraded post-demerger; agencies moving up.
+    credit_ratings=[
+        CreditRatingObservation(date(2025, 6, 1), "AA", "CRISIL"),
+        CreditRatingObservation(date(2026, 5, 28), "AA", "CRISIL", notch="+"),
     ],
 )
 
@@ -1619,6 +1730,11 @@ TCS = dict(
         RatingObservation(date(2025, 6, 1), 3.7),
         RatingObservation(date(2026, 5, 15), 3.6),
     ],
+    # Top of the scale, rock stable - the healthy anchor.
+    credit_ratings=[
+        CreditRatingObservation(date(2025, 6, 1), "AAA", "CRISIL"),
+        CreditRatingObservation(date(2026, 4, 15), "AAA", "CRISIL"),
+    ],
 )
 
 _DATA = {
@@ -1648,6 +1764,10 @@ def pulse_as_of(company: str, when: date, scorer: SentimentScorer | None = None)
         hiring_score(d["hiring"], when, company),
         reviews_score(d["ratings"], when, company),
     ]
+    # Credit rating is optional per company; combine() drops None and renormalises weights.
+    cr = credit_rating_score(d.get("credit_ratings", []), when, company)
+    if cr is not None:
+        readings.append(cr)
     return combine(company, when, readings)
 
 

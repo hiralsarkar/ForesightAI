@@ -12,10 +12,11 @@ Live app: [foresightai.streamlit.app](https://foresightai.streamlit.app).
 - **Live Lookup** - pick any NSE company. It fetches the financials (Screener) and recent
   news (Google News) live, scores them into one risk read, and shows the Altman decomposition
   and the headlines it scored. Nothing is hard-coded - the whole pipeline runs on the spot.
-- **Hindsight** - real companies that failed, scored on their historical financials. Reliance
-  Communications was already in the distress zone in FY2016, three years before its 2019
-  insolvency. Suzlon shows the crisis and then the recovery, so the engine tracks the real
-  story, not just doom.
+- **Hindsight** - five real collapses replayed, each merging the Altman Z trajectory with the
+  dated signals that led the accounts: auditor exits, rating actions, board changes, news shocks.
+  RCom (distress flagged FY2016, three years early) and Suzlon (crisis then recovery) are Altman
+  wins; DHFL and IL&FS are NBFCs where Altman is blind and only the signals led (IL&FS was rated
+  AAA until the end); Manpasand is a clean auditor-resignation warning, a year early.
 - **Company Analysis, Portfolio, Case Study, Review Economics** - deep-dive views on a curated
   set of six current companies.
 
@@ -26,8 +27,9 @@ Two legs, one score, always explainable:
 - **Financial** - the original 1968 Altman Z-Score, all five components, using the market value
   of equity for listed companies. A trusted, decades-old distress formula, computed live and
   decomposed term by term so every point traces to a real ratio.
-- **Market signals** - live news sentiment (plus leadership, hiring and employee signals for the
-  tracked companies). These often move before the accounts do.
+- **Market signals** - a five-signal pulse for the tracked companies: credit rating, leadership
+  changes, news sentiment, hiring and employee confidence. A rating cut to default or an auditor
+  exit is treated as a hard event and floors the score. These often move before the accounts do.
 - **Combined** - the two fused into one 0-100 risk read, with the legs shown side by side,
   because the gap between them is the story.
 

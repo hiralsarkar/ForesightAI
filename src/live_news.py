@@ -64,6 +64,31 @@ def fetch_headlines(query: str, n: int = 18) -> list[str]:
     return heads
 
 
+def _matched(text: str) -> tuple[list[str], list[str]]:
+    """The specific distress words that make a headline move the needle: (strong, weak)."""
+    words = re.findall(r"[a-z]+", text.lower())
+    seen_s, seen_w = [], []
+    for w in words:
+        if w in _STRONG_NEG and w not in seen_s:
+            seen_s.append(w)
+        elif w in _WEAK_NEG and w not in seen_w:
+            seen_w.append(w)
+    return seen_s, seen_w
+
+
+def classify(text: str) -> dict:
+    """One headline, scored and explained: sign, whether it is a hard distress signal, and
+    the exact words that triggered it. The UI uses this to cite what actually moved the score
+    rather than dumping a generic list."""
+    sign, strong = _sentiment(text)
+    strong_hits, weak_hits = _matched(text)
+    return {
+        "text": text, "sign": sign, "strong": strong,
+        "strong_hits": strong_hits, "weak_hits": weak_hits,
+        "moves_needle": strong or (sign < 0 and bool(weak_hits)),
+    }
+
+
 def news_signal(company_name: str, n: int = 18):
     """Return (risk_0_100, net_tone, headlines). Higher risk = more negative news."""
     heads = fetch_headlines(f"{company_name} share NSE", n)
@@ -78,3 +103,30 @@ def news_signal(company_name: str, n: int = 18):
         risk = max(risk, 55.0)
     tone = round((pos - neg) / directional, 2) if directional else 0.0
     return risk, tone, heads
+
+
+def news_evidence(company_name: str, n: int = 18) -> dict:
+    """Score the coverage AND explain it: the risk, the tone, counts, and every headline
+    classified so the UI can promote the needle-movers into cited evidence.
+
+    Returns {risk, tone, n, neg, pos, floored, cited, quiet} where `cited` are the headlines
+    that moved the score (hard distress words, or clearly negative), most severe first, and
+    `quiet` is everything else (the ambient count that should stay quiet)."""
+    heads = fetch_headlines(f"{company_name} share NSE", n)
+    if not heads:
+        return {"risk": float("nan"), "tone": float("nan"), "n": 0, "neg": 0, "pos": 0,
+                "floored": False, "cited": [], "quiet": []}
+    scored = [classify(h) for h in heads]
+    neg = sum(1 for s in scored if s["sign"] < 0)
+    pos = sum(1 for s in scored if s["sign"] > 0)
+    directional = neg + pos
+    risk = round(100 * neg / directional, 1) if directional else 0.0
+    floored = any(s["strong"] for s in scored)
+    if floored:
+        risk = max(risk, 55.0)
+    tone = round((pos - neg) / directional, 2) if directional else 0.0
+    cited = [s for s in scored if s["moves_needle"]]
+    cited.sort(key=lambda s: (s["strong"], len(s["strong_hits"]), len(s["weak_hits"])), reverse=True)
+    quiet = [s for s in scored if not s["moves_needle"]]
+    return {"risk": risk, "tone": tone, "n": len(heads), "neg": neg, "pos": pos,
+            "floored": floored, "cited": cited, "quiet": quiet}
