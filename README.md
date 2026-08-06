@@ -126,6 +126,8 @@ pip install -r requirements.txt
 streamlit run app/main.py
 ```
 
+A clean clone runs the whole app with nothing extra - the score is computed live, not loaded from a saved model. The `notebooks/` rebuild the ML benchmark from scratch (the UCI Polish set downloads on first run); the model comparison lives in `data/indian/README.md`.
+
 ## Scope
 
 A decision-support tool, not a substitute for professional analysis. It uses public data (Screener, Google News) fetched live; a production build would swap in licensed feeds. Share-price lines in Track Record are annual closes, indexed - direction, not tick data.
