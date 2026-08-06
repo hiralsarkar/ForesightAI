@@ -4481,6 +4481,32 @@ def llm_news_sentiment(company: str, headlines: list[str],
         return None
 
 
+_ANALYST_SYS = (
+    "You are a credit-risk analyst writing a short assessment of one listed company for a "
+    "lending and investment desk. Use ONLY the numbers given - never invent or recompute a "
+    "figure. Write 3 to 4 plain sentences: where the company sits on risk, what drives it in "
+    "the Altman decomposition, what the recent news adds, and one line on what to watch. No "
+    "hype, no hedging filler, no markdown."
+)
+
+
+def live_analyst_summary(company: str, altman_z: float, zone: str, combined_score: float,
+                         band: str, term_pairs: list, news_risk: float, news_rationale: str,
+                         model_prob, timeout: float = 15.0) -> Optional[str]:
+    """LLM analyst summary for a live-scored company, from pre-computed numbers only. Returns
+    None if the LLM is unavailable so the caller can fall back to the deterministic narrative."""
+    terms = "; ".join(f"{lbl} {c:+.2f}" for lbl, c in term_pairs if c == c) or "n/a"
+    mp = "n/a" if model_prob is None else f"{model_prob * 100:.0f}%"
+    nr = f"{news_risk:.0f}/100" if news_risk == news_risk else "n/a"
+    user = (f"Company: {company}\n"
+            f"Combined risk score: {combined_score:.0f}/100 ({band}).\n"
+            f"Altman Z (1968): {altman_z:.2f} ({zone}). Altman term contributions: {terms}.\n"
+            f"News distress risk: {nr}. News read: {news_rationale or 'no notable coverage'}.\n"
+            f"Learned model probability of distress: {mp}.\n"
+            "Write the assessment.")
+    return _chat(_ANALYST_SYS, user, timeout=timeout, max_tokens=280, temperature=0.35)
+
+
 # ------------------------------------------------------------ deterministic path
 def _band_clause(band: str) -> str:
     return {

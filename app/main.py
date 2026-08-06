@@ -375,23 +375,32 @@ def render_live(name: str) -> None:
         with st.status(f"Scoring {name} ...", expanded=True) as status:
             import screener_live
             import live_news
-            from foresight import original_z, risk_from_original_z, band_for
+            from foresight import (original_z, risk_from_original_z, band_for,
+                                   score_company, recommend, india_distress_probability)
             st.write("Fetching financials and market cap from Screener ...")
             fin, mcap = screener_live.fetch_financials(ticker)
+            fin.market_cap = mcap                    # so the engine uses the 1968 Altman Z
             z5, zone5, comps = original_z(fin, mcap)
             fin_risk = risk_from_original_z(z5)
+            finsc = score_company(fin)               # FinancialScore, same engine as tracked
+            model_p = india_distress_probability(fin)
             st.write("Fetching recent news and scoring sentiment ...")
             ev = live_news.news_evidence(name)
             heads = [c["text"] for c in ev["cited"]] + [q["text"] for q in ev["quiet"]]
             st.write("Reading the coverage for tone and severity ...")
             llm_sent = svc.live_llm_sentiment(name, tuple(heads))
             if llm_sent is not None:                 # magnitude-aware LLM read
-                news_risk, avg_sent = llm_sent["risk"], llm_sent["tone"]
+                news_risk, avg_sent, news_rationale = llm_sent["risk"], llm_sent["tone"], llm_sent["rationale"]
             else:                                    # lexicon fallback (no key / offline)
-                news_risk, avg_sent = ev["risk"], ev["tone"]
+                news_risk, avg_sent, news_rationale = ev["risk"], ev["tone"], ""
             combined = (round(0.6 * fin_risk + 0.4 * news_risk, 1)
                         if news_risk == news_risk else fin_risk)
             band = band_for(combined)
+            recs = recommend(fin, finsc, None)
+            st.write("Writing the analyst summary ...")
+            term_pairs = tuple((lbl, cn) for lbl, _c, _v, cn in comps)
+            summary = svc.live_analyst_summary(name, z5, zone5, combined, band, term_pairs,
+                                               news_risk, news_rationale, model_p)
             status.update(label=f"{fin.company} scored (FY{fin.year})",
                           state="complete", expanded=False)
     except Exception as exc:
@@ -417,13 +426,21 @@ def render_live(name: str) -> None:
             st.markdown(component_bar("News sentiment (live)",
                                       news_risk if news_risk == news_risk else None, 0.4),
                         unsafe_allow_html=True)
-            from foresight import india_distress_probability
-            st.markdown(_model_prob_html(india_distress_probability(fin)), unsafe_allow_html=True)
-            note = (f"Altman Z {z5:.2f} ({zone5}). "
+            st.markdown(_model_prob_html(model_p), unsafe_allow_html=True)
+            body = summary or (f"Altman Z {z5:.2f} ({zone5}). "
                     + (f"{len(heads)} recent headlines, average tone {avg_sent:+.2f}."
                        if heads else "No recent news found."))
-            st.markdown(f'<div class="fa-narrative" style="margin-top:12px">{note}</div>',
+            st.markdown(f'<div class="fa-narrative" style="margin-top:12px">{body}</div>',
                         unsafe_allow_html=True)
+
+    with panel():
+        section_title("Financial Health")
+        cards = svc.ratio_cards_fin(fin)
+        for col, card in zip(st.columns(len(cards)), cards):
+            color = theme.GOOD if card.good else theme.BAD
+            col.markdown(f'<div class="fa-card"><div class="lbl">{card.label}</div>'
+                         f'<div class="val" style="color:{color}">{card.value}</div>'
+                         f'<div class="ctx">{card.context}</div></div>', unsafe_allow_html=True)
 
     with panel():
         section_title(f"{fin.company} - FY{fin.year} (live from Screener)")
@@ -458,6 +475,19 @@ def render_live(name: str) -> None:
         st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.8rem;margin-top:8px">'
                     'The original 1968 Altman Z, using the live market value of equity - available '
                     'because these are listed companies.</div>', unsafe_allow_html=True)
+
+    if any(recs.values()):
+        with panel():
+            section_title("Recommendations")
+            for aud in recs:
+                if not recs[aud]:
+                    continue
+                st.markdown(f'<div class="fa-narrative" style="font-weight:600;margin-top:6px">'
+                            f'{aud.value}</div>', unsafe_allow_html=True)
+                for r in recs[aud]:
+                    st.markdown(f'<div class="fa-signal"><div class="name">{r.title}</div>'
+                                f'<div class="datum">{r.action}</div></div>',
+                                unsafe_allow_html=True)
 
     if ev["n"]:
         import re as _re

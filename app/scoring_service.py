@@ -85,6 +85,15 @@ def live_llm_sentiment(name: str, heads: tuple) -> Optional[dict]:
     return demo.llm_news_sentiment(name, list(heads))
 
 
+@st.cache_data(show_spinner=False)
+def live_analyst_summary(name: str, altman_z: float, zone: str, combined_score: float,
+                         band: str, term_pairs: tuple, news_risk: float,
+                         news_rationale: str, model_prob) -> Optional[str]:
+    """Cached LLM analyst summary for a live company. None if the LLM is unavailable."""
+    return demo.live_analyst_summary(name, altman_z, zone, combined_score, band,
+                                     list(term_pairs), news_risk, news_rationale, model_prob)
+
+
 # Sector labels -- single source of truth in demo_companies so the UI and the narrative
 # pre-warm produce identical prompts (and therefore identical cache keys).
 from foresight import SECTORS as _SECTOR
@@ -192,10 +201,17 @@ def _fmt(x: float, pct: bool = False, suffix: str = "") -> str:
 
 @st.cache_data(show_spinner=False)
 def ratio_cards(name: str) -> list[RatioCard]:
-    """Key financial ratios with one line of context each."""
+    """Key financial ratios with one line of context each (tracked roster)."""
     rec, prior = _ROSTER[name]
-    f = compute_features(rec, prior=prior)
+    return _cards_from_features(compute_features(rec, prior=prior))
 
+
+def ratio_cards_fin(fin) -> list[RatioCard]:
+    """The same ratio cards for any live-fetched company."""
+    return _cards_from_features(compute_features(fin))
+
+
+def _cards_from_features(f) -> list[RatioCard]:
     cards = []
     # Interest coverage
     ic = f.get("Attr27", float("nan"))
