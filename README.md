@@ -104,7 +104,7 @@ Five real failures, five sectors, each scored on its own historical financials f
 
 ## The honest pitch
 
-We do **not** claim to beat Altman - the financial engine *is* Altman. The value is making it **live, comprehensive, explainable, and validated on real history** - and one mechanism that is genuinely ours: a **hard-event floor**, where a default, an auditor exit or a tribunal taking over the board sets a risk floor that softer signals cannot average away, the way a credit desk treats a verified fact. We tested trained models too (see the notebooks): foreign bankruptcy data does not transfer to Indian balance sheets, and an India-trained model *matches* the formula rather than beating it - which is exactly why the trusted linear Altman score stays the anchor.
+We do **not** claim to beat Altman - the financial engine *is* Altman. The value is making it **live, comprehensive, explainable, and validated on real history** - and one mechanism that is genuinely ours: a **hard-event floor**, where a default, an auditor exit or a tribunal taking over the board sets a risk floor that softer signals cannot average away, the way a credit desk treats a verified fact. We tested trained models too (see the notebooks): foreign bankruptcy data does not transfer to Indian balance sheets, and an India-trained model *matches* the formula rather than beating it - which is exactly why the trusted linear Altman score stays the anchor. That India-trained logistic now ships alongside it: the app shows its **learned probability of distress** next to every score (leave-one-out ROC-AUC 0.97 on 21 companies - honest about the small sample).
 
 ## Under the hood
 

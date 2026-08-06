@@ -30,10 +30,17 @@ Training on Indian companies fixes it, because the scale and accounting finally 
 |---|---|
 | Polish (logistic) | 4 / 6 |
 | Taiwanese (logistic) | 3 / 6 |
-| **Indian (this set)** | **6 / 6** |
+| **Indian (this set)** | **5 / 6** |
 
-The India-trained model places all six correctly, including the borderline Vedanta (Watch)
-and the healthy TCS and Paytm (~9% risk).
+The India-trained model places five of the six correctly and reads Vedanta as borderline
+(Watch, P=0.48) rather than distress - arguably the fairer call for a heavily-levered but
+still-operating company. TCS and Paytm read healthy (~9%). Leave-one-out ROC-AUC is 0.97
+(see the caveat below).
+
+**Shipped, not just tested.** `train_india_model.py` now persists this fitted model to
+`models/india_logistic.json` (medians, standardisation stats and coefficients), and the app
+serves it with a pure-numpy forward pass - no scikit-learn in the cloud build. Every score
+in the app shows this learned probability of distress beside the Altman-based score.
 
 ## Honest limits
 
