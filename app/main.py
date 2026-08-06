@@ -382,8 +382,13 @@ def render_live(name: str) -> None:
             fin_risk = risk_from_original_z(z5)
             st.write("Fetching recent news and scoring sentiment ...")
             ev = live_news.news_evidence(name)
-            news_risk, avg_sent = ev["risk"], ev["tone"]
             heads = [c["text"] for c in ev["cited"]] + [q["text"] for q in ev["quiet"]]
+            st.write("Reading the coverage for tone and severity ...")
+            llm_sent = svc.live_llm_sentiment(name, tuple(heads))
+            if llm_sent is not None:                 # magnitude-aware LLM read
+                news_risk, avg_sent = llm_sent["risk"], llm_sent["tone"]
+            else:                                    # lexicon fallback (no key / offline)
+                news_risk, avg_sent = ev["risk"], ev["tone"]
             combined = (round(0.6 * fin_risk + 0.4 * news_risk, 1)
                         if news_risk == news_risk else fin_risk)
             band = band_for(combined)

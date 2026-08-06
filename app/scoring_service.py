@@ -78,6 +78,13 @@ def distress_probability(name: str) -> Optional[float]:
     return demo.india_distress_probability(rec, prior=prior)
 
 
+@st.cache_data(show_spinner=False)
+def live_llm_sentiment(name: str, heads: tuple) -> Optional[dict]:
+    """Magnitude-aware LLM sentiment for a live company's headlines; cached per headline set.
+    Returns None when the LLM is unavailable, so the caller keeps the lexicon score."""
+    return demo.llm_news_sentiment(name, list(heads))
+
+
 # Sector labels -- single source of truth in demo_companies so the UI and the narrative
 # pre-warm produce identical prompts (and therefore identical cache keys).
 from foresight import SECTORS as _SECTOR

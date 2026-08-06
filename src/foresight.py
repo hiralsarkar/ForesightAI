@@ -4412,6 +4412,75 @@ def _llm(f: NarrativeFacts, timeout: float = 15.0) -> Optional[str]:
     return None
 
 
+def _chat(system: str, user: str, timeout: float = 15.0, max_tokens: int = 400,
+          temperature: float = 0.3) -> Optional[str]:
+    """Generic single-turn OpenRouter call. Returns the reply text, or None on any failure
+    (no key, network error, non-200, empty) so every caller can fall back silently."""
+    key = openrouter_key()
+    if not key:
+        return None
+    import httpx
+    headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+    base = {"messages": [{"role": "system", "content": system},
+                         {"role": "user", "content": user}],
+            "max_tokens": max_tokens, "temperature": temperature}
+    for model in models():
+        try:
+            resp = httpx.post(OPENROUTER_URL, headers=headers,
+                              json={**base, "model": model}, timeout=timeout)
+            if resp.status_code != 200:
+                continue
+            text = (resp.json()["choices"][0]["message"]["content"] or "").strip()
+            if text:
+                return text
+        except Exception:
+            continue
+    return None
+
+
+_NEWS_SENT_SYS = (
+    "You are a credit-risk analyst reading news headlines about one listed company. Judge how "
+    "much the coverage signals genuine financial DISTRESS, and be strictly magnitude- and "
+    "context-aware. A routine market move - a 2-6% share dip, a small earnings miss, a single "
+    "analyst's lower target - is NOT distress and should score low. Real distress means "
+    "default, insolvency/NCLT, a rating downgrade, fraud or a probe, an auditor or board exit, "
+    "large sustained losses, or a steep sustained collapse. Positive or neutral coverage lowers "
+    "the risk. Do not over-react to a single dramatic word. Reply with STRICT JSON only."
+)
+
+
+def llm_news_sentiment(company: str, headlines: list[str],
+                       timeout: float = 15.0) -> Optional[dict]:
+    """Magnitude-aware news distress score via the LLM. Returns
+    {risk 0-100, tone -1..1, rationale, cited[]} or None if the LLM is unavailable, so the
+    caller keeps the rule-based lexicon score. This is what stops a 4% dip reading like a
+    collapse: the model weighs how bad the news actually is, not just that a word appeared."""
+    heads = [h for h in (headlines or []) if h][:18]
+    if not heads:
+        return None
+    listing = "\n".join(f"- {h}" for h in heads)
+    user = (f"Company: {company}\nRecent headlines:\n{listing}\n\n"
+            'Return JSON exactly: {"risk": <int 0-100, higher = more distress>, '
+            '"tone": <float -1..1, net tone>, "rationale": "<=25 words", '
+            '"cited": ["up to 3 headlines that genuinely signal distress; [] if none"]}')
+    text = _chat(_NEWS_SENT_SYS, user, timeout=timeout, max_tokens=320, temperature=0.2)
+    if not text:
+        return None
+    import json, re
+    m = re.search(r"\{.*\}", text, re.S)
+    if not m:
+        return None
+    try:
+        d = json.loads(m.group(0))
+        risk = max(0.0, min(100.0, float(d["risk"])))
+        tone = max(-1.0, min(1.0, float(d.get("tone", 0.0))))
+        cited = [str(x) for x in (d.get("cited") or []) if str(x).strip()][:3]
+        return {"risk": round(risk, 1), "tone": round(tone, 2),
+                "rationale": str(d.get("rationale", "")).strip()[:240], "cited": cited}
+    except Exception:
+        return None
+
+
 # ------------------------------------------------------------ deterministic path
 def _band_clause(band: str) -> str:
     return {
