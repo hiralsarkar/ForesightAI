@@ -437,14 +437,16 @@ def render_live(name: str) -> None:
             f'<span style="color:{theme.TEXT_DIM};font-weight:400;font-size:0.85rem">'
             f'(safe &gt; 2.99, grey 1.81-2.99, distress &lt; 1.81; D uses live market value of '
             f'equity)</span></div>', unsafe_allow_html=True)
-        maxc = max((abs(cn) for *_, cn in comps), default=1.0) or 1.0
+        maxc = max((abs(cn) for *_, cn in comps if cn == cn), default=1.0) or 1.0
         for lbl, coef, val, contrib in comps:
-            col = theme.GOOD if contrib > 0 else theme.BAD
-            w = int(abs(contrib) / maxc * 220)
+            nan = contrib != contrib  # NaN when a ratio can't be built (e.g. a bank)
+            col = theme.GOOD if (not nan and contrib > 0) else theme.BAD
+            w = 0 if nan else int(abs(contrib) / maxc * 220)
             vtxt = "n/a" if val != val else f"{val:+.2f}"
+            ctxt = "n/a" if nan else f"{contrib:+.2f}"
             st.markdown(f'<div class="fa-term"><div class="tl">{lbl}</div>'
                         f'<div class="bar" style="width:{w}px;background:{col}"></div>'
-                        f'<div class="tv">{coef} &times; {vtxt} = {contrib:+.2f}</div></div>',
+                        f'<div class="tv">{coef} &times; {vtxt} = {ctxt}</div></div>',
                         unsafe_allow_html=True)
         st.markdown(f'<div style="color:{theme.TEXT_DIM};font-size:0.8rem;margin-top:8px">'
                     'The original 1968 Altman Z, using the live market value of equity - available '
