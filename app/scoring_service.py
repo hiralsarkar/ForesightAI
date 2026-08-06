@@ -82,7 +82,11 @@ def distress_probability(name: str) -> Optional[float]:
 def live_llm_sentiment(name: str, heads: tuple) -> Optional[dict]:
     """Magnitude-aware LLM sentiment for a live company's headlines; cached per headline set.
     Returns None when the LLM is unavailable, so the caller keeps the lexicon score."""
-    return demo.llm_news_sentiment(name, list(heads))
+    try:
+        return demo.llm_news_sentiment(name, list(heads), timeout=6.0)
+    except Exception:
+        # The live Altman calculation always takes precedence over enrichment.
+        return None
 
 
 @st.cache_data(show_spinner=False)
@@ -90,8 +94,12 @@ def live_analyst_summary(name: str, altman_z: float, zone: str, combined_score: 
                          band: str, term_pairs: tuple, news_risk: float,
                          news_rationale: str, model_prob) -> Optional[str]:
     """Cached LLM analyst summary for a live company. None if the LLM is unavailable."""
-    return demo.live_analyst_summary(name, altman_z, zone, combined_score, band,
-                                     list(term_pairs), news_risk, news_rationale, model_prob)
+    try:
+        return demo.live_analyst_summary(name, altman_z, zone, combined_score, band,
+                                         list(term_pairs), news_risk, news_rationale,
+                                         model_prob, timeout=6.0)
+    except Exception:
+        return None
 
 
 # Sector labels -- single source of truth in demo_companies so the UI and the narrative
