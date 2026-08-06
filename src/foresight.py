@@ -4386,7 +4386,12 @@ def _llm(f: NarrativeFacts, timeout: float = 15.0) -> Optional[str]:
     if not key:
         return None
 
-    import httpx
+    # AI prose is optional. A lean Streamlit deployment may not yet have the
+    # optional HTTP client installed, which must not stop financial scoring.
+    try:
+        import httpx
+    except ImportError:
+        return None
 
     payload_base = {
         "messages": [
@@ -4419,7 +4424,10 @@ def _chat(system: str, user: str, timeout: float = 15.0, max_tokens: int = 400,
     key = openrouter_key()
     if not key:
         return None
-    import httpx
+    try:
+        import httpx
+    except ImportError:
+        return None
     headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
     base = {"messages": [{"role": "system", "content": system},
                          {"role": "user", "content": user}],

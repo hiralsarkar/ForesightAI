@@ -8,5 +8,6 @@ numpy<2
 scikit-learn
 imbalanced-learn
 reportlab
+httpx
 requests
 lxml
