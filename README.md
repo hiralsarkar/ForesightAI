@@ -7,12 +7,12 @@
   <img src="https://img.shields.io/badge/Streamlit-live%20app-FF4B4B?logo=streamlit&logoColor=white">
   <img src="https://img.shields.io/badge/Plotly-interactive-3F4F75?logo=plotly&logoColor=white">
   <img src="https://img.shields.io/badge/data-Screener%20%2B%20Google%20News-22C55E">
-  <img src="https://img.shields.io/badge/license-MIT-F59E0B">
+  <img src="https://img.shields.io/badge/license-all%20rights%20reserved-F59E0B">
 </p>
 
 <h3 align="center">See corporate distress before the annual accounts admit it.</h3>
 
-<p align="center"><b>Foresight AI</b> turns any listed Indian company into a single, explainable <b>0-100 risk score</b> — the classic Altman Z-Score fused with the market signals that move <i>before</i> the books do: credit ratings, leadership changes, news, hiring and employee sentiment.</p>
+<p align="center"><b>Foresight AI</b> turns any listed Indian company into a single, explainable <b>0-100 risk score</b> - the classic Altman Z-Score fused with the market signals that move <i>before</i> the books do: credit ratings, leadership changes, news, hiring and employee sentiment.</p>
 
 <p align="center">
   <a href="https://foresightai.streamlit.app"><b>▶&nbsp; Open the live app</b></a> &nbsp;·&nbsp; <code>streamlit run app/main.py</code>
@@ -117,10 +117,7 @@ data/indian/           scraped Indian training set + NCLT labels + the historica
 notebooks/             the model-building and evaluation story
 deck/                  the 5-slide pitch deck
 REPORT.md              the formal project report
-UNDERSTANDING.md       complete technical guide - read this to understand everything
 ```
-
-> **New here?** [**UNDERSTANDING.md**](UNDERSTANDING.md) explains the whole system from zero - data, engine, models, diagrams, and an easy/medium/hard question bank.
 
 **Quickstart**
 

@@ -3195,7 +3195,7 @@ Derived intermediates:
     working_capital = Working Capital Days * Sales / 365   (recovers WC without the
                       current-asset breakdown)
 
-**⚠️ Structural vs informative missingness.**
+**Structural vs informative missingness.**
 In training, a missing feature was *informative* -- distressed Polish firms failed to
 report. Here, the current-ratio family is missing *structurally* -- Screener never
 breaks it out, for healthy and distressed companies alike. If the model learned

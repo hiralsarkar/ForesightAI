@@ -103,13 +103,13 @@ flowchart TB
 | Requirement | Where |
 |---|---|
 | **Presentation (5-6 slides)** | `deck/ForesightAI.pptx` (5 slides; a clickable live-app link on the last slide) |
-| **Dataset** | `data/indian/` (`companies.csv` - 21 firms; `nclt_cases.csv` - insolvency labels; see `data/indian/README.md`), `data/raw/` (Polish ARFF benchmark), plus **live** Screener financials and Google News |
-| **Codes** | `src/` (engine + live data), `app/` (dashboard), `notebooks/` (model building & evaluation), `tools/` |
+| **Dataset** | `data/indian/` (`companies.csv` - 21 firms; `nclt_cases.csv` - insolvency labels; see `data/indian/README.md`), the UCI Polish bankruptcy benchmark (downloaded on first run), plus **live** Screener financials and Google News |
+| **Codes** | `src/` (engine + live data), `app/` (dashboard), `notebooks/` (model building & evaluation) |
 
 **Run locally:** `streamlit run app/main.py`
 
 ## Current status
 
 - **Code:** complete and running; four-tab dashboard, five-signal fusion, Track Record validation, editable portfolio. Verified locally with no errors.
-- **Deployment:** the Streamlit Cloud app auto-redeploys on each push; if the live link shows only the "Hosted with Streamlit" shell, the app is asleep or rebuilding - reboot it from [share.streamlit.io](https://share.streamlit.io).
+- **Deployment:** the Streamlit Cloud app auto-redeploys on each push and is live at [foresightai.streamlit.app](https://foresightai.streamlit.app).
 - **Deck:** regenerated to the comprehensiveness story with a working live-dashboard hyperlink.
