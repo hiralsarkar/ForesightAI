@@ -3974,6 +3974,51 @@ def fuse(
         narrative=_narrative(financial.company, fin_score, dig_score, combined),
     )
 
+
+# --- Learned distress probability -------------------------------------------------------
+# The comprehensive score above blends a formula (Altman) with dated signals on weights a
+# credit desk would recognise. The one place the system *learns* from outcomes is here: a
+# logistic regression over Altman's four ratios, re-fit on NCLT-labelled Indian companies
+# (data/indian/). It is served from a plain-JSON artifact so the cloud build needs no
+# sklearn; data/indian/train_india_model.py regenerates it and checks numpy/sklearn parity.
+
+def _india_logistic_model():
+    import json, functools
+    from pathlib import Path
+    cache = getattr(_india_logistic_model, "_cache", ...)
+    if cache is not ...:
+        return cache
+    try:
+        p = Path(__file__).resolve().parents[1] / "models" / "india_logistic.json"
+        cache = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        cache = None
+    _india_logistic_model._cache = cache
+    return cache
+
+
+def india_distress_probability(fin: "ScreenerFinancials", prior=None) -> Optional[float]:
+    """Learned probability that an Indian company is in distress, 0-1.
+
+    A logistic regression over Altman's four ratios, trained on NCLT-labelled outcomes
+    (leave-one-out ROC-AUC 0.97 on 21 companies -- optimistic on a set this small, see
+    data/indian/README.md). Returns None if the artifact is missing or any of the four
+    ratios cannot be built for this company: we do not median-fill a live company into a
+    confident number. Probabilities sit on the balanced training prior, not the base rate.
+    """
+    import math
+    m = _india_logistic_model()
+    if m is None:
+        return None
+    fe = compute_features(fin, prior=prior)
+    z = m["intercept"]
+    for c, mean, scale, coef in zip(m["features"], m["mean"], m["scale"], m["coef"]):
+        v = fe.get(c)
+        if v is None or (isinstance(v, float) and math.isnan(v)):
+            return None
+        z += coef * (float(v) - mean) / scale
+    return round(1.0 / (1.0 + math.exp(-z)), 4)
+
 """Macroeconomic Stress Testing.
 
 Maps macro shocks to a company's Altman-anchored risk score through explicit

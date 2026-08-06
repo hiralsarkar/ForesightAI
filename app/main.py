@@ -96,10 +96,21 @@ def component_bar(label: str, value, weight: float) -> str:
 
 
 # =================================================================== Company Analysis
+def _model_prob_html(p) -> str:
+    """One line for the learned distress model, or '' when it can't score this company."""
+    if p is None:
+        return ""
+    return (f'<div class="fa-narrative" style="margin-top:12px">'
+            f'<b>Learned distress model:</b> {p * 100:.0f}% probability &middot; a logistic '
+            f'model re-fitting the Altman ratios on NCLT-labelled Indian outcomes '
+            f'(leave-one-out ROC-AUC 0.97, n=21). Trained, not hand-set.</div>')
+
+
 def render_company(company: str) -> None:
     c = svc.combined(company)
     fin = svc.financial(company)
     dig = svc.digital(company)
+    model_p = svc.distress_probability(company)
 
     g1, g2 = st.columns([2, 3])
     with g1:
@@ -118,6 +129,7 @@ def render_company(company: str) -> None:
                         unsafe_allow_html=True)
             st.markdown(f'<div class="fa-narrative" style="margin-top:14px">{c.narrative}</div>',
                         unsafe_allow_html=True)
+            st.markdown(_model_prob_html(model_p), unsafe_allow_html=True)
 
     # financial cards
     with panel():
@@ -398,6 +410,8 @@ def render_live(name: str) -> None:
             st.markdown(component_bar("News sentiment (live)",
                                       news_risk if news_risk == news_risk else None, 0.4),
                         unsafe_allow_html=True)
+            from foresight import india_distress_probability
+            st.markdown(_model_prob_html(india_distress_probability(fin)), unsafe_allow_html=True)
             note = (f"Altman Z {z5:.2f} ({zone5}). "
                     + (f"{len(heads)} recent headlines, average tone {avg_sent:+.2f}."
                        if heads else "No recent news found."))

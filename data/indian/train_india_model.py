@@ -7,7 +7,7 @@ and checks it on the six demo companies in the app.
 Run from the repo root:  .venv/Scripts/python.exe data/indian/train_india_model.py
 Grow the dataset by adding rows to companies.csv and re-running.
 """
-import csv, pathlib, sys
+import csv, json, pathlib, sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "src"))
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -51,6 +51,43 @@ def main():
           f"ROC-AUC {roc_auc_score(y, oof):.3f}")
 
     pipe.fit(X, y)
+
+    # Persist the fitted model as a plain-JSON artifact the app can serve without sklearn
+    # (requirements.txt is kept lean on purpose). We store the medians, the standardisation
+    # stats and the logistic coefficients, then verify a pure-numpy forward pass reproduces
+    # sklearn's predict_proba exactly before writing anything.
+    imp, scaler, logit = pipe.steps[0][1], pipe.steps[1][1], pipe.steps[2][1]
+    medians = imp.statistics_
+    mean, scale = scaler.mean_, scaler.scale_
+    coef, intercept = logit.coef_[0], float(logit.intercept_[0])
+
+    Ximp = np.where(np.isnan(X), medians, X)
+    z = (Ximp - mean) / scale @ coef + intercept
+    ours = 1.0 / (1.0 + np.exp(-z))
+    ref = pipe.predict_proba(X)[:, 1]
+    assert np.allclose(ours, ref, atol=1e-9), "numpy forward pass does not match sklearn"
+    print("numpy/sklearn parity: OK (max diff "
+          f"{np.max(np.abs(ours - ref)):.2e})")
+
+    artifact = {
+        "model": "logistic_regression",
+        "note": "Altman's four ratios re-fit on NCLT-labelled Indian companies. "
+                "Probabilities are on the balanced training prior, not the base rate.",
+        "features": FEATS,
+        "medians": medians.tolist(),
+        "mean": mean.tolist(),
+        "scale": scale.tolist(),
+        "coef": coef.tolist(),
+        "intercept": intercept,
+        "n": int(len(y)),
+        "n_distress": int(y.sum()),
+        "loo_roc_auc": round(float(roc_auc_score(y, oof)), 4),
+        "loo_pr_auc": round(float(average_precision_score(y, oof)), 4),
+    }
+    out = HERE.parents[1] / "models" / "india_logistic.json"
+    out.write_text(json.dumps(artifact, indent=2), encoding="utf-8")
+    print(f"Saved {out.relative_to(HERE.parents[1])}")
+
     print("\nTest on the six demo companies (held out of training):")
     npass = 0
     for fin, prior, expect in f.ROSTER:

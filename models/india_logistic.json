@@ -1,0 +1,39 @@
+{
+  "model": "logistic_regression",
+  "note": "Altman's four ratios re-fit on NCLT-labelled Indian companies. Probabilities are on the balanced training prior, not the base rate.",
+  "features": [
+    "Attr3",
+    "Attr6",
+    "Attr7",
+    "Attr8"
+  ],
+  "medians": [
+    -0.08465777538540402,
+    0.28828130675901487,
+    0.07802640675851137,
+    0.5256910284644041
+  ],
+  "mean": [
+    -0.2764605631027398,
+    -0.17229535720625155,
+    -0.02797679022212231,
+    0.7010982452605121
+  ],
+  "scale": [
+    0.601655026035175,
+    1.1856223849880025,
+    0.5429430675749646,
+    1.09788018561696
+  ],
+  "coef": [
+    -0.7998150810370241,
+    -0.7709669213017102,
+    -0.6415975336355194,
+    -1.229351821565043
+  ],
+  "intercept": 0.1160786665331278,
+  "n": 21,
+  "n_distress": 9,
+  "loo_roc_auc": 0.9722,
+  "loo_pr_auc": 0.9722
+}

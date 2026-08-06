@@ -71,6 +71,13 @@ def combined(name: str) -> CombinedRisk:
     return fuse(financial(name), digital(name))
 
 
+@st.cache_data(show_spinner=False)
+def distress_probability(name: str) -> Optional[float]:
+    """Learned P(distress) from the India-trained logistic model. None if unavailable."""
+    rec, prior = _ROSTER[name]
+    return demo.india_distress_probability(rec, prior=prior)
+
+
 # Sector labels -- single source of truth in demo_companies so the UI and the narrative
 # pre-warm produce identical prompts (and therefore identical cache keys).
 from foresight import SECTORS as _SECTOR
