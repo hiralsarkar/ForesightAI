@@ -30,7 +30,7 @@ Distress is rarely a surprise - the warning signs are public for months. But tod
 - **Scattered** - a rating cut here, an auditor exit there, a board resignation somewhere else.
 - **Manual** - analysts read filings one company at a time.
 
-Financial-only models like Altman Z are trusted but blind to everything that has not yet hit the accounts. **Unitech read "Safe" on Altman for years while its promoters were being arrested. Future Retail scored Safe the year before it defaulted.** Foresight AI closes that gap.
+Financial-only models like Altman Z are trusted but blind to everything that has not yet hit the accounts. **Unitech read "Safe" on Altman for years while its promoters were being arrested. Future Retail scored Safe in FY2019 while its debt and control crisis was already public - years before its 2022 insolvency.** Foresight AI closes that gap.
 
 ## What you get - a four-tab dashboard
 

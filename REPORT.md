@@ -24,7 +24,7 @@ Credit and investment desks need to know **which companies are heading for distr
 - **Scattered.** The warning signs - a rating downgrade, an auditor resignation, a board exit, a run of negative news - each land in a different place, and nobody joins them up in time.
 - **Manual.** Analysts read filings one company at a time, so the slowest, riskiest names get watched last.
 
-Classic distress models such as the **Altman Z-Score** are trusted but **financial-only**: they score the balance sheet and miss everything that has not yet hit the accounts. The result is a real gap - companies like **Unitech** read "Safe" on Altman for years while their promoters were being arrested, and **Future Retail** scored Safe the year before it defaulted.
+Classic distress models such as the **Altman Z-Score** are trusted but **financial-only**: they score the balance sheet and miss everything that has not yet hit the accounts. The result is a real gap - companies like **Unitech** read "Safe" on Altman for years while their promoters were being arrested, and **Future Retail** scored Safe in FY2019 while its debt and control crisis was already public - years before its 2022 insolvency.
 
 **The problem:** give any listed company a single, explainable risk score that combines the financial picture with the market signals that move before the accounts do.
 
