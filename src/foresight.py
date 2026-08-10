@@ -1822,7 +1822,7 @@ report. Here, the current-ratio family is missing *structurally* -- Screener nev
 breaks it out, for healthy and distressed companies alike. If the model learned
 "feature missing -> distress" and every Indian firm is missing the same features, every
 Indian score gets a systematic upward nudge. This module cannot fix that; it only
-surfaces it. The gate is `validate_healthy_controls()` downstream: healthy companies
+surfaces it. The check is `validate_roster()`: the healthy control names (TCS, Paytm)
 must land in the healthy band, or the structural-NaN features must be neutralised on the
 serving path. Do not trust any Indian score until that passes.
 """

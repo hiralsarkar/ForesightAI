@@ -299,6 +299,12 @@ def render_portfolio() -> None:
                     'full five-signal pulse; others are scored on financials and news.</div>',
                     unsafe_allow_html=True)
 
+        st.markdown(
+            f'<div style="display:inline-block;background:{theme.ACCENT}1A;border:1px solid '
+            f'{theme.ACCENT};border-radius:8px;padding:6px 14px;margin:4px 0 10px;'
+            f'color:{theme.ACCENT};font-weight:700;font-size:0.92rem">'
+            '&#9654;&nbsp; Pick a company below, then press <u>Add</u></div>',
+            unsafe_allow_html=True)
         addable = [n for n in NSE_TOP if n not in ss.pf_pool]
         cadd, cbtn = st.columns([5, 1])
         addname = cadd.selectbox("add", ["- add any other NSE company (scored live) -"] + addable,
@@ -864,9 +870,9 @@ def render_overview() -> None:
     with panel():
         section_title("Proven on real collapses")
         proof = [
-            ("4 years", "earlier than Altman on Unitech - flagged the year the promoters were arrested."),
-            ("Safe -> crash", "Altman scored Future Retail Safe the year before it defaulted."),
-            ("Both ways", "It also reads recovery - Suzlon's turn back to the safe zone."),
+            ("2+ years", "earlier on Unitech - the comprehensive score flagged distress before the board was displaced, while Altman still read Safe/Grey."),
+            ("Safe on paper", "Altman read Future Retail Safe in FY2019 while its debt and control crisis was already public."),
+            ("Both ways", "It reads recovery too - Suzlon's turn back to the safe zone before the accounts confirmed it."),
         ]
         for col, (big, t) in zip(st.columns(3), proof):
             col.markdown(
@@ -890,6 +896,12 @@ def render_live_scoring() -> None:
         st.markdown('<div class="fa-headline">Score any listed company. The six tracked names carry '
                     'the full five-signal market pulse; any other NSE company is fetched and scored '
                     'live on its financials and news.</div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div style="display:inline-block;background:{theme.ACCENT}1A;border:1px solid '
+            f'{theme.ACCENT};border-radius:8px;padding:6px 14px;margin:4px 0 10px;'
+            f'color:{theme.ACCENT};font-weight:700;font-size:0.92rem">'
+            '&#9654;&nbsp; Pick a company below, then press <u>Score</u></div>',
+            unsafe_allow_html=True)
         c1, c2 = st.columns([5, 1])
         opts = ["- select a company -"] + [t + TAG for t in tracked] + others
         sel = c1.selectbox("scoring_company", opts, label_visibility="collapsed", key="score_pick")
