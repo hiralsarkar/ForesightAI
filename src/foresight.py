@@ -3245,12 +3245,15 @@ def generate(
     sector: str = "",
     use_llm: bool = True,
     use_cache: bool = True,
+    live: bool = True,
 ) -> tuple[str, str]:
     """Return `(narrative, source)` where source is 'llm' or 'rule-based'.
 
     Resolution order: pre-generated cache -> live LLM (and cache the result) -> rule-based.
     Never raises and never depends on the network when the cache is warm, which is what
-    makes the live demo safe offline.
+    makes the live demo safe offline. With `live=False` the live LLM call is skipped
+    entirely (cache -> rule-based), so the request path never blocks on the network -- used
+    for the pre-warmed tracked roster, where a cache miss should degrade instantly.
     """
     facts = collect_facts(combined, fin, digital, sector)
     if use_llm:
@@ -3259,10 +3262,11 @@ def generate(
             cached = _load_cache().get(key)
             if cached:
                 return cached, "llm"
-        text = _llm(facts)
-        if text:
-            _store_cache(key, text)
-            return text, "llm"
+        if live:
+            text = _llm(facts)
+            if text:
+                _store_cache(key, text)
+                return text, "llm"
     return _fallback(facts), "rule-based"
 
 

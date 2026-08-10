@@ -179,11 +179,18 @@ def render_company(company: str) -> None:
         st.markdown(f'<div class="fa-narrative" style="margin-top:12px">{fin_narrative(fin)}</div>',
                     unsafe_allow_html=True)
 
-    # report download
-    st.download_button(
-        "Generate Executive Report (PDF)", data=svc.report_pdf(company),
-        file_name=f"ForesightAI_{company.replace(' ', '_')}.pdf", mime="application/pdf",
-        key=f"dl_{company}")
+    # report download - built on demand so opening a company stays instant (the PDF is a
+    # heavier reportlab render; most users never download it, so it should not block the page)
+    pdf_ready = f"pdf_ready_{company}"
+    if st.button("Generate Executive Report (PDF)", key=f"pdfbtn_{company}"):
+        st.session_state[pdf_ready] = True
+    if st.session_state.get(pdf_ready):
+        with st.spinner("Building the executive report ..."):
+            pdf_bytes = svc.report_pdf(company)
+        st.download_button(
+            "Download the report", data=pdf_bytes,
+            file_name=f"ForesightAI_{company.replace(' ', '_')}.pdf", mime="application/pdf",
+            key=f"dl_{company}")
 
     # AI narrative
     text, source = svc.narrative(company)

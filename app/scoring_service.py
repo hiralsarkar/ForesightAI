@@ -139,7 +139,10 @@ def narrative(name: str) -> tuple[str, str]:
     """AI narrative + its source ('llm' or 'rule-based'). Never raises."""
     from foresight import generate
 
-    return generate(combined(name), financial(name), digital(name), _SECTOR.get(name, ""))
+    # Tracked companies rely on the pre-warmed narrative cache; on a miss, fall back to the
+    # rule-based narrative instantly rather than blocking the page on a live LLM call.
+    return generate(combined(name), financial(name), digital(name), _SECTOR.get(name, ""),
+                    live=False)
 
 
 @st.cache_data(show_spinner=False)
