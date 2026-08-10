@@ -71,7 +71,7 @@ def main():
 
     artifact = {
         "model": "logistic_regression",
-        "note": "Altman's four ratios re-fit on NCLT-labelled Indian companies. "
+        "note": "Altman's four ratios re-fit on Indian companies labelled by real insolvency outcomes. "
                 "Probabilities are on the balanced training prior, not the base rate.",
         "features": FEATS,
         "medians": medians.tolist(),

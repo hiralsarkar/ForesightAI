@@ -5,10 +5,11 @@ market it actually scores - which foreign datasets (Polish, Taiwanese) could not
 
 ## Files
 
-- `nclt_cases.csv` - the label source: 832 insolvency petitions disposed by the NCLT/NCLAT
-  under the Insolvency and Bankruptcy Code, hand-collected by the IGIDR Finance Research
-  Group ([ifrogs.org](https://ifrogs.org/releases/nclt_data.html)). This identifies which
-  companies went into distress.
+- `nclt_cases.csv` - the labelling reference: 832 insolvency petitions disposed by the
+  NCLT/NCLAT under the Insolvency and Bankruptcy Code, hand-collected by the IGIDR Finance
+  Research Group ([ifrogs.org](https://ifrogs.org/releases/nclt_data.html)). It grounds
+  which kinds of companies enter distress; the 9 distressed names in `companies.csv` are
+  hand-assigned from public insolvency/default outcomes (several appear in this register).
 - `companies.csv` - 21 listed companies (12 healthy, 9 distressed) with their latest-year
   financials scraped from [Screener.in](https://www.screener.in). The distressed set is
   drawn from known insolvency/default cases whose current financials still show the distress

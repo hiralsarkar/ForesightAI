@@ -235,7 +235,42 @@ async function icon(name, hex, px = 300) {
   s.addText("The amber block is the risk Altman alone misses - only the comprehensive score shows it.",
     { x: PL, y: PT + PH + 0.06, w: PW, h: 0.3, fontFace: F, fontSize: 10.5, italic: true, color: DIM });
 
-  // ============================================================ SLIDE 5 - VALUE + CTA
+  // ============================================================ SLIDE 5 - KEY FINDINGS (measured)
+  s = p.addSlide(); bg(s);
+  s.addText([
+    { text: "What the numbers ", options: { color: WHITE } },
+    { text: "actually say", options: { color: AMBER } },
+  ], { x: 0.85, y: 0.55, w: 11.7, h: 0.7, fontFace: F, fontSize: 33, bold: true });
+  s.addText("Four findings, each reproducible from the notebooks - a measurement, not a story.",
+    { x: 0.87, y: 1.34, w: 11.6, h: 0.4, fontFace: F, fontSize: 15.5, color: DIM });
+
+  const finds = [
+    ["FiActivity", "8 / 9", "caught at zero false alarms",
+     "Across 12 healthy blue-chips and 9 firms that failed, a threshold that flags NO healthy name still catches 8 of the 9 failures. Median distress probability 0.83 vs 0.13 (leave-one-out ROC-AUC 0.97)."],
+    ["FiClock", "27 months", "median early warning",
+     "The comprehensive score crosses into high risk a median 27 months before insolvency - 6 months earlier than Altman. Unitech: 26 months, where Altman never warned in time."],
+    ["FiZap", "76 -> 78", "the hard-event floor binds",
+     "SpiceJet's verified auditor exit floors the signal pulse - a fact that softer, tone-based signals cannot average away. It stays inert on the healthy names."],
+    ["FiGrid", "50/50 = 60/40 = 70/30", "robust to its weights",
+     "The worst-to-best risk ranking of the six tracked names is identical across all three blends - the signals drive the read, not the exact weighting."],
+  ];
+  const fx0 = 0.85, fw = 5.85, fstep = fw + 0.75, fy0 = 2.05, fyStep = 2.28, fhh = 2.05;
+  finds.forEach(([ic, stat, hd, tx], i) => {
+    const col = i % 2, row = (i / 2) | 0;
+    const x = fx0 + col * fstep, y = fy0 + row * fyStep;
+    panel(s, x, y, fw, fhh, (row === 0 && col === 0) ? PANEL2 : PANEL, BORDER);
+    iconCircle(s, x + 0.28, y + 0.28, 0.62, NAV[ic]);
+    s.addText(stat, { x: x + 1.05, y: y + 0.18, w: fw - 1.25, h: 0.62, fontFace: F,
+      fontSize: stat.length > 11 ? 19 : 30, bold: true, color: AMBER, valign: "middle" });
+    s.addText(hd, { x: x + 0.3, y: y + 0.9, w: fw - 0.6, h: 0.3, fontFace: F, fontSize: 13, bold: true, color: WHITE });
+    s.addText(tx, { x: x + 0.3, y: y + 1.2, w: fw - 0.6, h: 0.78, fontFace: F, fontSize: 11.5, color: DIM, lineSpacingMultiple: 1.05 });
+  });
+  s.addText([
+    { text: "Reproducible:  ", options: { color: AMBER, bold: true } },
+    { text: "notebooks/04_findings.ipynb  -  runs on the base requirements, no heavy ML deps.", options: { color: DIM } },
+  ], { x: 0.87, y: 6.65, w: 11.6, h: 0.35, fontFace: F, fontSize: 12 });
+
+  // ============================================================ SLIDE 6 - VALUE + CTA
   s = p.addSlide(); bg(s);
   s.addText([
     { text: "A live risk analyst for ", options: { color: WHITE } },

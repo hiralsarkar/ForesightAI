@@ -1,6 +1,6 @@
 {
   "model": "logistic_regression",
-  "note": "Altman's four ratios re-fit on NCLT-labelled Indian companies. Probabilities are on the balanced training prior, not the base rate.",
+  "note": "Altman's four ratios re-fit on Indian companies labelled by real insolvency outcomes. Probabilities are on the balanced training prior, not the base rate.",
   "features": [
     "Attr3",
     "Attr6",

@@ -126,7 +126,7 @@ pip install -r requirements.txt
 streamlit run app/main.py
 ```
 
-A clean clone runs the whole app with nothing extra - the score is computed live, not loaded from a saved model. The `notebooks/` rebuild the ML benchmark from scratch (the UCI Polish set downloads on first run); the model comparison lives in `data/indian/README.md`.
+A clean clone runs the whole app with nothing extra - the score is computed live, not loaded from a saved model. The `notebooks/` rebuild the ML benchmark from scratch (place the UCI Polish set, UCI id 365, into `data/raw/` once - the loader prints the link if it is missing); the model comparison lives in `data/indian/README.md`.
 
 ## Scope
 

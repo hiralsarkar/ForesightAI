@@ -1028,6 +1028,17 @@ def leadership_score_as_of(
     weighted = sum(_EXIT_WEIGHT.get(e.role, 1.0) for e in exits)
     risk = clamp_score(_BASELINE + weighted * _POINTS_PER_WEIGHT)
 
+    # A verified auditor exit or board suspension is a hard governance fact, so the reading
+    # itself is floored to the red band: a single such event must read as the warning it is
+    # in practice (an auditor walking out has preceded most Indian collapses) rather than the
+    # ~42 a lone senior exit would otherwise score. This is what lets a hard event floor the
+    # composite when the softer signals disagree. Board suspension already reaches ~96 through
+    # its seniority weight; the floor makes that explicit and covers the auditor-exit case.
+    if any(e.verified and e.event_type is EventType.BOARD_SUSPENSION for e in exits):
+        risk = max(risk, 95.0)
+    elif any(e.verified and e.event_type is EventType.AUDITOR_EXIT for e in exits):
+        risk = max(risk, 78.0)
+
     n = len(exits)
     if any(e.event_type is EventType.BOARD_SUSPENSION for e in exits):
         label = "Board displaced"      # not "churn" -- the board stopped governing
@@ -3978,8 +3989,9 @@ def fuse(
 # --- Learned distress probability -------------------------------------------------------
 # The comprehensive score above blends a formula (Altman) with dated signals on weights a
 # credit desk would recognise. The one place the system *learns* from outcomes is here: a
-# logistic regression over Altman's four ratios, re-fit on NCLT-labelled Indian companies
-# (data/indian/). It is served from a plain-JSON artifact so the cloud build needs no
+# logistic regression over Altman's four ratios, re-fit on Indian companies labelled by
+# real insolvency outcomes (data/indian/). It is served from a plain-JSON artifact so the
+# cloud build needs no
 # sklearn; data/indian/train_india_model.py regenerates it and checks numpy/sklearn parity.
 
 def _india_logistic_model():
@@ -4000,8 +4012,8 @@ def _india_logistic_model():
 def india_distress_probability(fin: "ScreenerFinancials", prior=None) -> Optional[float]:
     """Learned probability that an Indian company is in distress, 0-1.
 
-    A logistic regression over Altman's four ratios, trained on NCLT-labelled outcomes
-    (leave-one-out ROC-AUC 0.97 on 21 companies -- optimistic on a set this small, see
+    A logistic regression over Altman's four ratios, trained on real Indian insolvency
+    outcomes (leave-one-out ROC-AUC 0.97 on 21 companies -- optimistic on a set this small, see
     data/indian/README.md). Returns None if the artifact is missing or any of the four
     ratios cannot be built for this company: we do not median-fill a live company into a
     confident number. Probabilities sit on the balanced training prior, not the base rate.

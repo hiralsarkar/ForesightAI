@@ -102,7 +102,7 @@ def _model_prob_html(p) -> str:
         return ""
     return (f'<div class="fa-narrative" style="margin-top:12px">'
             f'<b>Learned distress model:</b> {p * 100:.0f}% probability &middot; a logistic '
-            f'model re-fitting the Altman ratios on NCLT-labelled Indian outcomes '
+            f'model re-fitting the Altman ratios on real Indian insolvency outcomes '
             f'(leave-one-out ROC-AUC 0.97, n=21). Trained, not hand-set.</div>')
 
 

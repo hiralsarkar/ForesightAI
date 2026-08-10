@@ -1,0 +1,8 @@
+# Extra dependencies to run notebooks/ (the model-building and evaluation story).
+# The deployed app does NOT need these - see requirements.txt for the lean app build.
+#   pip install -r requirements.txt -r requirements-notebooks.txt
+lightgbm
+xgboost
+shap
+optuna
+matplotlib

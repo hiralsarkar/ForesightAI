@@ -75,13 +75,14 @@ flowchart TB
 
 ## 3. Key Findings
 
-- **Financial-only scoring has a real blind spot.** On the five Track Record cases, the comprehensive score carries risk Altman alone cannot see. Unitech read Safe on Altman until 2021 while the comprehensive score was high from 2015 (arrests, court intervention); Future Retail read Safe in FY2019, a year before default.
-- **The signals cut both ways.** In Suzlon's recovery the comprehensive score fell *below* Altman a year early, reading the rights issue and order-book turnaround before the accounts confirmed it.
-- **The modelling is rigorous, not decorative.** On the UCI Polish benchmark a 50-trial Optuna-tuned LightGBM reaches ROC-AUC 0.975 and a Brier score of 0.013 (sigmoid-calibrated, 1,406-firm holdout). Framed as a review-triage budget, it flags 70 of the distressed firms at a 1% review budget against 16 for an Altman-style cut-off - roughly four times the catch rate.
-- **But that lift does not transfer.** The same approach trained on Polish or Taiwanese data does **not** generalise to Indian balance sheets, and a model trained on scraped Indian companies only **matches** the Altman formula rather than beating it - which is exactly why the shipped scorer keeps the trusted linear Altman score as its anchor, not a black-box replacement.
-- **One part of the system genuinely learns.** The weights the score blends are set the way a credit desk would, but the distress probability shown beside every score is a logistic model re-fit on Altman's four ratios against NCLT-labelled Indian outcomes (leave-one-out ROC-AUC 0.97 on 21 companies - optimistic on a set this small, and stated as such). It is served from a plain-JSON artifact, so the model learns from data without adding a heavy dependency to the live app.
-- **Honest positioning holds.** We do not claim to beat Altman - the financial engine *is* Altman. The value is **comprehensive, live, explainable scoring plus historical validation**, not a magic number.
-- **Live data is feasible without paid feeds.** Financials (Screener) and news (Google News RSS) are fetched at runtime with no API key; a production build would swap in licensed feeds.
+*Every number below is reproducible from `notebooks/04_findings.ipynb`.*
+
+- **On a real control group the score separates the failures from the survivors.** Across 21 Indian companies - 12 financially healthy blue-chips (IT, FMCG, autos, metals) and 9 that went to NCLT or default - the shipped India logistic gives the failures a median distress probability of **0.83** against **0.13** for the healthy set. A cut-off that flags **none** of the 12 healthy firms still catches **8 of the 9** that failed (leave-one-out ROC-AUC **0.97**; PR-AUC 0.97 - both round to 0.9722 on this small, clean set, so the figure is optimistic and stated as such).
+- **The financial-only blind spot, quantified.** Replayed on each company's own history, the comprehensive score crossed into high risk a **median 27 months before insolvency** - a median **6 months earlier** than Altman crossing the same threshold. The clearest case is **Unitech**: Altman never entered high risk until 2023, *three years after* the Supreme Court had already displaced the board, while the comprehensive score flagged it **26 months before** the January-2020 takeover. (Reconstructed on curated trajectories; the out-of-sample evidence is the control-group result above.)
+- **The hard-event floor is a real safeguard, and it binds.** On **SpiceJet** the verified auditor exit floors the digital pulse to **78** even though its softer signals average **76**; historically it stopped **Reliance Communications'** board-suspension reading (**96**) from being averaged down to "Elevated" by news that a tone model read as *positive* during the insolvency. It is a safeguard for when signals disagree - not an always-on lever, and it changes nothing on the healthy names.
+- **The blend is robust to its weights.** The worst-to-best risk ordering of the six tracked companies is **identical at 50/50, 60/40 and 70/30**, so the exact 60/40 split is not load-bearing - the ranking is driven by the signals, not the weighting.
+- **The ML lift is real but does not transfer.** On the UCI Polish benchmark a 50-trial Optuna-tuned LightGBM reaches ROC-AUC 0.975 and Brier 0.013 (sigmoid-calibrated, 1,406-firm holdout) - roughly **4x** the catch rate of an Altman-style cut-off at a 1% review budget. But the same approach trained on Polish or Taiwanese data does **not** generalise to Indian balance sheets, and an India-trained model only **matches** Altman rather than beating it - which is exactly why the shipped scorer keeps the trusted linear Altman score as its anchor, not a black-box replacement.
+- **Honest positioning holds.** We do not claim to beat Altman - the financial engine *is* Altman. The value is **comprehensive, live, explainable scoring plus historical validation**, not a magic number. Live data is feasible without paid feeds: financials (Screener) and news (Google News RSS) are fetched at runtime with no API key; a production build would swap in licensed feeds.
 
 ## 4. Further Improvement Areas / Next Steps
 
@@ -105,7 +106,7 @@ flowchart TB
 | Requirement | Where |
 |---|---|
 | **Presentation (5-6 slides)** | `deck/ForesightAI.pptx` (5 slides; a clickable live-app link on the last slide) |
-| **Dataset** | `data/indian/` (`companies.csv` - 21 firms; `nclt_cases.csv` - insolvency labels; see `data/indian/README.md`), the UCI Polish bankruptcy benchmark (downloaded on first run), plus **live** Screener financials and Google News |
+| **Dataset** | `data/indian/` (`companies.csv` - 21 firms, hand-labelled from public insolvency/default outcomes; `nclt_cases.csv` - the public NCLT case register used as labelling reference; see `data/indian/README.md`), the UCI Polish bankruptcy benchmark (place UCI id 365 in `data/raw/` once), plus **live** Screener financials and Google News |
 | **Codes** | `src/` (engine + live data), `app/` (dashboard), `notebooks/` (model building & evaluation) |
 
 **Run locally:** `streamlit run app/main.py`
