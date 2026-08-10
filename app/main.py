@@ -145,6 +145,13 @@ def render_company(company: str) -> None:
     # digital pulse
     with panel():
         section_title("Market Intelligence Signals")
+        if dig is not None:
+            st.markdown(
+                f'<div style="color:{theme.TEXT_DIM};margin-top:-6px;font-size:0.82rem">'
+                f'Dated case-study snapshot for this tracked name - FY{fin.year} financials and '
+                f'curated signals as of {dig.as_of:%d %b %Y}. Any other NSE company is fetched and '
+                f'scored live from Screener + Google News.</div>',
+                unsafe_allow_html=True)
         if dig is None:
             st.markdown(f'<div style="color:{theme.TEXT_DIM}">Digital signals are not available for '
                         f'{company}. The combined score reflects financial data only.</div>',

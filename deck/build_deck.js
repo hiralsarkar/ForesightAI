@@ -1,4 +1,4 @@
-// Foresight AI - 5 slide business-context deck. Dark navy / amber, matches the live dashboard.
+// Foresight AI - 6 slide business-context deck. Dark navy / amber, matches the live dashboard.
 const pptxgen = require("pptxgenjs");
 const React = require("react");
 const ReactDOMServer = require("react-dom/server");

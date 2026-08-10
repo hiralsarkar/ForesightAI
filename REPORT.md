@@ -53,7 +53,7 @@ Foresight AI produces **one 0-100 risk score** for any NSE-listed company, on de
 3. **Portfolio** - a watch-list you build; add/remove any company, ranked worst-risk first.
 4. **Track Record** - the validation view: real companies replayed on their real history, with the Altman financial-only risk (blue) and the extra risk the signals add (amber) stacked into the comprehensive score.
 
-**Architecture:** `src/foresight.py` (one-file engine: Altman, signals, fusion, stress test, benchmark models), `src/screener_live.py` + `src/live_news.py` (live data), `app/` (dashboard), `data/` (training + backtest), `notebooks/` (model-building and evaluation).
+**Architecture:** `src/foresight.py` (the shipped engine: Altman, signals, fusion, stress test), `src/screener_live.py` + `src/live_news.py` (live data), `app/` (dashboard), `research/modeling.py` (the ML benchmark, tuning and explainability - used only by the notebooks), `data/` (training + backtest), `notebooks/` (model-building and evaluation).
 
 **System architecture**
 
@@ -105,7 +105,7 @@ flowchart TB
 
 | Requirement | Where |
 |---|---|
-| **Presentation (5-6 slides)** | `deck/ForesightAI.pptx` (5 slides; a clickable live-app link on the last slide) |
+| **Presentation (5-6 slides)** | `deck/ForesightAI.pptx` (6 slides, incl. a measured Key Findings slide; a clickable live-app link on the last slide) |
 | **Dataset** | `data/indian/` (`companies.csv` - 21 firms, hand-labelled from public insolvency/default outcomes; `nclt_cases.csv` - the public NCLT case register used as labelling reference; see `data/indian/README.md`), the UCI Polish bankruptcy benchmark (place UCI id 365 in `data/raw/` once), plus **live** Screener financials and Google News |
 | **Codes** | `src/` (engine + live data), `app/` (dashboard), `notebooks/` (model building & evaluation) |
 

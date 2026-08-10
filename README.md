@@ -109,13 +109,15 @@ We do **not** claim to beat Altman - the financial engine *is* Altman. The value
 ## Under the hood
 
 ```
-src/foresight.py       the engine - Altman Z, the five signals, fusion, stress test, benchmarks
+src/foresight.py       the shipped engine - Altman Z, the five signals, fusion, stress test
 src/screener_live.py   live financials + market cap from Screener
 src/live_news.py       live news sentiment from Google News (no API key)
 app/                   the Streamlit dashboard (main.py, scoring_service.py, theme.py)
-data/indian/           scraped Indian training set + NCLT labels + the historical backtest
-notebooks/             the model-building and evaluation story
-deck/                  the 5-slide pitch deck
+research/modeling.py   the ML benchmark, tuning and explainability (LightGBM, Optuna, SHAP) -
+                       used only by the notebooks, kept out of the shipped engine
+data/indian/           Indian training set + NCLT reference register + the historical backtest
+notebooks/             the model-building and evaluation story (04_findings.ipynb reproduces the report's numbers)
+deck/                  the 6-slide pitch deck
 REPORT.md              the formal project report
 ```
 
