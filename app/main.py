@@ -133,7 +133,7 @@ def render_company(company: str) -> None:
 
     # financial cards
     with panel():
-        section_title(f'Financial Health - Altman Z&Prime; {fin.z_score:.1f} '
+        section_title(f'Financial Health - Altman Z {fin.z_score:.1f} '
                       f'&middot; {band_pill(fin.band)}')
         cards = svc.ratio_cards(company)
         for col, card in zip(st.columns(len(cards)), cards):
@@ -166,7 +166,7 @@ def render_company(company: str) -> None:
 
     # Altman waterfall
     with panel():
-        section_title("Why This Score - Altman Z&Prime; Decomposition")
+        section_title("Why This Score - Altman Z Decomposition")
         maxc = max((abs(t.contribution) for t in fin.terms), default=1.0)
         for t in fin.terms:
             c3 = theme.GOOD if t.contribution > 0 else theme.BAD
@@ -259,7 +259,7 @@ def render_company(company: str) -> None:
             f'<span style="font-size:1.15rem;font-weight:700">{_cov(res.base_coverage)} '
             f'<span style="color:{theme.TEXT_DIM}">&rarr;</span> {_cov(res.stressed_coverage)}</span></div>'
             f'<div style="color:{theme.TEXT_DIM};font-size:0.82rem;align-self:center">'
-            f'Altman Z&Prime; {res.base_z} &rarr; {res.stressed_z}</div></div>', unsafe_allow_html=True)
+            f'Altman Z {res.base_z} &rarr; {res.stressed_z}</div></div>', unsafe_allow_html=True)
 
         # Attribution: which lever drove the move.
         active = {k: v for k, v in res.contributions.items() if abs(v) > 0.05}

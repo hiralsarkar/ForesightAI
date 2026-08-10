@@ -2345,7 +2345,7 @@ def narrative(score: FinancialScore) -> str:
     reliability = "" if score.is_reliable else " (note: working-capital data was unavailable)"
     return (
         f"{score.company} carries a {band} financial profile "
-        f"(Altman Z'' {score.z_score:.1f}, risk {score.risk_score:.0f}/100), {tail}.{reliability}"
+        f"(Altman Z {score.z_score:.1f}, risk {score.risk_score:.0f}/100), {tail}.{reliability}"
     )
 
 """Demo roster: current Indian non-financial companies, FY2026 reported financials.
@@ -3423,7 +3423,7 @@ def _r_distress_zone(c: _Ctx) -> Optional[Recommendation]:
     if c.fin.zone == "Distress":
         return Recommendation(
             Audience.LENDER, "Altman Z-Score in the distress zone",
-            f"Z'' of {c.fin.z_score:.2f} sits below the 1.10 distress threshold. Move the "
+            f"Altman Z of {c.fin.z_score:.2f} sits below the 1.81 distress threshold. Move the "
             "name to the watchlist, refresh the internal rating, and require updated "
             "management accounts before any limit renewal.", 2)
     return None
@@ -3510,7 +3510,7 @@ def _r_grey_zone_watch(c: _Ctx) -> Optional[Recommendation]:
                if _ok(c.debt_to_assets) and c.debt_to_assets > 0.6 else "")
         return Recommendation(
             Audience.LENDER, "Grey zone - neither clearly safe nor distressed",
-            f"Z'' of {c.fin.z_score:.2f} falls between the distress and safe thresholds{lev}. "
+            f"Altman Z of {c.fin.z_score:.2f} falls between the distress and safe thresholds{lev}. "
             "This is the band where outcomes diverge most: move to semi-annual review, "
             "confirm covenant headroom, and track the market signals for early deterioration.", 3)
     return None
@@ -3545,7 +3545,7 @@ def _r_healthy_standard_cycle(c: _Ctx) -> Optional[Recommendation]:
     if c.fin.band == "Healthy" and (c.digital is None or c.digital.band == "Healthy"):
         return Recommendation(
             Audience.LENDER, "No action indicated",
-            f"Financial and market signals are both in the healthy band (Z'' "
+            f"Financial and market signals are both in the healthy band (Altman Z "
             f"{c.fin.z_score:.1f}). Maintain the standard annual review cycle; no additional "
             "monitoring is warranted on current evidence.", 5)
     return None
@@ -3642,7 +3642,7 @@ def _r_mgmt_maintain(c: _Ctx) -> Optional[Recommendation]:
     if c.fin.band == "Healthy":
         return Recommendation(
             Audience.MANAGEMENT, "Preserve the current position",
-            f"The balance sheet is sound (Z'' {c.fin.z_score:.1f}). Maintain the current "
+            f"The balance sheet is sound (Altman Z {c.fin.z_score:.1f}). Maintain the current "
             "leverage discipline; the main risk to this profile is debt-funded expansion "
             "rather than trading performance.", 5)
     return None
@@ -3698,7 +3698,7 @@ Page 2  Altman decomposition, recommendations by audience, disclaimer.
 
 Two deliberate choices on page 2, both evidence-driven:
 
-* No SHAP waterfall. Our *serving* explanation is the exact Altman Z'' 4-term
+* No SHAP waterfall. Our *serving* explanation is the exact Altman Z
   decomposition (the GBM does not drive the displayed score), so that is what we print.
 * No debt/profitability *trajectory* charts. We curated a single fiscal year
   for seven of eight companies, so multi-year trajectories do not exist for them and are
@@ -3812,7 +3812,7 @@ def _score_block(combined: CombinedRisk, fin: FinancialScore, st) -> Table:
         ["Financial Health", f"{combined.financial_score:.0f}/100",
          f"weight {combined.financial_weight:.0%}"],
         ["Market Signals", dig, f"weight {combined.digital_weight:.0%}"],
-        ["Altman Z''", f"{fin.z_score:.2f}", f"{fin.zone} zone"],
+        ["Altman Z", f"{fin.z_score:.2f}", f"{fin.zone} zone"],
     ], colWidths=[34 * mm, 26 * mm, 32 * mm])
     detail.setStyle(TableStyle([
         ("FONT", (0, 0), (-1, -1), "Helvetica", 8.5),
@@ -3879,7 +3879,7 @@ def _signals_block(digital: Optional[DigitalPulse], st) -> list:
 
 
 def _decomposition(fin: FinancialScore, st) -> Table:
-    """Exact Altman Z'' 4-term decomposition -- the terms sum to the score."""
+    """Exact Altman Z decomposition -- the terms sum to the score."""
     maxc = max((abs(t.contribution) for t in fin.terms), default=1.0) or 1.0
     data = []
     for t in fin.terms:
@@ -3999,11 +3999,11 @@ def build_report(
 
     # --- page 2 ---------------------------------------------------------
     story.append(PageBreak())
-    story.append(Paragraph("WHY THIS SCORE - ALTMAN Z'' DECOMPOSITION", st["section"]))
+    story.append(Paragraph("WHY THIS SCORE - ALTMAN Z DECOMPOSITION", st["section"]))
     story.append(Spacer(1, 1.5 * mm))
     story.append(_decomposition(fin, st))
     story.append(Spacer(1, 2 * mm))
-    story.append(Paragraph("The four terms are exact and sum to the Z'' score; green "
+    story.append(Paragraph("The terms are exact and sum to the Altman Z score; green "
                            "reduces risk, red increases it.", st["small"]))
     story.append(Spacer(1, 6 * mm))
 
@@ -4015,7 +4015,7 @@ def build_report(
     story.append(Paragraph(
         "This report is generated by an AI analytics system and should be used as a "
         "supplementary tool alongside professional financial analysis. Financial scores "
-        "are derived from reported financial statements using the Altman Z'' model. "
+        "are derived from reported financial statements using the classic 1968 Altman Z model. "
         "Market-intelligence signals may include illustrative data and are labelled where "
         "so; they are not a substitute for verified disclosure.", st["disc"]))
 
