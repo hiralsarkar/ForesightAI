@@ -6,8 +6,12 @@ A production version would use a licensed data feed; this is for the live demo.
 """
 from __future__ import annotations
 
+import dataclasses
 import io
+import json
 import re
+from functools import lru_cache
+from pathlib import Path
 
 import pandas as pd
 import requests
@@ -16,6 +20,22 @@ from foresight import ScreenerFinancials
 
 _UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36"}
+
+_SNAPSHOT_PATH = Path(__file__).resolve().parent.parent / "data" / "financials_snapshot.json"
+
+
+@lru_cache(maxsize=1)
+def _snapshot() -> dict:
+    """The baked financials snapshot, keyed by ticker. Empty dict if none is shipped.
+
+    Loaded once per process. Lets the hosted app score the whole NSE universe without a
+    live Screener call at request time -- the source of the '[Errno 111] Connection
+    refused' failures when the platform blocks outbound traffic to screener.in.
+    """
+    try:
+        return json.loads(_SNAPSHOT_PATH.read_text(encoding="utf-8")).get("companies", {})
+    except (OSError, ValueError):
+        return {}
 
 
 def _section_table(html: str, section_id: str):
@@ -58,7 +78,22 @@ def _val(df, label: str, col) -> float:
 
 
 def fetch_financials(ticker: str) -> ScreenerFinancials:
-    """Fetch the latest fiscal-year financials for an NSE/BSE ticker from Screener."""
+    """Latest fiscal-year financials for an NSE/BSE ticker.
+
+    Prefers the baked snapshot (`data/financials_snapshot.json`) so the demo works in a
+    sandboxed host; falls back to a live Screener fetch only when the ticker is not baked.
+    Returns `(ScreenerFinancials, market_cap_in_cr)`.
+    """
+    tk = ticker.strip().upper()
+    baked = _snapshot().get(tk)
+    if baked is not None:
+        return ScreenerFinancials(**baked["fin"]), baked["market_cap"]
+    return fetch_live(tk)
+
+
+def fetch_live(ticker: str) -> ScreenerFinancials:
+    """Live Screener fetch, bypassing the snapshot. Used on a snapshot miss and by the
+    snapshot builder (`research/build_snapshot.py`)."""
     tk = ticker.strip().upper()
     for path in (f"{tk}/consolidated/", f"{tk}/"):
         r = requests.get(f"https://www.screener.in/company/{path}", headers=_UA, timeout=30)
