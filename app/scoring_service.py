@@ -36,6 +36,29 @@ _ROSTER: dict[str, tuple[ScreenerFinancials, Optional[ScreenerFinancials]]] = {
     "TCS": (demo.TCS_2026, None),
 }
 
+# Curated names whose full six-signal pulse is sourced in `foresight._DATA`, but whose
+# financials come from the baked Screener snapshot rather than a hand-typed demo constant.
+# They join the tracked roster on equal footing: full pulse, narrative, advice, PDF.
+_CURATED_LIVE = [
+    "Jaiprakash Associates",                       # distress: in insolvency (CARE 'D')
+    "Infosys", "ITC", "Hindustan Unilever",        # healthy anchors (CRISIL AAA)
+    "Nestle India", "Asian Paints", "Maruti Suzuki",
+]
+
+
+def _register_curated() -> None:
+    import screener_live
+    from nse_universe import NSE_TOP
+
+    for name in _CURATED_LIVE:
+        fin, mcap = screener_live.fetch_financials(NSE_TOP[name])
+        fin.company = name            # display name, matching the demo-record convention
+        fin.market_cap = mcap         # so score_company uses the original 1968 Altman Z
+        _ROSTER[name] = (fin, None)
+
+
+_register_curated()
+
 
 def company_names() -> list[str]:
     return list(_ROSTER)

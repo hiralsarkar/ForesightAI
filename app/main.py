@@ -302,8 +302,8 @@ def render_portfolio() -> None:
     with panel():
         section_title("Portfolio - your watchlist")
         st.markdown('<div class="fa-headline">Add any NSE company (scored live), and remove any of '
-                    'them the same way - click the x on its chip below. The six tracked names carry the '
-                    'full five-signal pulse; others are scored on financials and news.</div>',
+                    'them the same way - click the x on its chip below. Tracked names carry the full '
+                    'signal pulse; any other NSE company you add is scored live on financials and news.</div>',
                     unsafe_allow_html=True)
 
         st.markdown(
@@ -882,9 +882,9 @@ def render_live_scoring() -> None:
 
     with panel():
         section_title("Live Company Scoring")
-        st.markdown('<div class="fa-headline">Score any listed company. The six tracked names carry '
-                    'the full five-signal market pulse; any other NSE company is fetched and scored '
-                    'live on its financials and news.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="fa-headline">Score any listed company. Tracked names carry the full '
+                    'market-signal pulse; any other NSE company is fetched and scored live on its '
+                    'financials and news.</div>', unsafe_allow_html=True)
         st.markdown(
             f'<div style="display:inline-block;background:{theme.ACCENT}1A;border:1px solid '
             f'{theme.ACCENT};border-radius:8px;padding:6px 14px;margin:4px 0 10px;'

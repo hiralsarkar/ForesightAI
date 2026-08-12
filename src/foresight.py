@@ -1748,6 +1748,129 @@ TCS = dict(
     ],
 )
 
+# ======================================================= JAIPRAKASH ASSOCIATES
+# In insolvency. NCLT Allahabad admitted JAL to CIRP on 2024-06-03, vesting the board's
+# powers in a resolution professional (Bhuvan Madan); CARE rates the debt 'D' (default);
+# Adani's resolution plan was approved 2026-03-17 and the equity extinguished (delisted
+# 2026-06-18, NIL to ~6.5 lakh shareholders). The 'D' rating is the hard event that floors
+# the digital score. Hiring and employee-review series are omitted -- no reliable public
+# data through the insolvency -- so the composite renormalises over the signals we have.
+JAIPRAKASH = dict(
+    leadership=[
+        # NCLT Allahabad admission order, 3 Jun 2024 -- board powers vested in the RP.
+        LeadershipEvent("Jaiprakash Associates", date(2024, 6, 3), Role.BOARD,
+                        "Board (RP Bhuvan Madan)", EventType.BOARD_SUSPENSION, verified=True),
+    ],
+    headlines=[
+        Headline(date(2025, 12, 12), "Jaiprakash Associates discloses fresh loan-payment defaults for December", "Business Standard"),
+        Headline(date(2026, 3, 18), "NCLT approves Adani's Rs 14,535 crore resolution plan for Jaiprakash Associates", "Business Today"),
+        Headline(date(2026, 6, 16), "Jaiprakash Associates to delist on June 18; 6.5 lakh shareholders to get zero value", "Univest"),
+    ],
+    hiring=[],   # no reliable public headcount series through the insolvency
+    ratings=[],  # no published employee-review series
+    credit_ratings=[
+        # CARE Ratings press release, 13 Jan 2025: "CARE D; ISSUER NOT COOPERATING".
+        CreditRatingObservation(date(2025, 1, 13), "D", "CARE"),
+    ],
+)
+
+# ============================================================ HEALTHY ANCHORS
+# Large-cap investment-grade names, added so the roster is not distress-only. Each carries
+# a real, dated CRISIL 'AAA/Stable' reaffirmation (the heaviest, most CRO-defensible
+# signal) and, where a public figure exists, a published employee-review score. Leadership
+# is empty (no senior exit filed -> "Stable") EXCEPT where a real, dated CEO/MD transition
+# occurred in the trailing year -- HUL and Nestle -- which the signal correctly registers.
+# Hiring and (for some) reviews are omitted rather than invented; the composite renormalises.
+# Point-in-time: only rating actions dated on or before the 2026-05-31 AS_OF are used, so the
+# 2026 CRISIL reaffirmations for Infosys/ITC that post-date it are represented by their prior
+# (2025) action.
+
+INFOSYS = dict(
+    leadership=[],   # CEO Salil Parekh in place; no senior exit filed in the trailing year
+    headlines=[
+        Headline(date(2026, 5, 30), "Infosys CEO Salil Parekh's FY26 pay rises to Rs 82.6 crore", "Business Today"),
+    ],
+    hiring=[],
+    ratings=[],      # no single defensible public rating figure sourced -> shows "No data"
+    credit_ratings=[
+        # CRISIL rating rationales: AAA/Stable reaffirmed 28 Jun 2024 and 26 Jun 2025.
+        CreditRatingObservation(date(2024, 6, 28), "AAA", "CRISIL"),
+        CreditRatingObservation(date(2025, 6, 26), "AAA", "CRISIL"),
+    ],
+)
+
+ITC = dict(
+    leadership=[],   # Chairman & MD Sanjiv Puri in place since 2019
+    headlines=[],
+    hiring=[],
+    ratings=[
+        RatingObservation(date(2026, 5, 15), 3.8),   # Glassdoor India, ~2,769 reviews
+    ],
+    credit_ratings=[
+        # CRISIL AAA/Stable/A1+ reaffirmed 9 Apr 2025 and 24 Apr 2026.
+        CreditRatingObservation(date(2025, 4, 9), "AAA", "CRISIL"),
+        CreditRatingObservation(date(2026, 4, 24), "AAA", "CRISIL"),
+    ],
+)
+
+HINDUSTAN_UNILEVER = dict(
+    leadership=[
+        # Real, dated CEO transition: Rohit Jawa stepped down 31 Jul 2025; Priya Nair (HUL's
+        # first woman CEO) took over 1 Aug 2025. A planned succession -- "Some churn", not distress.
+        LeadershipEvent("Hindustan Unilever", date(2025, 7, 31), Role.CEO,
+                        "Rohit Jawa", EventType.RESIGNATION, verified=True),
+    ],
+    headlines=[],
+    hiring=[],
+    ratings=[],
+    credit_ratings=[
+        # CRISIL AAA/Stable on long-term bank facilities (rating rationale 5 Jul 2024; unchanged).
+        CreditRatingObservation(date(2024, 7, 5), "AAA", "CRISIL"),
+    ],
+)
+
+NESTLE_INDIA = dict(
+    leadership=[
+        # Real, dated MD transition: Suresh Narayanan retired; Manish Tiwary took over as
+        # Chairman & MD effective 1 Aug 2025. Planned succession -- "Some churn".
+        LeadershipEvent("Nestle India", date(2025, 7, 31), Role.MD,
+                        "Suresh Narayanan", EventType.RESIGNATION, verified=True),
+    ],
+    headlines=[],
+    hiring=[],
+    ratings=[
+        RatingObservation(date(2026, 5, 15), 3.9),   # Glassdoor India, ~906 reviews
+    ],
+    credit_ratings=[
+        CreditRatingObservation(date(2025, 3, 27), "AAA", "CRISIL"),
+    ],
+)
+
+ASIAN_PAINTS = dict(
+    leadership=[],   # MD & CEO Amit Syngle in place
+    headlines=[],
+    hiring=[],
+    ratings=[
+        RatingObservation(date(2026, 5, 15), 3.5),   # Glassdoor, ~2,114 reviews
+    ],
+    credit_ratings=[
+        CreditRatingObservation(date(2025, 9, 10), "AAA", "CRISIL"),
+    ],
+)
+
+MARUTI_SUZUKI = dict(
+    leadership=[],   # MD & CEO Hisashi Takeuchi reappointed to 2028 (a continuation, not an exit)
+    headlines=[],
+    hiring=[],
+    ratings=[
+        RatingObservation(date(2026, 5, 15), 3.8),   # Glassdoor, ~2,835 reviews
+    ],
+    credit_ratings=[
+        CreditRatingObservation(date(2025, 1, 9), "AAA", "CRISIL"),
+        CreditRatingObservation(date(2025, 11, 21), "AAA", "CRISIL"),
+    ],
+)
+
 _DATA = {
     "SpiceJet": SPICEJET,
     "Ola Electric": OLA,
@@ -1755,6 +1878,13 @@ _DATA = {
     "Vedanta": VEDANTA,
     "Paytm": PAYTM,
     "TCS": TCS,
+    "Jaiprakash Associates": JAIPRAKASH,
+    "Infosys": INFOSYS,
+    "ITC": ITC,
+    "Hindustan Unilever": HINDUSTAN_UNILEVER,
+    "Nestle India": NESTLE_INDIA,
+    "Asian Paints": ASIAN_PAINTS,
+    "Maruti Suzuki": MARUTI_SUZUKI,
 }
 
 DEFAULT_AS_OF = {name: AS_OF for name in _DATA}
@@ -2421,6 +2551,10 @@ SECTORS: dict[str, str] = {
     "SpiceJet": "Airline", "Ola Electric": "Electric Vehicles",
     "Vodafone Idea": "Telecom", "Vedanta": "Metals & Mining",
     "Paytm": "Fintech", "TCS": "IT Services",
+    "Jaiprakash Associates": "Construction & Cement",
+    "Infosys": "IT Services", "ITC": "FMCG & Diversified",
+    "Hindustan Unilever": "FMCG", "Nestle India": "FMCG",
+    "Asian Paints": "Paints", "Maruti Suzuki": "Automobiles",
 }
 
 #: (record, prior-year record or None, expected band family) for the validation gate.
