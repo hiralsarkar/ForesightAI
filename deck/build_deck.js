@@ -252,7 +252,7 @@ async function icon(name, hex, px = 300) {
     ["FiZap", "76 -> 78", "the hard-event floor binds",
      "SpiceJet's verified auditor exit floors the signal pulse - a fact that softer, tone-based signals cannot average away. It stays inert on the healthy names."],
     ["FiGrid", "50/50 = 60/40 = 70/30", "robust to its weights",
-     "The worst-to-best risk ranking of the six tracked names is identical across all three blends - the signals drive the read, not the exact weighting."],
+     "The worst-to-best risk ranking of the six-company benchmark roster is identical across all three blends - the signals drive the read, not the exact weighting."],
   ];
   const fx0 = 0.85, fw = 5.85, fstep = fw + 0.75, fy0 = 2.05, fyStep = 2.28, fhh = 2.05;
   finds.forEach(([ic, stat, hd, tx], i) => {
