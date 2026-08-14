@@ -993,6 +993,21 @@ def _window_exits(
     ]
 
 
+def _active_suspension(events: list[LeadershipEvent], when: date) -> Optional[LeadershipEvent]:
+    """The board suspension in force as of `when`, if any -- independent of the trailing
+    window. Unlike a resignation (a point-in-time departure), a board suspension is a
+    continuing state: the board's powers stay vested in the resolution professional for
+    the life of the CIRP, not just the 12 months after the admission order. Without this,
+    a company past its first year of insolvency reads "Stable" the moment the filing ages
+    out of the window -- exactly backwards for a firm still under a resolution professional.
+    """
+    suspensions = sorted(
+        (e for e in events if e.event_type is EventType.BOARD_SUSPENSION and e.filing_date <= when),
+        key=lambda e: e.filing_date,
+    )
+    return suspensions[-1] if suspensions else None
+
+
 def _describe(exits: list[LeadershipEvent], months: int) -> str:
     """The specific explanatory datum -- who left, not just how many."""
     if not exits:
@@ -1028,19 +1043,24 @@ def leadership_score_as_of(
     weighted = sum(_EXIT_WEIGHT.get(e.role, 1.0) for e in exits)
     risk = clamp_score(_BASELINE + weighted * _POINTS_PER_WEIGHT)
 
+    # A board suspension is checked independent of the trailing window -- it is a
+    # continuing state (the RP holds the board's powers for the life of the CIRP), not a
+    # point-in-time departure that should age out after 12 months. See `_active_suspension`.
+    suspension = _active_suspension(events, when)
+
     # A verified auditor exit or board suspension is a hard governance fact, so the reading
     # itself is floored to the red band: a single such event must read as the warning it is
     # in practice (an auditor walking out has preceded most Indian collapses) rather than the
     # ~42 a lone senior exit would otherwise score. This is what lets a hard event floor the
     # composite when the softer signals disagree. Board suspension already reaches ~96 through
     # its seniority weight; the floor makes that explicit and covers the auditor-exit case.
-    if any(e.verified and e.event_type is EventType.BOARD_SUSPENSION for e in exits):
+    if suspension is not None and suspension.verified:
         risk = max(risk, 95.0)
     elif any(e.verified and e.event_type is EventType.AUDITOR_EXIT for e in exits):
         risk = max(risk, 78.0)
 
     n = len(exits)
-    if any(e.event_type is EventType.BOARD_SUSPENSION for e in exits):
+    if suspension is not None:
         label = "Board displaced"      # not "churn" -- the board stopped governing
     elif n == 0:
         label = "Stable"
@@ -1051,16 +1071,21 @@ def leadership_score_as_of(
 
     # A verified tribunal order or auditor exit is a hard fact, flagged so the composite
     # cannot average it away against softer, tone-based signals.
-    hard = any(
-        e.verified and e.event_type in (EventType.BOARD_SUSPENSION, EventType.AUDITOR_EXIT)
-        for e in exits
+    hard = (suspension is not None and suspension.verified) or any(
+        e.verified and e.event_type is EventType.AUDITOR_EXIT for e in exits
+    )
+    datum = (
+        f"Board powers suspended and vested in a resolution professional "
+        f"({suspension.filing_date.isoformat()}) - the most severe governance event on "
+        f"record; the board has not resumed control." if suspension is not None
+        else _describe(exits, months)
     )
     return SignalReading(
         kind=SignalKind.LEADERSHIP,
         as_of=when,
         risk_score=risk,
         label=label,
-        datum=_describe(exits, months),
+        datum=datum,
         raw=float(n),
         hard_event=hard,
     )
